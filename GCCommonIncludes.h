@@ -12,6 +12,7 @@
 #import "GCTextFieldCell.h"
 #import "GCImagePickerController.h"
 #import "GCManagedObject.h"
+#import "CLLocationManager+GCExtensions.h"
 
 typedef void (^GCNotificationBlock)(NSNotification *);
 

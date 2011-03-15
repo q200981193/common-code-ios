@@ -8,6 +8,8 @@
 
 #ifdef GC_ASSETS_LIBRARY
 
+#define GC_CORE_LOCATION
+
 #import <MobileCoreServices/MobileCoreServices.h>
 #import <CoreLocation/CoreLocation.h>
 #import <AssetsLibrary/AssetsLibrary.h>
@@ -15,8 +17,6 @@
 #import "GCImagePickerController.h"
 #import "GCImageListViewController.h"
 #import "GCImageGridViewController.h"
-
-#import "QSDeviceManager.h"
 
 @implementation GCImagePickerController
 
@@ -193,7 +193,7 @@
 }
 - (void)viewDidAppear:(BOOL)animated {
 	[super viewDidAppear:animated];
-	if (![QSDeviceManager isLocationAvailable]) {
+	if (![CLLocationManager gc_isLocationAvailable]) {
 		UIAlertView *alert = [[UIAlertView alloc]
 							  initWithTitle:GCPhotoPickerLocalizedString(@"LOCATION_SERVICES")
 							  message:GCPhotoPickerLocalizedString(@"PHOTO_ROLL_LOCATION_ERROR")

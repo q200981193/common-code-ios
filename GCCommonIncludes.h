@@ -10,6 +10,7 @@
 
 #import "GCSwitchCell.h"
 #import "GCTextFieldCell.h"
+#import "GCImagePickerController.h"
 
 typedef void (^GCNotificationBlock)(NSNotification *);
 

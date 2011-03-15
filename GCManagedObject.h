@@ -1,6 +1,6 @@
 //
 //  GCManagedObject.h
-//  MyGPA
+//  GUI Cocoa Common Code Library for iOS
 //
 //  Created by Caleb Davenport on 3/10/11.
 //  Copyright 2011 GUI Cocoa, LLC. All rights reserved.

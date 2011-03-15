@@ -1,6 +1,6 @@
 //
 //  GCTextCell.h
-//  GUI Cocoa Common Code Library
+//  GUI Cocoa Common Code Library for iOS
 //
 //  Created by Caleb Davenport on 4/7/09.
 //  Copyright 2009 GUI Cocoa Software. All rights reserved.

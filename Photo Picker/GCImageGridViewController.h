@@ -10,7 +10,7 @@
 
 #import "GCImagePickerController.h"
 
-@interface GCPhotoGridViewController : GCImagePickerController {
+@interface GCImageGridViewController : GCImagePickerController {
 @private
     
     // used when loading group types

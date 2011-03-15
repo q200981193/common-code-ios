@@ -11,6 +11,7 @@
 #import "GCSwitchCell.h"
 #import "GCTextFieldCell.h"
 #import "GCImagePickerController.h"
+#import "GCManagedObject.h"
 
 typedef void (^GCNotificationBlock)(NSNotification *);
 

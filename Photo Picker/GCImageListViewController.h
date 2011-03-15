@@ -10,7 +10,7 @@
 
 #import "GCImagePickerController.h"
 
-@interface GCAssetsGroupListViewController : GCImagePickerController {
+@interface GCImageListViewController : GCImagePickerController {
 @private
 	NSArray *assetsGrouops;
 	ALAssetsLibrary *assetsLibrary;

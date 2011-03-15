@@ -10,7 +10,7 @@
 
 #import <QuartzCore/QuartzCore.h>
 
-#import "GCPhotoGridViewController.h"
+#import "GCImageGridViewController.h"
 
 #import "QSUploadManager.h"
 
@@ -19,11 +19,11 @@
 #define kCellSize (kTileSize + kSpaceSize)
 #define kButtonEnabled ([selectedAssets count] > 0)
 
-@interface GCPhotoGridViewController (private)
+@interface GCImageGridViewController (private)
 - (void)updateTitle;
 @end
 
-@implementation GCPhotoGridViewController (private)
+@implementation GCImageGridViewController (private)
 - (void)updateTitle {
     NSUInteger count = [selectedAssets count];
     if (count == 0) {
@@ -38,7 +38,7 @@
 }
 @end
 
-@implementation GCPhotoGridViewController
+@implementation GCImageGridViewController
 
 #pragma mark - object lifecycle
 - (id)initWithAssetsGroupTypes:(ALAssetsGroupType)aTypes title:(NSString *)aTitle {

@@ -8,16 +8,16 @@
 
 #ifdef GC_ASSETS_LIBRARY
 
-#import "GCAssetsGroupListViewController.h"
-#import "GCPhotoGridViewController.h"
+#import "GCImageListViewController.h"
+#import "GCImageGridViewController.h"
 
 typedef void (^QSAssetsGroupsLoadCompletion) (NSArray *groups);
 
-@interface GCAssetsGroupListViewController (private)
+@interface GCImageListViewController (private)
 + (void)loadAssetsGroupsFromLibrary:(ALAssetsLibrary *)library completion:(QSAssetsGroupsLoadCompletion)completion;
 @end
 
-@implementation GCAssetsGroupListViewController (private)
+@implementation GCImageListViewController (private)
 + (void)loadAssetsGroupsFromLibrary:(ALAssetsLibrary *)library completion:(QSAssetsGroupsLoadCompletion)completion {
     
     /*
@@ -93,7 +93,7 @@ typedef void (^QSAssetsGroupsLoadCompletion) (NSArray *groups);
 }
 @end
 
-@implementation GCAssetsGroupListViewController
+@implementation GCImageListViewController
 
 #pragma mark - initialization
 - (id)init {
@@ -137,7 +137,7 @@ typedef void (^QSAssetsGroupsLoadCompletion) (NSArray *groups);
 	}
 	
 	// get groups
-    [GCAssetsGroupListViewController
+    [GCImageListViewController
      loadAssetsGroupsFromLibrary:assetsLibrary
      completion:^(NSArray *groups){
          assetsGrouops = [groups retain];
@@ -186,7 +186,7 @@ typedef void (^QSAssetsGroupsLoadCompletion) (NSArray *groups);
 }
 - (void)tableView:(UITableView *)aTableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
 	ALAssetsGroup *group = [assetsGrouops objectAtIndex:indexPath.row];
-	GCPhotoGridViewController *browser = [[GCPhotoGridViewController alloc] initWithAssetsGroup:group];
+	GCImagePickerController *browser = [[GCImageGridViewController alloc] initWithAssetsGroup:group];
     browser.actionBlock = self.actionBlock;
     browser.actionEnabled = self.actionEnabled;
     browser.actionTitle = self.actionTitle;

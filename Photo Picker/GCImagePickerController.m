@@ -13,9 +13,8 @@
 #import <AssetsLibrary/AssetsLibrary.h>
 
 #import "GCImagePickerController.h"
-
-#import "GCAssetsGroupListViewController.h"
-#import "GCPhotoGridViewController.h"
+#import "GCImageListViewController.h"
+#import "GCImageGridViewController.h"
 
 #import "QSDeviceManager.h"
 
@@ -29,19 +28,19 @@
 
 #pragma mark - class methods
 + (GCImagePickerController *)savedPhotosViewer {
-    GCImagePickerController *picker = [[GCPhotoGridViewController alloc]
+    GCImagePickerController *picker = [[GCImageGridViewController alloc]
                                        initWithAssetsGroupTypes:ALAssetsGroupSavedPhotos
                                        title:GCPhotoPickerLocalizedString(@"CAMERA_ROLL")];
 	return [picker autorelease];
 }
 + (GCImagePickerController *)allPhotosViewer {
-    GCImagePickerController *picker = [[GCPhotoGridViewController alloc]
+    GCImagePickerController *picker = [[GCImageGridViewController alloc]
                                        initWithAssetsGroupTypes:ALAssetsGroupLibrary
                                        title:GCPhotoPickerLocalizedString(@"PHOTO_LIBRARY")];
 	return [picker autorelease];
 }
 + (GCImagePickerController *)photoLibraryViewer {
-    return [[[GCAssetsGroupListViewController alloc] init] autorelease];
+    return [[[GCImageListViewController alloc] init] autorelease];
 }
 + (NSData *)dataForAssetRepresentation:(ALAssetRepresentation *)rep {
     long long size = [rep size], offset = 0;
@@ -145,7 +144,7 @@
 
 #pragma mark - object lifecycle
 - (id)init {
-    self = [super initWithNibName:@"QSPhotoPickerController" bundle:nil];
+    self = [super initWithNibName:@"GCImagePickerController" bundle:nil];
     if (self) {
         if (!GC_IS_IPAD) {
             self.wantsFullScreenLayout = YES;
@@ -196,10 +195,10 @@
 	[super viewDidAppear:animated];
 	if (![QSDeviceManager isLocationAvailable]) {
 		UIAlertView *alert = [[UIAlertView alloc]
-							  initWithTitle:NSLocalizedString(@"LOCATION_SERVICES", @"")
-							  message:NSLocalizedString(@"PHOTO_ROLL_LOCATION_ERROR", @"")
+							  initWithTitle:GCPhotoPickerLocalizedString(@"LOCATION_SERVICES")
+							  message:GCPhotoPickerLocalizedString(@"PHOTO_ROLL_LOCATION_ERROR")
 							  delegate:nil
-							  cancelButtonTitle:NSLocalizedString(@"OK", @"")
+							  cancelButtonTitle:GCPhotoPickerLocalizedString(@"OK")
 							  otherButtonTitles:nil];
 		[alert show];
 		[alert release];

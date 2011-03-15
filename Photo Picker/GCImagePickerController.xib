@@ -57,7 +57,7 @@
 						<string key="targetRuntimeIdentifier">IBCocoaTouchFramework</string>
 						<object class="NSCustomResource" key="IBUIImage">
 							<string key="NSClassName">NSImage</string>
-							<string key="NSResourceName">GCPhotoPickerControllerFilmRoll.png</string>
+							<string key="NSResourceName">GCImagePickerControllerFilmRoll.png</string>
 						</object>
 					</object>
 					<object class="IBUITableView" id="73383989">
@@ -196,7 +196,7 @@
 				</object>
 				<object class="NSMutableArray" key="dict.values">
 					<bool key="EncodedWithXMLCoder">YES</bool>
-					<string>GCPhotoPickerController</string>
+					<string>GCImagePickerController</string>
 					<string>UIResponder</string>
 					<string>{{329, 276}, {320, 480}}</string>
 					<string>com.apple.InterfaceBuilder.IBCocoaTouchPlugin</string>
@@ -221,7 +221,7 @@
 			<object class="NSMutableArray" key="referencedPartialClassDescriptions">
 				<bool key="EncodedWithXMLCoder">YES</bool>
 				<object class="IBPartialClassDescription">
-					<string key="className">GCPhotoPickerController</string>
+					<string key="className">GCImagePickerController</string>
 					<string key="superclassName">UIViewController</string>
 					<object class="NSMutableDictionary" key="outlets">
 						<bool key="EncodedWithXMLCoder">YES</bool>
@@ -257,7 +257,7 @@
 					</object>
 					<object class="IBClassDescriptionSource" key="sourceIdentifier">
 						<string key="majorKey">IBProjectSource</string>
-						<string key="minorKey">./Classes/GCPhotoPickerController.h</string>
+						<string key="minorKey">./Classes/GCImagePickerController.h</string>
 					</object>
 				</object>
 			</object>
@@ -271,7 +271,7 @@
 		<bool key="IBDocument.PluginDeclaredDependenciesTrackSystemTargetVersion">YES</bool>
 		<int key="IBDocument.defaultPropertyAccessControl">3</int>
 		<object class="NSMutableDictionary" key="IBDocument.LastKnownImageSizes">
-			<string key="NS.key.0">GCPhotoPickerControllerFilmRoll.png</string>
+			<string key="NS.key.0">GCImagePickerControllerFilmRoll.png</string>
 			<string key="NS.object.0">{300, 250}</string>
 		</object>
 		<string key="IBCocoaTouchPluginVersion">300</string>

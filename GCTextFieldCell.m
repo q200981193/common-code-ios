@@ -12,35 +12,40 @@
 
 @implementation GCTextFieldCell
 
-@synthesize textField;
+@synthesize textField=_textField;
 
-#pragma mark -
-#pragma mark initialize
+#pragma mark - object lifecycle
 - (id)initWithReuseIdentifier:(NSString *)identifier {
 	self = [super initWithStyle:UITableViewCellStyleDefault reuseIdentifier:identifier];
 	if (self) {
+        
 		// setup text field
-		textField = [[UITextField alloc] init];
-		textField.backgroundColor = [UIColor clearColor];
-		textField.opaque = YES;
-		textField.contentVerticalAlignment = UIControlContentVerticalAlignmentCenter;
-		textField.clearButtonMode = UITextFieldViewModeWhileEditing;
-		textField.font = [UIFont systemFontOfSize:[UIFont labelFontSize]];
-		textField.textAlignment = UITextAlignmentLeft;
-		textField.autocapitalizationType = UITextAutocapitalizationTypeWords;
-		textField.autocorrectionType = UITextAutocorrectionTypeDefault;
-		[self.contentView addSubview:textField];
-		[textField release];
-		
+		UITextField *field = [[UITextField alloc] init];
+		field.backgroundColor = [UIColor clearColor];
+		field.opaque = YES;
+		field.contentVerticalAlignment = UIControlContentVerticalAlignmentCenter;
+		field.clearButtonMode = UITextFieldViewModeWhileEditing;
+		field.font = [UIFont systemFontOfSize:[UIFont labelFontSize]];
+		field.textAlignment = UITextAlignmentLeft;
+		field.autocapitalizationType = UITextAutocapitalizationTypeWords;
+		field.autocorrectionType = UITextAutocorrectionTypeDefault;
+		[self.contentView addSubview:field];
+        _textField = field;
+        
+		// setup self
 		self.selectionStyle = UITableViewCellSelectionStyleNone;
 		self.accessoryType = UITableViewCellAccessoryNone;
+        
 	}
 	
 	return self;
 }
+- (void)dealloc {
+    [_textField release];_textField = nil;
+    [super dealloc];
+}
 
-#pragma mark -
-#pragma mark layout
+#pragma mark - layout
 - (void)layoutSubviews {
 	[super layoutSubviews];
 	
@@ -69,7 +74,7 @@
 		rect = CGRectMake(kSideOffset, 0,
 						  content.size.width - kSideOffset - kSideOffset * 0.5,
 						  content.size.height);
-		textField.frame = rect;
+		self.textField.frame = rect;
 	}
 }
 

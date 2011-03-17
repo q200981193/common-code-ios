@@ -12,7 +12,7 @@
 
 @implementation CLLocationManager (GCExtensions)
 
-GC_SINGLETON_INSTANCE(CLLocationManager, gc_sharedManager);
+//GC_SINGLETON_INSTANCE(CLLocationManager, gc_sharedManager);
 + (BOOL)gc_isLocationAvailable {
     BOOL enabled = [CLLocationManager locationServicesEnabled];
 	if (NSFoundationVersionNumber >= NSFoundationVersionNumber_iOS_4_2) {

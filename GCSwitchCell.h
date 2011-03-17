@@ -9,8 +9,7 @@
 #import <UIKit/UIKit.h>
 
 @interface GCSwitchCell : UITableViewCell {
-@private
-	UISwitch *_cellSwitch;
+    
 }
 
 @property (nonatomic, readonly) UISwitch *cellSwitch;

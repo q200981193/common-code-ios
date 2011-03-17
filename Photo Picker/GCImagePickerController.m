@@ -1,14 +1,10 @@
 //
-//  GCImagePickerController.m
-//  GUI Cocoa Common Code Library for iOS
+//  QSPhotoPickerController.m
+//  QuickShot
 //
 //  Created by Caleb Davenport on 2/14/11.
 //  Copyright 2011 GUI Cocoa, LLC. All rights reserved.
 //
-
-#ifdef GC_ASSETS_LIBRARY
-
-#define GC_CORE_LOCATION
 
 #import <MobileCoreServices/MobileCoreServices.h>
 #import <CoreLocation/CoreLocation.h>
@@ -20,27 +16,21 @@
 
 @implementation GCImagePickerController
 
-@synthesize tableView=_tableView;
-@synthesize imageView=_imageView;
-@synthesize actionBlock=_actionBlock;
-@synthesize actionTitle=_actionTitle;
-@synthesize actionEnabled=_actionEnabled;
-
 #pragma mark - class methods
-+ (GCImagePickerController *)savedPhotosViewer {
-    GCImagePickerController *picker = [[GCImageGridViewController alloc]
-                                       initWithAssetsGroupTypes:ALAssetsGroupSavedPhotos
-                                       title:GCPhotoPickerLocalizedString(@"CAMERA_ROLL")];
-	return [picker autorelease];
-}
-+ (GCImagePickerController *)allPhotosViewer {
-    GCImagePickerController *picker = [[GCImageGridViewController alloc]
-                                       initWithAssetsGroupTypes:ALAssetsGroupLibrary
-                                       title:GCPhotoPickerLocalizedString(@"PHOTO_LIBRARY")];
-	return [picker autorelease];
-}
-+ (GCImagePickerController *)photoLibraryViewer {
-    return [[[GCImageListViewController alloc] init] autorelease];
++ (GCImagePickerController *)pickerWithSourceType:(UIImagePickerControllerSourceType)source {
+    if (source == UIImagePickerControllerSourceTypePhotoLibrary) {
+        return [[[GCImageListViewController alloc] init] autorelease];
+    }
+    else if (source == UIImagePickerControllerSourceTypeSavedPhotosAlbum) {
+        GCImagePickerController *browser = [[GCImageGridViewController alloc]
+                                            initWithAssetsGroupTypes:ALAssetsGroupSavedPhotos
+                                            title:NSLocalizedString(@"CAMERA_ROLL", @"")];
+        return [browser autorelease];
+    }
+    else {
+        // some error case
+        return nil;
+    }
 }
 + (NSData *)dataForAssetRepresentation:(ALAssetRepresentation *)rep {
     long long size = [rep size], offset = 0;
@@ -85,9 +75,6 @@
 		[[NSFileManager defaultManager] moveItemAtPath:writePath toPath:path error:nil];
 	}
 }
-+ (void)exportVideoAssetToFle:(NSString *)path atomically:(BOOL)atomically {
-	
-}
 + (NSString *)extensionForAssetRepresentation:(ALAssetRepresentation *)rep {
     NSString *UTI = [rep UTI];
     if (UTI == nil) {
@@ -118,48 +105,42 @@
     }
 }
 
-#pragma mark - object methods
-- (void)presentFromViewController:(UIViewController *)controller {
-    if (GC_IS_IPAD) {
-		[NSException
-		 raise:NSInternalInconsistencyException
-		 format:@"%s should not be called on iPad", __PRETTY_FUNCTION__];
-	}
-	UINavigationController *nav = [[UINavigationController alloc] initWithRootViewController:self];
-	[nav.navigationBar setBarStyle:UIBarStyleBlackTranslucent];
-	[controller presentModalViewController:nav animated:YES];
-	[nav release];
-}
-- (UIPopoverController *)popoverController {
-    if (!GC_IS_IPAD) {
-		[NSException
-		 raise:NSInternalInconsistencyException
-		 format:@"%s should not be called on iPhone", __PRETTY_FUNCTION__];
-	}
-    UINavigationController *nav = [[UINavigationController alloc] initWithRootViewController:self];
-    UIPopoverController *popover = [[UIPopoverController alloc] initWithContentViewController:nav];
-    [nav release];
-    return [popover autorelease];
-}
+@synthesize tableView=_tableView;
+@synthesize imageView=_imageView;
+@synthesize actionBlock=_actionBlock;
+@synthesize actionTitle=_actionTitle;
+@synthesize actionEnabled=_actionEnabled;
+@synthesize failureBlock=_failureBlock;
+@synthesize mediaTypes=_mediaTypes;
 
 #pragma mark - object lifecycle
 - (id)init {
     self = [super initWithNibName:@"GCImagePickerController" bundle:nil];
     if (self) {
-        if (!GC_IS_IPAD) {
-            self.wantsFullScreenLayout = YES;
-        }
-		else {
-			self.contentSizeForViewInPopover = CGSizeMake(320, 460);
-		}
+        if (GC_IS_IPAD) { self.contentSizeForViewInPopover = CGSizeMake(320, 460); }
+		else { self.wantsFullScreenLayout = YES; }
+        self.mediaTypes = [NSArray arrayWithObject:(NSString *)kUTTypeImage];
+        _failureBlock = Block_copy(^(NSError *error){
+            GC_LOG_ERROR(@"%@", error);
+            UIAlertView *alert = [[UIAlertView alloc]
+                                  initWithTitle:GCImagePickerControllerLocalizedString(@"LOCATION_SERVICES")
+                                  message:GCImagePickerControllerLocalizedString(@"PHOTO_ROLL_LOCATION_ERROR")
+                                  delegate:nil
+                                  cancelButtonTitle:GCImagePickerControllerLocalizedString(@"OK")
+                                  otherButtonTitles:nil];
+            [alert show];
+            [alert release];
+        });
     }
     return self;
 }
 - (void)dealloc {
+    Block_release(_failureBlock);_failureBlock = nil;
     self.actionBlock = nil;
     self.actionTitle = nil;
     self.tableView = nil;
     self.imageView = nil;
+    self.mediaTypes = nil;
     [super dealloc];
 }
 
@@ -185,24 +166,37 @@
     [super viewWillAppear:animated];
     NSIndexPath *path = [self.tableView indexPathForSelectedRow];
     [self.tableView deselectRowAtIndexPath:path animated:animated];
-    if (self.actionEnabled && (self.actionBlock == nil || self.actionTitle == nil)) {
-        [NSException
-         raise:NSInternalInconsistencyException
-         format:@"Attempted to show a photo library browser with action enabled but the action block or title was not specified"];
-    }
 }
-- (void)viewDidAppear:(BOOL)animated {
-	[super viewDidAppear:animated];
-	if (![CLLocationManager gc_isLocationAvailable]) {
-		UIAlertView *alert = [[UIAlertView alloc]
-							  initWithTitle:GCPhotoPickerLocalizedString(@"LOCATION_SERVICES")
-							  message:GCPhotoPickerLocalizedString(@"PHOTO_ROLL_LOCATION_ERROR")
-							  delegate:nil
-							  cancelButtonTitle:GCPhotoPickerLocalizedString(@"OK")
-							  otherButtonTitles:nil];
-		[alert show];
-		[alert release];
+
+#pragma mark - object methods
+- (void)presentFromViewController:(UIViewController *)controller {
+    if (GC_IS_IPAD) {
+		[NSException
+		 raise:NSInternalInconsistencyException
+		 format:@"%s should not be called on iPad", __PRETTY_FUNCTION__];
 	}
+	UINavigationController *nav = [[UINavigationController alloc] initWithRootViewController:self];
+	[nav.navigationBar setBarStyle:UIBarStyleBlackTranslucent];
+	[controller presentModalViewController:nav animated:YES];
+	[nav release];
+}
+- (UIPopoverController *)popoverController {
+    if (!GC_IS_IPAD) {
+		[NSException
+		 raise:NSInternalInconsistencyException
+		 format:@"%s should not be called on iPhone", __PRETTY_FUNCTION__];
+	}
+    UINavigationController *nav = [[UINavigationController alloc] initWithRootViewController:self];
+    UIPopoverController *popover = [[UIPopoverController alloc] initWithContentViewController:nav];
+    [nav release];
+    return [popover autorelease];
+}
+- (ALAssetsFilter *)assetsFilter {
+    BOOL images = [self.mediaTypes containsObject:(NSString *)kUTTypeImage];
+    BOOL videos = [self.mediaTypes containsObject:(NSString *)kUTTypeVideo];
+    if (images && videos) { return [ALAssetsFilter allAssets]; }
+    else if (videos) { return [ALAssetsFilter allVideos]; }
+    else { return [ALAssetsFilter allPhotos]; }
 }
 
 #pragma mark - table view
@@ -217,5 +211,3 @@
 }
 
 @end
-
-#endif

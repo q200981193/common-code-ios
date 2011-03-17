@@ -6,13 +6,8 @@
 //  Copyright 2011 GUI Cocoa, LLC. All rights reserved.
 //
 
-#import <TargetConditionals.h>
-
-#import "GCSwitchCell.h"
-#import "GCTextFieldCell.h"
-#import "GCImagePickerController.h"
-#import "GCManagedObject.h"
-#import "CLLocationManager+GCExtensions.h"
+// categories
+#import "UIViewController+GCExtensions.h"
 
 typedef void (^GCNotificationBlock)(NSNotification *);
 
@@ -20,11 +15,11 @@ typedef void (^GCNotificationBlock)(NSNotification *);
 #define NSFoundationVersionNumber_iOS_4_0  751.32
 #endif
 
-#ifndef NSFoundationVersionNumber_iOS_4_0
+#ifndef NSFoundationVersionNumber_iOS_4_1
 #define NSFoundationVersionNumber_iOS_4_1  751.37
 #endif
 
-#ifndef NSFoundationVersionNumber_iOS_4_0
+#ifndef NSFoundationVersionNumber_iOS_4_2
 #define NSFoundationVersionNumber_iOS_4_2  751.49
 #endif
 

@@ -13,7 +13,7 @@
 
 @interface CLLocationManager (GCExtensions)
 
-+ (CLLocationManager *)gc_sharedManager;
+//+ (CLLocationManager *)gc_sharedManager;
 + (BOOL)gc_isLocationAvailable;
 
 @end

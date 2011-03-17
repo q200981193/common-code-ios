@@ -6,13 +6,9 @@
 //  Copyright 2011 GUI Cocoa, LLC. All rights reserved.
 //
 
-#ifdef GC_ASSETS_LIBRARY
-
 #import <QuartzCore/QuartzCore.h>
 
 #import "GCImageGridViewController.h"
-
-#import "QSUploadManager.h"
 
 #define kSpaceSize 4.0
 #define kTileSize ((self.view.bounds.size.width - (kSpaceSize * 5.0)) / 4.0)
@@ -45,8 +41,8 @@
     self = [super init];
 	if (self) {
         assetsLibrary = [[ALAssetsLibrary alloc] init];
+        groupTypes = aTypes;
         baseTitle = [aTitle copy];
-		groupTypes = aTypes;
 		[self updateTitle];
 	}
 	return self;
@@ -61,14 +57,14 @@
 	return self;
 }
 - (void)dealloc {
+    [assetsLibrary release];
+    assetsLibrary = nil;
 	[baseTitle release];
 	baseTitle = nil;
 	[selectedAssets release];
 	selectedAssets = nil;
 	[assetsGroup release];
 	assetsGroup = nil;
-	[assetsLibrary release];
-	assetsLibrary = nil;
 	[allAssets release];
 	allAssets = nil;
     [super dealloc];	
@@ -85,7 +81,7 @@
     
 	// buttons
 	UIBarButtonItem *item;
-	if (GC_IS_ROOT_VIEW && !GC_IS_IPAD) {
+	if ([self gc_isRootViewController] && !GC_IS_IPAD) {
 		item = [[UIBarButtonItem alloc]
 				initWithBarButtonSystemItem:UIBarButtonSystemItemDone
 				target:self
@@ -93,7 +89,7 @@
 		self.navigationItem.leftBarButtonItem = item;
 		[item release];
 	}
-    if (self.actionEnabled) {
+    if (self.actionEnabled && self.actionBlock && self.actionTitle) {
         item = [[UIBarButtonItem alloc]
                 initWithBarButtonSystemItem:UIBarButtonSystemItemAction
                 target:self
@@ -108,22 +104,17 @@
     self.tableView.contentInset = insets;
 	
 	// setup container
-	NSMutableArray *array;
-	if (assetsGroup == nil) {
-		array = [[NSMutableArray alloc] init];
-	}
-	else {
-        NSInteger count = [assetsGroup numberOfAssets];
-		array = [[NSMutableArray alloc] initWithCapacity:count];
-	}
+    NSInteger count = 0;
+    if (assetsGroup != nil) { count = [assetsGroup numberOfAssets]; }
+    NSMutableArray *array = [[NSMutableArray alloc] initWithCapacity:count];
 
     // declare enumeration block
 	ALAssetsGroupEnumerationResultsBlock block = ^(ALAsset *result, NSUInteger index, BOOL *stop){
 		if (result == nil) {
 			*stop = YES;
 			allAssets = array;
+            [self.tableView reloadData];
             self.tableView.hidden = ([allAssets count] == 0);
-			[self.tableView reloadData];
 		}
 		else {
 			[array addObject:result];
@@ -132,19 +123,19 @@
 	
     // load assets
 	if (assetsGroup == nil) {
+        ALAssetsFilter *filter = [self assetsFilter];
 		[assetsLibrary
 		 enumerateGroupsWithTypes:groupTypes
 		 usingBlock:^(ALAssetsGroup *group, BOOL *stop) {
-			 [group setAssetsFilter:[ALAssetsFilter allPhotos]];
+			 [group setAssetsFilter:filter];
 			 [group enumerateAssetsUsingBlock:block];
 		 }
-		 failureBlock:^(NSError *error){
-             GC_LOG_ERROR(@"%@", error);
-		 }];
+		 failureBlock:self.failureBlock];
 	}
 	else {
 		[assetsGroup enumerateAssetsUsingBlock:block];
 	}
+    
 }
 - (void)viewDidUnload {
     [super viewDidUnload];
@@ -152,6 +143,7 @@
     allAssets = nil;
     [selectedAssets release];
     selectedAssets = nil;
+    tapRecognizer = nil;
 }
 - (void)viewWillAppear:(BOOL)animated {
 	[super viewWillAppear:animated];
@@ -192,10 +184,12 @@
 	tapRecognizer.numberOfTapsRequired = 1;
 	tapRecognizer.numberOfTouchesRequired = 1;
 	[self.tableView addGestureRecognizer:tapRecognizer];
-	[tapRecognizer release];
+    [tapRecognizer release];
 	
 	// self
-	self.modalInPopover = YES;
+    if (GC_IS_IPAD) {
+        self.modalInPopover = YES;
+    }
 	
 }
 - (void)cancel {
@@ -208,7 +202,7 @@
 			action:@selector(action)];
 	self.navigationItem.rightBarButtonItem = item;
 	[item release];
-	if (GC_IS_ROOT_VIEW && !GC_IS_IPAD) {
+	if ([self gc_isRootViewController] && !GC_IS_IPAD) {
 		item = [[UIBarButtonItem alloc]
 				initWithBarButtonSystemItem:UIBarButtonSystemItemDone
 				target:self
@@ -234,18 +228,13 @@
 	
 }
 - (void)upload {
-    if (self.actionEnabled && self.actionBlock == nil) {
-        [NSException
-         raise:NSInternalInconsistencyException
-         format:@"Select is enabled but no button action is set"];
-    }
-	NSSet *localAssets = [NSSet setWithSet:selectedAssets];
-	dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-		for (ALAsset *asset in localAssets) {
-			self.actionBlock(asset);
-		}
-	});
-    if (GC_IS_ROOT_VIEW) {
+//	NSSet *localAssets = [NSSet setWithSet:selectedAssets];
+//	dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+//		for (ALAsset *asset in localAssets) {
+//			self.actionBlock(asset);
+//		}
+//	});
+    if ([self gc_isRootViewController]) {
         [self dismissModalViewControllerAnimated:YES];
     }
     else {
@@ -399,5 +388,3 @@
 }
 
 @end
-
-#endif

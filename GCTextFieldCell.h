@@ -9,8 +9,7 @@
 #import <UIKit/UIKit.h>
 
 @interface GCTextFieldCell : UITableViewCell {
-@private
-	UITextField *textField;
+    
 }
 
 @property (nonatomic, readonly) UITextField *textField;

@@ -12,8 +12,7 @@
 
 @synthesize cellSwitch=_cellSwitch;
 
-#pragma mark -
-#pragma mark initialize
+#pragma mark - object lifecycle
 - (id)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)identifier {
 	self = [super initWithStyle:style reuseIdentifier:identifier];
 	if (self) {
@@ -21,9 +20,12 @@
 		self.accessoryType = UITableViewCellAccessoryNone;
 		_cellSwitch = [[UISwitch alloc] init];
 		self.accessoryView = _cellSwitch;
-		[_cellSwitch release];
 	}
 	return self;
+}
+- (void)dealloc {
+    [_cellSwitch release];_cellSwitch = nil;
+    [super dealloc];
 }
 
 @end

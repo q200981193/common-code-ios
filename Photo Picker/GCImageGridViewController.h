@@ -6,16 +6,14 @@
 //  Copyright 2011 GUI Cocoa, LLC. All rights reserved.
 //
 
-#ifdef GC_ASSETS_LIBRARY
-
 #import "GCImagePickerController.h"
 
 @interface GCImageGridViewController : GCImagePickerController {
 @private
     
     // used when loading group types
-    ALAssetsLibrary *assetsLibrary;
     ALAssetsGroupType groupTypes;
+    ALAssetsLibrary *assetsLibrary;
     
     // used when loading from a given group
     ALAssetsGroup *assetsGroup;
@@ -32,5 +30,3 @@
 - (id)initWithAssetsGroup:(ALAssetsGroup *)group;
 
 @end
-
-#endif

@@ -1,121 +1,30 @@
 //
-//  GCImageListViewController.m
-//  GUI Cocoa Common Code Library for iOS
+//  QSAssetsGroupListController.m
+//  QuickShot
 //
 //  Created by Caleb Davenport on 2/3/11.
 //  Copyright 2011 GUI Cocoa, LLC. All rights reserved.
 //
 
-#ifdef GC_ASSETS_LIBRARY
-
 #import "GCImageListViewController.h"
 #import "GCImageGridViewController.h"
 
-typedef void (^QSAssetsGroupsLoadCompletion) (NSArray *groups);
-
-@interface GCImageListViewController (private)
-+ (void)loadAssetsGroupsFromLibrary:(ALAssetsLibrary *)library completion:(QSAssetsGroupsLoadCompletion)completion;
-@end
-
-@implementation GCImageListViewController (private)
-+ (void)loadAssetsGroupsFromLibrary:(ALAssetsLibrary *)library completion:(QSAssetsGroupsLoadCompletion)completion {
-    
-    /*
-     __block ALAssetsGroup *camera;
-     __block NSMutableArray *albums = [[NSMutableArray alloc] init];
-     __block NSMutableArray *events = [[NSMutableArray alloc] init];
-     __block NSMutableArray *faces = [[NSMutableArray alloc] init];
-     [assetsLibrary
-	 enumerateGroupsWithTypes:ALAssetsGroupAll
-	 usingBlock:^(ALAssetsGroup *group, BOOL *stop) {
-     if (group == nil) {
-     NSMutableArray *array = [[NSMutableArray alloc] init];
-     if (camera != nil) {
-     [array addObject:camera];
-     [camera release];
-     camera = nil;
-     }
-     [array addObjectsFromArray:albums];
-     [array addObjectsFromArray:events];
-     [array addObjectsFromArray:faces];
-     [albums release];
-     albums = nil;
-     [events release];
-     events = nil;
-     [faces release];
-     faces = nil;
-     assetGrouops = array;
-     self.tableView.hidden = ([assetGrouops count] == 0);
-     [self.tableView reloadData];
-     *stop = YES;
-     }
-     else {
-     [group setAssetsFilter:[ALAssetsFilter allPhotos]];
-     if ([group numberOfAssets] == 0) {
-     return;
-     }
-     NSNumber *typeNumber = [group valueForProperty:ALAssetsGroupPropertyType];
-     ALAssetsGroupType type = [typeNumber unsignedIntegerValue];
-     if (type == ALAssetsGroupSavedPhotos) {
-     camera = [group retain];
-     }
-     else if (type == ALAssetsGroupAlbum) {
-     [albums addObject:group];
-     }
-     else if (type == ALAssetsGroupEvent) {
-     [events addObject:group];
-     }
-     else if (type == ALAssetsGroupFaces) {
-     [faces addObject:group];
-     }
-     }
-	 }
-	 failureBlock:^(NSError *error){
-     GC_LOG_ERROR(@"%@", error);
-	 }];
-     */
-    
-    NSMutableArray *array = [NSMutableArray array];
-    [library
-     enumerateGroupsWithTypes:ALAssetsGroupAll
-     usingBlock:^(ALAssetsGroup *group, BOOL *stop){
-         if (group == nil) {
-             completion(array);
-             *stop = YES;
-         }
-         else {
-             [array addObject:group];
-         }
-     }
-     failureBlock:^(NSError *error){
-         GC_LOG_ERROR(@"%@", error);
-     }];
-}
-@end
-
 @implementation GCImageListViewController
 
-#pragma mark - initialization
+#pragma mark - object lifecycle
 - (id)init {
 	self = [super init];
 	if (self) {
-		assetsLibrary = [[ALAssetsLibrary alloc] init];
+        assetsLibrary = [[ALAssetsLibrary alloc] init];
 		self.title = NSLocalizedString(@"PHOTO_LIBRARY", @"");
 	}
 	return self;
 }
-
-#pragma mark - memory management
-- (void)viewDidUnload {
-	[super viewDidUnload];
-	[assetsGrouops release];
-	assetsGrouops = nil;
-}
 - (void)dealloc {
-	[assetsLibrary release];
-	assetsLibrary = nil;
-	[assetsGrouops release];
-	assetsGrouops = nil;
+    [assetsLibrary release];
+    assetsLibrary = nil;
+	[assetsGroups release];
+	assetsGroups = nil;
     [super dealloc];
 }
 
@@ -137,12 +46,58 @@ typedef void (^QSAssetsGroupsLoadCompletion) (NSArray *groups);
 	}
 	
 	// get groups
-    [GCImageListViewController
-     loadAssetsGroupsFromLibrary:assetsLibrary
-     completion:^(NSArray *groups){
-         assetsGrouops = [groups retain];
-     }];
+    NSMutableArray *albums = [NSMutableArray array];
+    NSMutableArray *faces = [NSMutableArray array];
+    NSMutableArray *events = [NSMutableArray array];
+    ALAssetsFilter *filter = [self assetsFilter];
+    __block NSUInteger count = 0;
+    __block ALAssetsGroup *savedPhotos = nil;
+	[assetsLibrary
+	 enumerateGroupsWithTypes:ALAssetsGroupAll
+	 usingBlock:^(ALAssetsGroup *group, BOOL *stop) {
+		 if (group == nil) {
+			 *stop = YES;
+             NSMutableArray *array = [[NSMutableArray alloc] initWithCapacity:count];
+             if (savedPhotos != nil) {
+                 [array addObject:savedPhotos];
+                 [savedPhotos release];
+                 savedPhotos = nil;
+             }
+             [array addObjectsFromArray:albums];
+             [array addObjectsFromArray:events];
+             [array addObjectsFromArray:faces];
+             assetsGroups = array;
+             [self.tableView reloadData];
+             self.tableView.hidden = ([assetsGroups count] == 0);
+		 }
+		 else {
+             [group setAssetsFilter:filter];
+             if ([group numberOfAssets] > 0) {
+                 count++;
+                 NSNumber *type = [group valueForProperty:ALAssetsGroupPropertyType];
+                 ALAssetsGroupType groupType = [type unsignedIntegerValue];
+                 if (groupType == ALAssetsGroupSavedPhotos) {
+                     savedPhotos = [group retain];
+                 }
+                 else if (groupType == ALAssetsGroupAlbum) {
+                     [albums addObject:group];
+                 }
+                 else if (groupType == ALAssetsGroupFaces) {
+                     [faces addObject:group];
+                 }
+                 else if (groupType == ALAssetsGroupEvent) {
+                     [events addObject:group];
+                 }
+             }
+		 }
+	 }
+	 failureBlock:self.failureBlock];
 	
+}
+- (void)viewDidUnload {
+	[super viewDidUnload];
+	[assetsGroups release];
+	assetsGroups = nil;
 }
 - (void)viewWillAppear:(BOOL)animated {
 	[super viewWillAppear:animated];
@@ -166,26 +121,23 @@ typedef void (^QSAssetsGroupsLoadCompletion) (NSArray *groups);
 	return 1;
 }
 - (NSInteger)tableView:(UITableView *)aTableView numberOfRowsInSection:(NSInteger)section {
-	return [assetsGrouops count];
+	return [assetsGroups count];
 }
 - (UITableViewCell *)tableView:(UITableView *)aTableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
-	static NSString * const CellIdentifier = @"Cell";
+	static NSString * CellIdentifier = @"Cell";
     UITableViewCell *cell = [aTableView dequeueReusableCellWithIdentifier:CellIdentifier];
     if (cell == nil) {
-        cell = [[[UITableViewCell alloc]
-				 initWithStyle:UITableViewCellStyleValue1
-				 reuseIdentifier:CellIdentifier]
-				autorelease];
+        cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleValue1 reuseIdentifier:CellIdentifier] autorelease];
 		cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
     }
-    ALAssetsGroup *group = [assetsGrouops objectAtIndex:indexPath.row];
+    ALAssetsGroup *group = [assetsGroups objectAtIndex:indexPath.row];
 	cell.textLabel.text = [group valueForProperty:ALAssetsGroupPropertyName];
 	cell.imageView.image = [UIImage imageWithCGImage:[group posterImage]];
 	cell.detailTextLabel.text = [NSString stringWithFormat:@"%d", [group numberOfAssets]];
     return cell;
 }
 - (void)tableView:(UITableView *)aTableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
-	ALAssetsGroup *group = [assetsGrouops objectAtIndex:indexPath.row];
+	ALAssetsGroup *group = [assetsGroups objectAtIndex:indexPath.row];
 	GCImagePickerController *browser = [[GCImageGridViewController alloc] initWithAssetsGroup:group];
     browser.actionBlock = self.actionBlock;
     browser.actionEnabled = self.actionEnabled;
@@ -195,5 +147,3 @@ typedef void (^QSAssetsGroupsLoadCompletion) (NSArray *groups);
 }
 
 @end
-
-#endif

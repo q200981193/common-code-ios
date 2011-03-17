@@ -16,7 +16,7 @@
 	self = [super init];
 	if (self) {
         assetsLibrary = [[ALAssetsLibrary alloc] init];
-		self.title = NSLocalizedString(@"PHOTO_LIBRARY", @"");
+		self.title = GCImagePickerControllerLocalizedString(@"PHOTO_LIBRARY");
 	}
 	return self;
 }

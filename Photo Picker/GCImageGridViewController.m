@@ -25,10 +25,10 @@
         self.title = baseTitle;
     }
     else if (count == 1) {
-        self.title = NSLocalizedString(@"PHOTO_COUNT_SINGLE", @"");
+        self.title = GCImagePickerControllerLocalizedString(@"PHOTO_COUNT_SINGLE");
     }
     else {
-        self.title = [NSString localizedStringWithFormat:NSLocalizedString(@"PHOTO_COUNT_MULTIPLE", @""), count];
+        self.title = [NSString localizedStringWithFormat:GCImagePickerControllerLocalizedString(@"PHOTO_COUNT_MULTIPLE"), count];
     }
 }
 @end

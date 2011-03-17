@@ -6,13 +6,12 @@
 //  Copyright 2011 GUI Cocoa, LLC. All rights reserved.
 //
 
-#import <QuartzCore/QuartzCore.h>
-
 #import "GCImageGridViewController.h"
+#import "GCImageGridAssetView.h"
 
 #define kSpaceSize 4.0
 #define kTileSize ((self.view.bounds.size.width - (kSpaceSize * 5.0)) / 4.0)
-#define kCellSize (kTileSize + kSpaceSize)
+#define kRowHeight (kTileSize + kSpaceSize)
 #define kButtonEnabled ([selectedAssets count] > 0)
 
 @interface GCImageGridViewController (private)
@@ -76,7 +75,7 @@
 	
     // table view
     self.tableView.hidden = YES;
-    self.tableView.rowHeight = kCellSize;
+    self.tableView.rowHeight = kRowHeight;
     self.tableView.separatorStyle = UITableViewCellSeparatorStyleNone;
     
 	// buttons
@@ -190,6 +189,9 @@
     if (GC_IS_IPAD) {
         self.modalInPopover = YES;
     }
+    
+    // selected
+    selectedAssets = [[NSMutableSet alloc] init];
 	
 }
 - (void)cancel {
@@ -222,18 +224,23 @@
 	[selectedAssets removeAllObjects];
 	
 	// update views
-	self.modalInPopover = NO;
+    if (GC_IS_IPAD) {
+        self.modalInPopover = NO;
+    }
 	[self updateTitle];
 	[self.tableView reloadData];
+    
+    // selected
+    [selectedAssets release];
+    selectedAssets = nil;
 	
 }
 - (void)upload {
-//	NSSet *localAssets = [NSSet setWithSet:selectedAssets];
-//	dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-//		for (ALAsset *asset in localAssets) {
-//			self.actionBlock(asset);
-//		}
-//	});
+	dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+		for (ALAsset *asset in selectedAssets) {
+			self.actionBlock(asset);
+		}
+	});
     if ([self gc_isRootViewController]) {
         [self dismissModalViewControllerAnimated:YES];
     }
@@ -255,76 +262,36 @@
 	return rows;
 }
 - (UITableViewCell *)tableView:(UITableView *)aTableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
-	static NSString * const CellIdentifier = @"Photo Cell";
+    
+    // create cell
+	static NSString * CellIdentifier = @"Cell";
 	UITableViewCell *cell = [aTableView dequeueReusableCellWithIdentifier:CellIdentifier];
 	if (cell == nil) {
 		cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier] autorelease];
 		cell.selectionStyle = UITableViewCellSelectionStyleNone;
 		CGFloat size = kTileSize;
 		for (NSInteger i = 0; i < 4; i++) {
-			UIImageView *imageView = [[UIImageView alloc] init];
-			imageView.tag = i + 1;
-			imageView.frame = CGRectMake(i * size + kSpaceSize * (i + 1.0), 0, size, size);
-			CALayer *layer = [imageView layer];
-			[layer setBorderColor:[[UIColor colorWithWhite:0.0 alpha:0.25] CGColor]];
-			[layer setBorderWidth:1.0];
-			[cell.contentView addSubview:imageView];
-			[imageView release];
+            CGRect frame = CGRectMake(i * size + kSpaceSize * (i + 1.0), 0, size, size);
+            GCImageGridAssetView *assetView = [[GCImageGridAssetView alloc] initWithFrame:frame];
+            assetView.tag = 100 + i;
+            [cell.contentView addSubview:assetView];
+            [assetView release];
 		}
 	}
 	
+    // configure cell
 	NSInteger start = indexPath.row * 4;
 	for (NSInteger i = start; i < start + 4; i++) {
-		NSInteger base = 1 + (i % 4);
-		UIImageView *tile = (UIImageView *)[cell.contentView viewWithTag:base];
-		UIImageView *check = (UIImageView *)[cell.contentView viewWithTag:base + 4];
-		UIImageView *video = (UIImageView *)[cell.contentView viewWithTag:base + 8];
-		if (i < [allAssets count]) {
-			ALAsset *asset = [allAssets objectAtIndex:i];
-			NSString *type = [asset valueForProperty:ALAssetPropertyType];
-			tile.hidden = NO;
-			tile.image = [UIImage imageWithCGImage:[asset thumbnail]];
-			if ([type isEqualToString:ALAssetTypeVideo]) {
-				if (video == nil) {
-					UIImage *image = [UIImage imageNamed:@"VideoOverlay"];
-					image = [image stretchableImageWithLeftCapWidth:36 topCapHeight:0];
-					video = [[UIImageView alloc] initWithImage:image];
-					video.tag = base + 8;
-					video.frame = CGRectMake(tile.frame.origin.x,
-											 tile.frame.origin.y + tile.frame.size.height - image.size.height,
-											 tile.frame.size.width,
-											 image.size.height);
-					[cell.contentView addSubview:video];
-					[video release];
-				}
-				video.hidden = NO;
-			}
-			else {
-				video.hidden = YES;
-			}
-			if ([selectedAssets containsObject:asset]) {
-				if (check == nil) {
-					check = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"CheckGreen"]];
-					check.backgroundColor = [UIColor colorWithWhite:1.0 alpha:0.5];
-					check.contentMode = UIViewContentModeBottomRight;
-					check.tag = base + 4;
-					check.frame = tile.frame;
-					[cell.contentView addSubview:check];
-					[check release];
-				}
-				check.hidden = NO;
-			}
-			else {
-				check.hidden = YES;
-			}
-		}
-		else {
-			tile.hidden = YES;
-			check.hidden = YES;
-		}
-		if (check != nil) {
-			[cell.contentView bringSubviewToFront:check];
-		}
+        NSInteger tag = 100 + (i % 4);
+        GCImageGridAssetView *assetView = (GCImageGridAssetView *)[cell.contentView viewWithTag:tag];
+        if (i < [allAssets count]) {
+            ALAsset *asset = [allAssets objectAtIndex:i];
+            assetView.asset = asset;
+            assetView.selected = [selectedAssets containsObject:asset];
+        }
+        else {
+            assetView.asset = nil;
+        }
 	}
 	
 	return cell;

@@ -6,7 +6,6 @@
 //  Copyright 2011 GUI Cocoa, LLC. All rights reserved.
 //
 
-// categories
 #import "UIViewController+GCExtensions.h"
 
 typedef void (^GCNotificationBlock)(NSNotification *);
@@ -24,7 +23,6 @@ typedef void (^GCNotificationBlock)(NSNotification *);
 #endif
 
 #define GC_IS_IPAD (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad)
-#define GC_IS_ROOT_VIEW ([[self.navigationController viewControllers] objectAtIndex:0] == self)
 
 #define GC_REVIEW_URL(id) [NSURL URLWithString:[NSString stringWithFormat:@"http://itunes.apple.com/WebObjects/MZStore.woa/wa/viewContentsUserReviews?id=%@&pageNumber=0&sortOrdering=4&type=Purple+Software&mt=8", id]]
 

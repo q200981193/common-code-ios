@@ -17,10 +17,6 @@ typedef void (^QSImagePickerControllerResultsBlock) (ALAsset *asset);
         
 }
 
-// ui properties
-@property (nonatomic, retain) IBOutlet UITableView *tableView;
-@property (nonatomic, retain) IBOutlet UIImageView *imageView;
-
 // enable select action
 @property (nonatomic, copy) QSImagePickerControllerResultsBlock actionBlock;
 @property (nonatomic, copy) NSString *actionTitle;
@@ -31,6 +27,8 @@ typedef void (^QSImagePickerControllerResultsBlock) (ALAsset *asset);
 
 // internal
 @property (nonatomic, readonly) ALAssetsLibraryAccessFailureBlock failureBlock;
+@property (nonatomic, retain) IBOutlet UITableView *tableView;
+@property (nonatomic, retain) IBOutlet UIImageView *imageView;
 
 // methods to get a certain picker
 + (GCImagePickerController *)pickerWithSourceType:(UIImagePickerControllerSourceType)source;

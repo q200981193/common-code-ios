@@ -9,43 +9,14 @@
 #import "GCImageListViewController.h"
 #import "GCImageGridViewController.h"
 
-@implementation GCImageListViewController
+@interface GCImageListViewController (private)
+- (void)reloadAssetsGroups;
+@end
 
-#pragma mark - object lifecycle
-- (id)init {
-	self = [super init];
-	if (self) {
-        assetsLibrary = [[ALAssetsLibrary alloc] init];
-		self.title = GCImagePickerControllerLocalizedString(@"PHOTO_LIBRARY");
-	}
-	return self;
-}
-- (void)dealloc {
-    [assetsLibrary release];
-    assetsLibrary = nil;
-	[assetsGroups release];
-	assetsGroups = nil;
-    [super dealloc];
-}
-
-#pragma mark - view lifecycle
-- (void)viewDidLoad {
-	[super viewDidLoad];
-	
-    // table view
-    self.tableView.hidden = YES;
-    
-	// button
-	if (!GC_IS_IPAD) {
-		UIBarButtonItem *item = [[UIBarButtonItem alloc]
-								 initWithBarButtonSystemItem:UIBarButtonSystemItemDone
-								 target:self
-								 action:@selector(done)];
-		self.navigationItem.leftBarButtonItem = item;
-		[item release];
-	}
-	
-	// get groups
+@implementation GCImageListViewController (private)
+- (void)reloadAssetsGroups {
+    [assetsGroups release];
+    assetsGroups = nil;
     NSMutableArray *albums = [NSMutableArray array];
     NSMutableArray *faces = [NSMutableArray array];
     NSMutableArray *events = [NSMutableArray array];
@@ -92,6 +63,61 @@
 		 }
 	 }
 	 failureBlock:self.failureBlock];
+}
+@end
+
+@implementation GCImageListViewController
+
+#pragma mark - object lifecycle
+- (id)init {
+	self = [super init];
+	if (self) {
+        assetsLibrary = [[ALAssetsLibrary alloc] init];
+		self.title = GCImagePickerControllerLocalizedString(@"PHOTO_LIBRARY");
+        [[NSNotificationCenter defaultCenter]
+         addObserver:self
+         selector:@selector(assetsLibraryDidChange:)
+         name:ALAssetsLibraryChangedNotification
+         object:assetsLibrary];
+        [self addObserver:self
+               forKeyPath:@"mediaTypes"
+                  options:0
+                  context:nil];
+	}
+	return self;
+}
+- (void)dealloc {
+    [self removeObserver:self forKeyPath:@"mediaTypes"];
+    [[NSNotificationCenter defaultCenter]
+     removeObserver:self
+     name:ALAssetsLibraryChangedNotification
+     object:assetsLibrary];
+    [assetsLibrary release];
+    assetsLibrary = nil;
+	[assetsGroups release];
+	assetsGroups = nil;
+    [super dealloc];
+}
+
+#pragma mark - view lifecycle
+- (void)viewDidLoad {
+	[super viewDidLoad];
+	
+    // table view
+    self.tableView.hidden = YES;
+    
+	// button
+	if (!GC_IS_IPAD) {
+		UIBarButtonItem *item = [[UIBarButtonItem alloc]
+								 initWithBarButtonSystemItem:UIBarButtonSystemItemDone
+								 target:self
+								 action:@selector(done)];
+		self.navigationItem.leftBarButtonItem = item;
+		[item release];
+	}
+	
+	// groups
+    [self reloadAssetsGroups];
 	
 }
 - (void)viewDidUnload {
@@ -106,6 +132,20 @@
 		 setStatusBarStyle:UIStatusBarStyleBlackTranslucent
 		 animated:animated];
 	}
+}
+
+#pragma mark - KVO
+- (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context {
+    if (object == self) {
+        if ([keyPath isEqualToString:@"mediaTypes"]) {
+            [self reloadAssetsGroups];
+        }
+    }
+}
+
+#pragma mark - notifications
+- (void)assetsLibraryDidChange:(NSNotification *)notif {
+    [self reloadAssetsGroups];
 }
 
 #pragma mark - button actions
@@ -138,7 +178,10 @@
 }
 - (void)tableView:(UITableView *)aTableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
 	ALAssetsGroup *group = [assetsGroups objectAtIndex:indexPath.row];
-	GCImagePickerController *browser = [[GCImageGridViewController alloc] initWithAssetsGroup:group];
+    NSString *groupID = [group valueForProperty:ALAssetsGroupPropertyPersistentID];
+    ALAssetsGroupType groupType = [[group valueForProperty:ALAssetsGroupPropertyType] unsignedIntegerValue];
+    NSString *groupName = [group valueForProperty:ALAssetsGroupPropertyName];
+	GCImagePickerController *browser = [[GCImageGridViewController alloc] initWithAssetsGroupTypes:groupType title:groupName groupID:groupID];
     browser.actionBlock = self.actionBlock;
     browser.actionEnabled = self.actionEnabled;
     browser.actionTitle = self.actionTitle;

@@ -22,13 +22,16 @@
         return [[[GCImageListViewController alloc] init] autorelease];
     }
     else if (source == UIImagePickerControllerSourceTypeSavedPhotosAlbum) {
-        GCImagePickerController *browser = [[GCImageGridViewController alloc]
-                                            initWithAssetsGroupTypes:ALAssetsGroupSavedPhotos
-                                            title:NSLocalizedString(@"CAMERA_ROLL", @"")];
-        return [browser autorelease];
+        GCImagePickerController *picker = [[GCImageGridViewController alloc]
+                                           initWithAssetsGroupTypes:ALAssetsGroupSavedPhotos
+                                           title:GCImagePickerControllerLocalizedString(@"CAMERA_ROLL")
+                                           groupID:nil];
+        return [picker autorelease];
     }
     else {
-        // some error case
+        [NSException
+         raise:NSInvalidArgumentException
+         format:@"GCPickerController does not support the specified source type."];
         return nil;
     }
 }

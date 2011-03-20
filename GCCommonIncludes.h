@@ -25,6 +25,8 @@ typedef void (^GCNotificationBlock)(NSNotification *);
 #define GC_IS_IPAD (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad)
 
 #define GC_REVIEW_URL(id) [NSURL URLWithString:[NSString stringWithFormat:@"http://itunes.apple.com/WebObjects/MZStore.woa/wa/viewContentsUserReviews?id=%@&pageNumber=0&sortOrdering=4&type=Purple+Software&mt=8", id]]
+#define GC_APP_URL(name) [NSURL URLWithString:[NSString stringWithFormat:@"http://guicocoa.com/%@", name]]
+#define GC_CONTACT_URL(name) [NSURL URLWithString:[NSString stringWithFormat:@"http://guicocoa.com/contact?app=%@", name]]
 
 #define GC_LOG(fmt, args...) NSLog(@"%s %d " fmt, __PRETTY_FUNCTION__, __LINE__, ##args)
 #ifdef DEBUG

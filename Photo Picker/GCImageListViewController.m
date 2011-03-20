@@ -118,6 +118,9 @@
 	
 	// groups
     [self reloadAssetsGroups];
+    while (assetsGroups == nil) {
+        CFRunLoopRunInMode(kCFRunLoopDefaultMode, 0.1, NO);
+    }
 	
 }
 - (void)viewDidUnload {

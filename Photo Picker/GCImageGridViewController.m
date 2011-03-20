@@ -158,6 +158,9 @@
     
     // assets
     [self reloadAssets];
+    while (allAssets == nil) {
+        CFRunLoopRunInMode(kCFRunLoopDefaultMode, 0.1, NO);
+    }
     
 }
 - (void)viewDidUnload {

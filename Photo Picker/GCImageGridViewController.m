@@ -247,18 +247,18 @@
 }
 - (void)upload {
     NSSet *assetURLs = [selectedAssets copy];
-	dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-        for (NSURL *url in assetURLs) {
-            [assetsLibrary
-             assetForURL:url
-             resultBlock:^(ALAsset *asset){
+    for (NSURL *url in assetURLs) {
+        [assetsLibrary
+         assetForURL:url
+         resultBlock:^(ALAsset *asset){
+             dispatch_async(dispatch_get_main_queue(), ^{
                  self.actionBlock(asset);
-             }
-             failureBlock:^(NSError *error){
-                 GC_LOG_ERROR(@"%@", error);
-             }];
-        }
-	});
+             });
+         }
+         failureBlock:^(NSError *error){
+             GC_LOG_ERROR(@"%@", error);
+         }];
+    }
     [assetURLs release];
     if ([self gc_isRootViewController]) {
         [self dismissModalViewControllerAnimated:YES];

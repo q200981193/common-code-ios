@@ -53,6 +53,9 @@
     return data;
 }
 + (void)writeDataForAssetRepresentation:(ALAssetRepresentation *)rep toFile:(NSString *)path atomically:(BOOL)atomically {
+    if ([[NSFileManager defaultManager] fileExistsAtPath:path]) {
+        return;
+    }
 	NSString *writePath = path;
 	if (atomically) {
 		writePath = [NSTemporaryDirectory() stringByAppendingPathComponent:[path lastPathComponent]];

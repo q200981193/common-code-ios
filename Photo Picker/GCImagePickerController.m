@@ -36,6 +36,7 @@
     }
 }
 + (NSData *)dataForAssetRepresentation:(ALAssetRepresentation *)rep {
+    [rep retain];
     long long size = [rep size], offset = 0;
     NSMutableData *data = [NSMutableData dataWithCapacity:size];
     while (offset < size) {
@@ -50,12 +51,14 @@
         [data appendBytes:bytes length:written];
         offset += written;
     }
+    [rep release];
     return data;
 }
 + (void)writeDataForAssetRepresentation:(ALAssetRepresentation *)rep toFile:(NSString *)path atomically:(BOOL)atomically {
     if ([[NSFileManager defaultManager] fileExistsAtPath:path]) {
         return;
     }
+    [rep retain];
 	NSString *writePath = path;
 	if (atomically) {
 		writePath = [NSTemporaryDirectory() stringByAppendingPathComponent:[path lastPathComponent]];
@@ -71,7 +74,7 @@
 			GC_LOG_ERROR(@"%@", error);
 			[handle closeFile];
 			[[NSFileManager defaultManager] removeItemAtPath:path error:nil];
-			return;
+			break;
 		}
 		[handle writeData:[buffer subdataWithRange:NSMakeRange(0, written)]];
 		offset += written;
@@ -80,6 +83,7 @@
 	if (atomically) {
 		[[NSFileManager defaultManager] moveItemAtPath:writePath toPath:path error:nil];
 	}
+    [rep release];
 }
 + (NSString *)extensionForAssetRepresentation:(ALAssetRepresentation *)rep {
     NSString *UTI = [rep UTI];

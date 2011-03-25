@@ -42,6 +42,6 @@ typedef void (^GCImagePickerControllerResultsBlock) (ALAsset *asset);
 + (NSData *)dataForAssetRepresentation:(ALAssetRepresentation *)rep;
 + (void)writeDataForAssetRepresentation:(ALAssetRepresentation *)rep toFile:(NSString *)path atomically:(BOOL)atomically;
 + (NSString *)extensionForAssetRepresentation:(ALAssetRepresentation *)rep;
-+ (NSString *)extensionForUTI:(NSString *)UTI;
++ (NSString *)extensionForUTI:(CFStringRef)UTI;
 
 @end

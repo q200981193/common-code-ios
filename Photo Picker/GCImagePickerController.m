@@ -92,21 +92,21 @@
         return nil;
     }
     else {
-        return [GCImagePickerController extensionForUTI:UTI];
+        return [GCImagePickerController extensionForUTI:(CFStringRef)UTI];
     }
 }
-+ (NSString *)extensionForUTI:(NSString *)UTI {
-    if (UTI == nil) {
++ (NSString *)extensionForUTI:(CFStringRef)UTI {
+    if (UTI == NULL) {
         GC_LOG_WARN(@"Requested extension for nil UTI");
         return nil;
     }
-    else if ([UTI isEqualToString:(NSString *)kUTTypeJPEG]) {
+    else if (CFStringCompare(UTI, kUTTypeJPEG, 0) == kCFCompareEqualTo) {
         return @"jpg";
     }
     else {
-        CFStringRef extension = UTTypeCopyPreferredTagWithClass((CFStringRef)UTI, kUTTagClassFilenameExtension);
+        CFStringRef extension = UTTypeCopyPreferredTagWithClass(UTI, kUTTagClassFilenameExtension);
         if (extension == NULL) {
-            GC_LOG_ERROR(@"Missing extension for UTI %@", UTI);
+            GC_LOG_ERROR(@"Missing extension for UTI %@", (NSString *)UTI);
             return nil;
         }
         else {

@@ -28,15 +28,15 @@ typedef void (^GCNotificationBlock)(NSNotification *);
 #define GC_APP_URL(name) [NSURL URLWithString:[NSString stringWithFormat:@"http://guicocoa.com/%@", name]]
 #define GC_CONTACT_URL(name) [NSURL URLWithString:[NSString stringWithFormat:@"http://guicocoa.com/contact?app=%@", name]]
 
-#define GC_LOG(fmt, args...) NSLog(@"%s %d " fmt, __PRETTY_FUNCTION__, __LINE__, ##args)
+#define __GC_LOG(fmt, args...) NSLog(@"%s %d " fmt, __PRETTY_FUNCTION__, __LINE__, ##args)
 #ifdef DEBUG
-    #define GC_LOG_INFO(fmt, args...) GC_LOG(fmt, ##args)
-    #define GC_LOG_WARN(fmt, args...) GC_LOG(fmt, ##args)
-    #define GC_LOG_ERROR(fmt, args...) GC_LOG(fmt, ##args)
+    #define GC_LOG_INFO(fmt, args...) __GC_LOG(fmt, ##args)
+    #define GC_LOG_WARN(fmt, args...) __GC_LOG(fmt, ##args)
+    #define GC_LOG_ERROR(fmt, args...) __GC_LOG(fmt, ##args)
 #else
     #define GC_LOG_INFO(fmt, args...)
     #define GC_LOG_WARN(fmt, args...)
-    #define GC_LOG_ERROR(fmt, args...) GC_LOG(fmt, ##args)
+    #define GC_LOG_ERROR(fmt, args...) __GC_LOG(fmt, ##args)
 #endif
 
 #define GC_SINGLETON_INSTANCE(class, variable)	\

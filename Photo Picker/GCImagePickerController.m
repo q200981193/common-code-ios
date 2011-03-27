@@ -1,14 +1,12 @@
 //
 //  QSPhotoPickerController.m
-//  QuickShot
+//  GUI Cocoa Common Code Library for iOS
 //
 //  Created by Caleb Davenport on 2/14/11.
 //  Copyright 2011 GUI Cocoa, LLC. All rights reserved.
 //
 
 #import <MobileCoreServices/MobileCoreServices.h>
-#import <CoreLocation/CoreLocation.h>
-#import <AssetsLibrary/AssetsLibrary.h>
 
 #import "GCImagePickerController.h"
 #import "GCImageListBrowserController.h"
@@ -31,7 +29,7 @@
     else {
         [NSException
          raise:NSInvalidArgumentException
-         format:@"GCPickerController does not support the specified source type."];
+         format:@"%@ does not support the specified source type.", NSStringFromClass(self)];
         return nil;
     }
 }

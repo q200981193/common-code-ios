@@ -23,10 +23,17 @@ extern NSString * const GCReachabilityDidChangeNotification;
     SCNetworkReachabilityRef reachability;
 }
 
+// create
 - (id)initWithHostName:(NSString *)host;
+
+// change state
 - (BOOL)startUpdatingReachability;
 - (void)stopUpdatingReachability;
+
+// check reachability
 - (BOOL)isReachable;
+- (BOOL)isReachableViaWiFi;
+- (BOOL)isReachableViaWWAN;
 - (GCReachabilityStatus)reachabilityStatus;
 
 @end

@@ -47,22 +47,42 @@ void GCReachabilityDidChangeCallback(SCNetworkReachabilityRef target, SCNetworkR
 - (void)stopUpdatingReachability {
     SCNetworkReachabilityUnscheduleFromRunLoop(reachability, CFRunLoopGetMain(), kCFRunLoopDefaultMode);
 }
+
+
+#pragma mark - check reachability
 - (BOOL)isReachable {
-    SCNetworkReachabilityFlags flags;
-    SCNetworkReachabilityGetFlags(reachability, &flags);
-	return ((flags & kSCNetworkReachabilityFlagsReachable) == kSCNetworkReachabilityFlagsReachable);
+    return ([self reachabilityStatus] != GCNotReachable);
+}
+- (BOOL)isReachableViaWiFi {
+    return ([self reachabilityStatus] == GCReachableViaWiFi);
+}
+- (BOOL)isReachableViaWWAN {
+    return ([self reachabilityStatus] == GCReachableViaWWAN);
 }
 - (GCReachabilityStatus)reachabilityStatus {
     SCNetworkReachabilityFlags flags;
-    SCNetworkReachabilityGetFlags(reachability, &flags);
-    if ((flags & kSCNetworkReachabilityFlagsReachable) == 0) {
-        return GCNotReachable;
+    if (SCNetworkReachabilityGetFlags(reachability, &flags)) {
+        
+        // check reachable in general
+        if ((flags & kSCNetworkReachabilityFlagsReachable) == 0) {
+            return GCNotReachable;
+        }
+        
+        // check WWAN
+        if (flags & kSCNetworkReachabilityFlagsIsWWAN) {
+            return GCReachableViaWWAN;
+        }
+        
+        // intervention required
+        if (flags & kSCNetworkReachabilityFlagsInterventionRequired) {
+            return GCNotReachable;
+        }
+        
+        // return wifi
+        return GCReachableViaWiFi;
+        
     }
-    GCReachabilityStatus retVal = GCNotReachable;
-    if ((flags & kSCNetworkReachabilityFlagsConnectionRequired) == 0) {
-        retVal = GCReachableViaWiFi;
-    }
-    return GCNotReachable;
+    return NO;
 }
 
 @end

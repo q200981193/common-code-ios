@@ -6,9 +6,9 @@
 //  Copyright 2011 GUI Cocoa, LLC. All rights reserved.
 //
 
-#import "GCImagePickerController.h"
+#import "GCImageBrowserController.h"
 
-@interface GCImageListViewController : GCImagePickerController {
+@interface GCImageListBrowserController : GCImageBrowserController {
 @private
     ALAssetsLibrary *assetsLibrary;
 	NSArray *assetsGroups;

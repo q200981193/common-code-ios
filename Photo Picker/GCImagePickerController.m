@@ -11,18 +11,18 @@
 #import <AssetsLibrary/AssetsLibrary.h>
 
 #import "GCImagePickerController.h"
-#import "GCImageListViewController.h"
-#import "GCImageGridViewController.h"
+#import "GCImageListBrowserController.h"
+#import "GCImageGridBrowserController.h"
 
 @implementation GCImagePickerController
 
 #pragma mark - class methods
 + (GCImagePickerController *)pickerWithSourceType:(UIImagePickerControllerSourceType)source {
     if (source == UIImagePickerControllerSourceTypePhotoLibrary) {
-        return [[[GCImageListViewController alloc] init] autorelease];
+        return [[[GCImageListBrowserController alloc] init] autorelease];
     }
     else if (source == UIImagePickerControllerSourceTypeSavedPhotosAlbum) {
-        GCImagePickerController *picker = [[GCImageGridViewController alloc]
+        GCImagePickerController *picker = [[GCImageGridBrowserController alloc]
                                            initWithAssetsGroupTypes:ALAssetsGroupSavedPhotos
                                            title:GCImagePickerControllerLocalizedString(@"CAMERA_ROLL")
                                            groupID:nil];
@@ -115,8 +115,6 @@
     }
 }
 
-@synthesize tableView=_tableView;
-@synthesize imageView=_imageView;
 @synthesize actionBlock=_actionBlock;
 @synthesize actionTitle=_actionTitle;
 @synthesize actionEnabled=_actionEnabled;
@@ -124,8 +122,8 @@
 @synthesize mediaTypes=_mediaTypes;
 
 #pragma mark - object lifecycle
-- (id)init {
-    self = [super initWithNibName:@"GCImagePickerController" bundle:nil];
+- (id)initWithNibName:(NSString *)name bundle:(NSBundle *)bundle {
+    self = [super initWithNibName:name bundle:bundle];
     if (self) {
         if (GC_IS_IPAD) { self.contentSizeForViewInPopover = CGSizeMake(320, 460); }
 		else { self.wantsFullScreenLayout = YES; }
@@ -148,34 +146,12 @@
     Block_release(_failureBlock);_failureBlock = nil;
     self.actionBlock = nil;
     self.actionTitle = nil;
-    self.tableView = nil;
-    self.imageView = nil;
     self.mediaTypes = nil;
     [super dealloc];
 }
 
-#pragma mark - view lifecycle
-- (void)viewDidLoad {
-    [super viewDidLoad];
-	if (!GC_IS_IPAD) {
-		CGFloat top = self.navigationController.navigationBar.frame.size.height;
-		top += [[UIApplication sharedApplication] statusBarFrame].size.height;
-		self.tableView.contentInset = UIEdgeInsetsMake(top, 0, 0, 0);
-		self.tableView.scrollIndicatorInsets = UIEdgeInsetsMake(top, 0, 0, 0);
-	}
-}
-- (void)viewDidUnload {
-    [super viewDidUnload];
-    self.tableView = nil;
-    self.imageView = nil;
-}
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation {
     return (interfaceOrientation == UIInterfaceOrientationPortrait);
-}
-- (void)viewWillAppear:(BOOL)animated {
-    [super viewWillAppear:animated];
-    NSIndexPath *path = [self.tableView indexPathForSelectedRow];
-    [self.tableView deselectRowAtIndexPath:path animated:animated];
 }
 
 #pragma mark - object methods
@@ -207,17 +183,6 @@
     if (images && videos) { return [ALAssetsFilter allAssets]; }
     else if (videos) { return [ALAssetsFilter allVideos]; }
     else { return [ALAssetsFilter allPhotos]; }
-}
-
-#pragma mark - table view
-- (NSInteger)numberOfSectionsInTableView:(UITableView *)aTableView {
-    return 0;
-}
-- (NSInteger)tableView:(UITableView *)aTableView numberOfRowsInSection:(NSInteger)section {
-    return 0;
-}
-- (UITableViewCell *)tableView:(UITableView *)aTableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
-    return nil;
 }
 
 @end

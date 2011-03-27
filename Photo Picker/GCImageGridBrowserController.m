@@ -6,20 +6,21 @@
 //  Copyright 2011 GUI Cocoa, LLC. All rights reserved.
 //
 
-#import "GCImageGridViewController.h"
+#import "GCImageGridBrowserController.h"
 #import "GCImageGridAssetView.h"
+#import "GCImageSlideshowController.h"
 
 #define kSpaceSize 4.0
 #define kTileSize ((self.view.bounds.size.width - (kSpaceSize * 5.0)) / 4.0)
 #define kRowHeight (kTileSize + kSpaceSize)
 #define kButtonEnabled ([selectedAssets count] > 0)
 
-@interface GCImageGridViewController (private)
+@interface GCImageGridBrowserController (private)
 - (void)reloadAssets;
 - (void)updateTitle;
 @end
 
-@implementation GCImageGridViewController (private)
+@implementation GCImageGridBrowserController (private)
 - (void)reloadAssets {
     [allAssets release];
     allAssets = nil;
@@ -72,7 +73,7 @@
 }
 @end
 
-@implementation GCImageGridViewController
+@implementation GCImageGridBrowserController
 
 #pragma mark - object lifecycle
 - (id)initWithAssetsGroupTypes:(ALAssetsGroupType)types title:(NSString *)title groupID:(NSString *)groupID {
@@ -373,6 +374,11 @@
             [self.tableView reloadRowsAtIndexPaths:paths withRowAnimation:UITableViewRowAnimationNone];
             
         }
+    }
+    else {
+        GCImageSlideshowController *slideshow = [[GCImageSlideshowController alloc] initWithAssets:allAssets];
+        [self.navigationController pushViewController:slideshow animated:YES];
+        [slideshow release];
     }
 }
 

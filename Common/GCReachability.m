@@ -1,6 +1,6 @@
 //
 //  GCReachability.m
-//  QuickShot
+//  GUI Cocoa Common Code Library for iOS
 //
 //  Created by Caleb Davenport on 3/23/11.
 //  Copyright 2011 GUI Cocoa, LLC. All rights reserved.
@@ -51,6 +51,18 @@ void GCReachabilityDidChangeCallback(SCNetworkReachabilityRef target, SCNetworkR
     SCNetworkReachabilityFlags flags;
     SCNetworkReachabilityGetFlags(reachability, &flags);
 	return ((flags & kSCNetworkReachabilityFlagsReachable) == kSCNetworkReachabilityFlagsReachable);
+}
+- (GCReachabilityStatus)reachabilityStatus {
+    SCNetworkReachabilityFlags flags;
+    SCNetworkReachabilityGetFlags(reachability, &flags);
+    if ((flags & kSCNetworkReachabilityFlagsReachable) == 0) {
+        return GCNotReachable;
+    }
+    GCReachabilityStatus retVal = GCNotReachable;
+    if ((flags & kSCNetworkReachabilityFlagsConnectionRequired) == 0) {
+        retVal = GCReachableViaWiFi;
+    }
+    return GCNotReachable;
 }
 
 @end

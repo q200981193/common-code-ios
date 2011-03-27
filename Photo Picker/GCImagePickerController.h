@@ -13,7 +13,7 @@
 
 typedef void (^GCImagePickerControllerResultsBlock) (ALAsset *asset);
 
-@interface GCImagePickerController : UIViewController <UITableViewDelegate, UITableViewDataSource> {
+@interface GCImagePickerController : UIViewController {
         
 }
 
@@ -27,8 +27,6 @@ typedef void (^GCImagePickerControllerResultsBlock) (ALAsset *asset);
 
 // internal
 @property (nonatomic, readonly) ALAssetsLibraryAccessFailureBlock failureBlock;
-@property (nonatomic, retain) IBOutlet UITableView *tableView;
-@property (nonatomic, retain) IBOutlet UIImageView *imageView;
 
 // methods to get a certain picker
 + (GCImagePickerController *)pickerWithSourceType:(UIImagePickerControllerSourceType)source;

@@ -6,14 +6,14 @@
 //  Copyright 2011 GUI Cocoa, LLC. All rights reserved.
 //
 
-#import "GCImageListViewController.h"
-#import "GCImageGridViewController.h"
+#import "GCImageListBrowserController.h"
+#import "GCImageGridBrowserController.h"
 
-@interface GCImageListViewController (private)
+@interface GCImageListBrowserController (private)
 - (void)reloadAssetsGroups;
 @end
 
-@implementation GCImageListViewController (private)
+@implementation GCImageListBrowserController (private)
 - (void)reloadAssetsGroups {
     [assetsGroups release];
     assetsGroups = nil;
@@ -66,7 +66,7 @@
 }
 @end
 
-@implementation GCImageListViewController
+@implementation GCImageListBrowserController
 
 #pragma mark - object lifecycle
 - (id)init {
@@ -184,7 +184,7 @@
     NSString *groupID = [group valueForProperty:ALAssetsGroupPropertyPersistentID];
     ALAssetsGroupType groupType = [[group valueForProperty:ALAssetsGroupPropertyType] unsignedIntegerValue];
     NSString *groupName = [group valueForProperty:ALAssetsGroupPropertyName];
-	GCImagePickerController *browser = [[GCImageGridViewController alloc] initWithAssetsGroupTypes:groupType title:groupName groupID:groupID];
+	GCImagePickerController *browser = [[GCImageGridBrowserController alloc] initWithAssetsGroupTypes:groupType title:groupName groupID:groupID];
     browser.actionBlock = self.actionBlock;
     browser.actionEnabled = self.actionEnabled;
     browser.actionTitle = self.actionTitle;

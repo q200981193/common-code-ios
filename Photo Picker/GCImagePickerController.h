@@ -11,14 +11,12 @@
 
 #define GCImagePickerControllerLocalizedString(key) NSLocalizedStringFromTable(key, @"GCImagePickerController", @"")
 
-typedef void (^GCImagePickerControllerResultsBlock) (ALAsset *asset);
-
 @interface GCImagePickerController : UIViewController {
         
 }
 
 // enable select action
-@property (nonatomic, copy) GCImagePickerControllerResultsBlock actionBlock;
+@property (nonatomic, copy) ALAssetsLibraryAssetForURLResultBlock actionBlock;
 @property (nonatomic, copy) NSString *actionTitle;
 @property (nonatomic, assign) BOOL actionEnabled;
 

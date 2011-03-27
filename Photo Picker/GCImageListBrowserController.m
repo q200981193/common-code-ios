@@ -79,10 +79,11 @@
          selector:@selector(assetsLibraryDidChange:)
          name:ALAssetsLibraryChangedNotification
          object:assetsLibrary];
-        [self addObserver:self
-               forKeyPath:@"mediaTypes"
-                  options:0
-                  context:nil];
+        [self
+         addObserver:self
+         forKeyPath:@"mediaTypes"
+         options:0
+         context:nil];
 	}
 	return self;
 }

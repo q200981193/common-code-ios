@@ -89,10 +89,16 @@
          selector:@selector(assetsLibraryDidChange:)
          name:ALAssetsLibraryChangedNotification
          object:assetsLibrary];
+        [self
+         addObserver:self
+         forKeyPath:@"mediaTypes"
+         options:0
+         context:nil];
 	}
 	return self;
 }
 - (void)dealloc {
+    [self removeObserver:self forKeyPath:@"mediaTypes"];
     [[NSNotificationCenter defaultCenter]
      removeObserver:self
      name:ALAssetsLibraryChangedNotification
@@ -108,6 +114,15 @@
 	[allAssets release];
 	allAssets = nil;
     [super dealloc];	
+}
+
+#pragma mark - KVO
+- (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context {
+    if (object == self) {
+        if ([keyPath isEqualToString:@"mediaTypes"]) {
+            [self reloadAssets];
+        }
+    }
 }
 
 #pragma mark - notifications
@@ -251,14 +266,8 @@
     for (NSURL *url in assetURLs) {
         [assetsLibrary
          assetForURL:url
-         resultBlock:^(ALAsset *asset){
-             dispatch_async(dispatch_get_main_queue(), ^{
-                 self.actionBlock(asset);
-             });
-         }
-         failureBlock:^(NSError *error){
-             GC_LOG_ERROR(@"%@", error);
-         }];
+         resultBlock:self.actionBlock
+         failureBlock:self.failureBlock];
     }
     [assetURLs release];
     if ([self gc_isRootViewController]) {

@@ -385,9 +385,9 @@
         }
     }
     else {
-        GCImageSlideshowController *slideshow = [[GCImageSlideshowController alloc] initWithAssets:allAssets];
-        [self.navigationController pushViewController:slideshow animated:YES];
-        [slideshow release];
+//        GCImageSlideshowController *slideshow = [[GCImageSlideshowController alloc] initWithAssets:allAssets];
+//        [self.navigationController pushViewController:slideshow animated:YES];
+//        [slideshow release];
     }
 }
 

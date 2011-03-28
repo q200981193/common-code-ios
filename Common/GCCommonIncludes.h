@@ -7,6 +7,8 @@
 //
 
 #import "UIViewController+GCExtensions.h"
+#import "GCTextFieldCell.h"
+#import "GCSwitchCell.h"
 
 typedef void (^GCNotificationBlock)(NSNotification *);
 

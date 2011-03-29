@@ -24,6 +24,8 @@
         self.delegate = self;
         self.minimumZoomScale = 1.0;
         self.maximumZoomScale = 1.0;
+        self.alwaysBounceVertical = NO;
+        self.alwaysBounceHorizontal = NO;
     }
     return self;
 }

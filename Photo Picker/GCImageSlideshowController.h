@@ -10,12 +10,22 @@
 
 @interface GCImageSlideshowController : GCImagePickerController <UIScrollViewDelegate> {
 @private
+    
+    // assets library
     ALAssetsLibrary *library;
     NSArray *assets;
-    NSMutableArray *views;
+    
+    // uikit
+    NSMutableSet *visiblePages;
+    NSMutableSet *recycledPages;
+    
+    // queue
+    dispatch_queue_t queue;
+    
 }
 
 @property (nonatomic, retain) IBOutlet UIScrollView *scrollView;
+@property (nonatomic, retain) IBOutlet UIToolbar *toolbar;
 
 - (id)initWithAssets:(NSArray *)array;
 

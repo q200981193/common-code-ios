@@ -16,11 +16,21 @@
 #define kButtonEnabled ([selectedAssets count] > 0)
 
 @interface GCImageGridBrowserController (private)
+- (UIBarButtonItem *)selectButton;
 - (void)reloadAssets;
 - (void)updateTitle;
 @end
 
 @implementation GCImageGridBrowserController (private)
+- (UIBarButtonItem *)selectButton {
+    UIImage *image = [UIImage imageNamed:@"GCImagePickerControllerMultiSelect"];
+    UIBarButtonItem *item = [[UIBarButtonItem alloc]
+                             initWithImage:image
+                             style:UIBarButtonItemStyleBordered
+                             target:self
+                             action:@selector(action)];
+    return [item autorelease];
+}
 - (void)reloadAssets {
     [allAssets release];
     allAssets = nil;
@@ -149,22 +159,17 @@
     [tapRecognizer release];
     
 	// buttons
-	UIBarButtonItem *item;
 	if ([self gc_isRootViewController] && !GC_IS_IPAD) {
-		item = [[UIBarButtonItem alloc]
-				initWithBarButtonSystemItem:UIBarButtonSystemItemDone
-				target:self
-				action:@selector(done)];
+		UIBarButtonItem *item = [[UIBarButtonItem alloc]
+                                 initWithBarButtonSystemItem:UIBarButtonSystemItemDone
+                                 target:self
+                                 action:@selector(done)];
 		self.navigationItem.leftBarButtonItem = item;
 		[item release];
 	}
     if (self.actionEnabled && self.actionBlock && self.actionTitle) {
-        item = [[UIBarButtonItem alloc]
-                initWithBarButtonSystemItem:UIBarButtonSystemItemAction
-                target:self
-                action:@selector(action)];
+        UIBarButtonItem *item = [self selectButton];
         self.navigationItem.rightBarButtonItem = item;
-        [item release];
     }
 	
 	// offset
@@ -219,9 +224,7 @@
 	[item release];
 	
 	// self
-    if (GC_IS_IPAD) {
-        self.modalInPopover = YES;
-    }
+    if (GC_IS_IPAD) { self.modalInPopover = YES; }
     
     // selected
     selectedAssets = [[NSMutableSet alloc] init];
@@ -230,13 +233,8 @@
 - (void)cancel {
 	
 	// buttons
-	UIBarButtonItem *item;
-	item = [[UIBarButtonItem alloc]
-			initWithBarButtonSystemItem:UIBarButtonSystemItemAction
-			target:self
-			action:@selector(action)];
-	self.navigationItem.rightBarButtonItem = item;
-	[item release];
+	UIBarButtonItem *item = [self selectButton];
+    self.navigationItem.rightBarButtonItem = item;
 	if ([self gc_isRootViewController] && !GC_IS_IPAD) {
 		item = [[UIBarButtonItem alloc]
 				initWithBarButtonSystemItem:UIBarButtonSystemItemDone
@@ -254,9 +252,7 @@
     selectedAssets = nil;
 	
 	// update views
-    if (GC_IS_IPAD) {
-        self.modalInPopover = NO;
-    }
+    if (GC_IS_IPAD) { self.modalInPopover = NO; }
 	[self updateTitle];
 	[self.tableView reloadData];
 	
@@ -285,9 +281,7 @@
 - (NSInteger)tableView:(UITableView *)aTableView numberOfRowsInSection:(NSInteger)section {
     NSInteger count = [allAssets count];
 	NSInteger rows = count / 4;
-	if (count % 4 > 0) {
-        rows++;
-	}
+	if (count % 4 > 0) { rows++; }
 	return rows;
 }
 - (UITableViewCell *)tableView:(UITableView *)aTableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
@@ -384,11 +378,13 @@
             
         }
     }
+#if 0
     else {
-//        GCImageSlideshowController *slideshow = [[GCImageSlideshowController alloc] initWithAssets:allAssets];
-//        [self.navigationController pushViewController:slideshow animated:YES];
-//        [slideshow release];
+        GCImageSlideshowController *slideshow = [[GCImageSlideshowController alloc] initWithAssets:allAssets];
+        [self.navigationController pushViewController:slideshow animated:YES];
+        [slideshow release];
     }
+#endif
 }
 
 @end

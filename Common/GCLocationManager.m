@@ -1,17 +1,19 @@
 //
-//  CLLocationManager+GCExtensions.m
-//  GUI Cocoa Common Code Library for iOS
+//  GCLocationManager.m
+//  QuickShot
 //
-//  Created by Caleb Davenport on 3/15/11.
+//  Created by Caleb Davenport on 3/30/11.
 //  Copyright 2011 GUI Cocoa, LLC. All rights reserved.
 //
 
-#import "CLLocationManager+GCExtensions.h"
+#import "GCLocationManager.h"
 
-@implementation CLLocationManager (GCExtensions)
+@implementation GCLocationManager
 
-GC_SINGLETON_INSTANCE(CLLocationManager, gc_sharedManager);
-+ (BOOL)gc_isLocationAvailable {
+@synthesize locationManager=_locaionManager;
+
+GC_SINGLETON_INSTANCE(GCLocationManager, sharedManager);
++ (BOOL)areLocationServicesAvailable {
     BOOL enabled = [CLLocationManager locationServicesEnabled];
 	if (NSFoundationVersionNumber >= NSFoundationVersionNumber_iOS_4_2) {
 		CLAuthorizationStatus status = [CLLocationManager authorizationStatus];

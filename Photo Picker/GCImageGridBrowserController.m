@@ -47,7 +47,7 @@
              allAssets = array;
              [self.tableView reloadData];
              if (groupTypes == ALAssetsGroupSavedPhotos) {
-                 NSUInteger row = [self.tableView numberOfRowsInSection:0] - 1;
+                 NSUInteger row = MIN(0, [self.tableView numberOfRowsInSection:0] - 1);
                  NSIndexPath *path = [NSIndexPath indexPathForRow:row inSection:0];
                  [self.tableView scrollToRowAtIndexPath:path atScrollPosition:UITableViewScrollPositionBottom animated:NO];
              }

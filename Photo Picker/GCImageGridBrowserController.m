@@ -67,7 +67,10 @@
              }
          }
      }
-     failureBlock:self.failureBlock];
+     failureBlock:^(NSError *error){
+         allAssets = [[NSArray alloc] init];
+         self.failureBlock(error);
+     }];
 }
 - (void)updateTitle {
     NSUInteger count = [selectedAssets count];
@@ -138,6 +141,9 @@
 #pragma mark - notifications
 - (void)assetsLibraryDidChange:(NSNotification *)notification {
     [self reloadAssets];
+    while (allAssets == nil) {
+        CFRunLoopRunInMode(kCFRunLoopDefaultMode, 0.1, NO);
+    }
 }
 
 #pragma mark - view lifecycle

@@ -3,12 +3,12 @@
 	<data>
 		<int key="IBDocument.SystemTarget">1056</int>
 		<string key="IBDocument.SystemVersion">10J869</string>
-		<string key="IBDocument.InterfaceBuilderVersion">1305</string>
+		<string key="IBDocument.InterfaceBuilderVersion">1306</string>
 		<string key="IBDocument.AppKitVersion">1038.35</string>
 		<string key="IBDocument.HIToolboxVersion">461.00</string>
 		<object class="NSMutableDictionary" key="IBDocument.PluginVersions">
 			<string key="NS.key.0">com.apple.InterfaceBuilder.IBCocoaTouchPlugin</string>
-			<string key="NS.object.0">300</string>
+			<string key="NS.object.0">301</string>
 		</object>
 		<object class="NSArray" key="IBDocument.IntegratedClassDependencies">
 			<bool key="EncodedWithXMLCoder">YES</bool>
@@ -46,7 +46,7 @@
 					<object class="IBUIImageView" id="449874161">
 						<reference key="NSNextResponder" ref="5089397"/>
 						<int key="NSvFlags">301</int>
-						<string key="NSFrame">{{10, 135}, {300, 250}}</string>
+						<string key="NSFrame">{{10, 115}, {300, 250}}</string>
 						<reference key="NSSuperview" ref="5089397"/>
 						<reference key="NSWindow"/>
 						<reference key="NSNextKeyView"/>
@@ -282,6 +282,6 @@
 			<string key="NS.key.0">GCImagePickerControllerFilmRoll.png</string>
 			<string key="NS.object.0">{300, 250}</string>
 		</object>
-		<string key="IBCocoaTouchPluginVersion">300</string>
+		<string key="IBCocoaTouchPluginVersion">301</string>
 	</data>
 </archive>

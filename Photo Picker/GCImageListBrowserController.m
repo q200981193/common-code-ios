@@ -62,7 +62,11 @@
              }
 		 }
 	 }
-	 failureBlock:self.failureBlock];
+	 failureBlock:^(NSError *error){
+         assetsGroups = [[NSArray alloc] init];
+         self.tableView.hidden = YES;
+         self.failureBlock(error);
+     }];
 }
 @end
 
@@ -143,6 +147,9 @@
     if (object == self) {
         if ([keyPath isEqualToString:@"mediaTypes"]) {
             [self reloadAssetsGroups];
+            while (assetsGroups == nil) {
+                CFRunLoopRunInMode(kCFRunLoopDefaultMode, 0.1, NO);
+            }
         }
     }
 }
@@ -150,6 +157,9 @@
 #pragma mark - notifications
 - (void)assetsLibraryDidChange:(NSNotification *)notif {
     [self reloadAssetsGroups];
+    while (assetsGroups == nil) {
+        CFRunLoopRunInMode(kCFRunLoopDefaultMode, 0.1, NO);
+    }
 }
 
 #pragma mark - button actions

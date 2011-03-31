@@ -5,6 +5,7 @@
   Copyright 2011 GUI Cocoa, LLC. All rights reserved.
 */
 
+"ERROR" = "Fehler";
 "CAMERA_ROLL" = "Aufnahmen";
 "LOCATION_SERVICES" = "Ortungsdienste";
 "PHOTO_ROLL_LOCATION_ERROR" = "Da einige Fotos Standortdaten enthalten k√∂nnen, fordert iOS die Aktivierung der Ortungsdienste, um auf die Fotoalben zugreifen zu d√ºrfen.";

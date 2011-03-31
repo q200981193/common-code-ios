@@ -137,7 +137,7 @@
         _failureBlock = Block_copy(^(NSError *error){
             GC_LOG_ERROR(@"%@", error);
             UIAlertView *alert = [[UIAlertView alloc]
-                                  initWithTitle:GCImagePickerControllerLocalizedString(@"LOCATION_SERVICES")
+                                  initWithTitle:GCImagePickerControllerLocalizedString(@"ERROR")
                                   message:GCImagePickerControllerLocalizedString(@"PHOTO_ROLL_LOCATION_ERROR")
                                   delegate:nil
                                   cancelButtonTitle:GCImagePickerControllerLocalizedString(@"OK")

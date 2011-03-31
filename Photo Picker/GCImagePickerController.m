@@ -65,20 +65,28 @@
 	NSFileHandle *handle = [NSFileHandle fileHandleForWritingAtPath:writePath];
 	long long size = [rep size], offset = 0;
 	while (offset < size) {
-		NSMutableData *buffer = [NSMutableData dataWithLength:1024];
+		NSMutableData *buffer = [[NSMutableData alloc] initWithLength:1024];
 		NSError *error = nil;
 		NSUInteger written = [rep getBytes:[buffer mutableBytes] fromOffset:offset length:1024 error:&error];
-        if (error != nil) {
+        if (error) {
 			GC_LOG_ERROR(@"%@", error);
 			[handle closeFile];
-			[[NSFileManager defaultManager] removeItemAtPath:path error:nil];
+            [buffer release];
+			[[NSFileManager defaultManager] removeItemAtPath:writePath error:nil];
+            writePath = nil;
 			break;
 		}
-		[handle writeData:[buffer subdataWithRange:NSMakeRange(0, written)]];
+        if (written == 1024) {
+            [handle writeData:buffer];
+        }
+        else if (written > 0) {
+            [handle writeData:[buffer subdataWithRange:NSMakeRange(0, written)]];
+        }
+        [buffer release];
 		offset += written;
 	}
 	[handle closeFile];
-	if (atomically) {
+	if (atomically && writePath) {
 		[[NSFileManager defaultManager] moveItemAtPath:writePath toPath:path error:nil];
 	}
     [rep release];

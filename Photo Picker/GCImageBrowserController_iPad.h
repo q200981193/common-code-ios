@@ -16,14 +16,20 @@
     BOOL changeIsAnimated;
 }
 
+// interface builder properties
 @property (nonatomic, retain) IBOutlet UIView *leftView;
 @property (nonatomic, retain) IBOutlet UIView *rightView;
 @property (nonatomic, retain) IBOutlet UIToolbar *toolbar;
 @property (nonatomic, retain) IBOutlet UILabel *titleLabel;
 
+// master & detail views
 @property (nonatomic, retain) GCImageListBrowserController *listViewController;
 @property (nonatomic, retain) GCImageGridBrowserController *gridViewController;
+
+// popover
 @property (nonatomic, retain) UIPopoverController *popoverController;
+
+// control whether the album list is shown
 @property (nonatomic, assign) BOOL showAlbumList;
 
 @end

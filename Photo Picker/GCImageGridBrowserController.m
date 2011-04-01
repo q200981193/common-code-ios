@@ -37,7 +37,7 @@
              allAssets = array;
              [self.tableView reloadData];
              if (groupTypes == ALAssetsGroupSavedPhotos) {
-                 NSUInteger row = MIN(0, [self.tableView numberOfRowsInSection:0] - 1);
+                 NSUInteger row = MAX(0, [self.tableView numberOfRowsInSection:0] - 1);
                  NSIndexPath *path = [NSIndexPath indexPathForRow:row inSection:0];
                  [self.tableView scrollToRowAtIndexPath:path atScrollPosition:UITableViewScrollPositionBottom animated:NO];
              }
@@ -258,8 +258,8 @@
     [super setEditing:editing animated:animated];
     if (editing) {
         selectedAssets = [[NSMutableSet alloc] init];
-        self.navigationItem.leftBarButtonItem = self.cancelButtonItem;
-        self.navigationItem.rightBarButtonItem = self.actionButtonItem;
+        self.navigationItem.rightBarButtonItem = self.cancelButtonItem;
+        self.navigationItem.leftBarButtonItem = self.actionButtonItem;
         self.actionButtonItem.enabled = ([selectedAssets count] > 0);
     }
     else {

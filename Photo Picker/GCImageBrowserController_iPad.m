@@ -37,12 +37,12 @@
 - (void)updateToolbarItemsForOrientation:(UIInterfaceOrientation)orientation {
     NSMutableArray *array = [NSMutableArray array];
     if (self.gridViewController.editing) {
-        if (self.gridViewController.cancelButtonItem) {
-            [array addObject:self.gridViewController.cancelButtonItem];
-        }
-        [array addObject:[self flexibleSpaceButtonItem]];
         if (self.gridViewController.actionButtonItem) {
             [array addObject:self.gridViewController.actionButtonItem];
+        }
+        [array addObject:[self flexibleSpaceButtonItem]];
+        if (self.gridViewController.cancelButtonItem) {
+            [array addObject:self.gridViewController.cancelButtonItem];
         }
     }
     else {
@@ -152,6 +152,9 @@
         // dsimiss popover
         [self.popoverController dismissPopoverAnimated:YES];
         self.popoverController = nil;
+        
+        // buttons
+        [self updateToolbarItems];
 
     };
     [self.leftView addSubview:listView.view];
@@ -176,10 +179,11 @@
     [self cleanup];
 }
 - (void)willRotateToInterfaceOrientation:(UIInterfaceOrientation)orientation duration:(NSTimeInterval)duration {
-    [self view];
+    if ([self isViewLoaded]) {
+        [self updateToolbarItemsForOrientation:orientation];
+    }
     [self.popoverController dismissPopoverAnimated:NO];
     self.popoverController = nil;
-    [self updateToolbarItemsForOrientation:orientation];
     changeIsAnimated = (duration > 0);
     if (UIInterfaceOrientationIsPortrait(orientation)) {
         if (duration > 0) { [self.listViewController viewWillDisappear:YES]; }

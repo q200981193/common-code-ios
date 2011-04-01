@@ -176,6 +176,7 @@
 - (void)presentFromViewController:(UIViewController *)controller {
 	UINavigationController *nav = [[UINavigationController alloc] initWithRootViewController:self];
     if (GC_IS_IPAD) { nav.navigationBarHidden = YES; }
+    else { nav.navigationBar.barStyle = UIBarStyleBlackTranslucent; }
 	[controller presentModalViewController:nav animated:YES];
 	[nav release];
 }

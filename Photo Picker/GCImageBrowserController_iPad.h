@@ -18,6 +18,9 @@
 
 @property (nonatomic, retain) IBOutlet UIView *leftView;
 @property (nonatomic, retain) IBOutlet UIView *rightView;
+@property (nonatomic, retain) IBOutlet UIToolbar *toolbar;
+@property (nonatomic, retain) IBOutlet UILabel *titleLabel;
+
 @property (nonatomic, retain) GCImageListBrowserController *listViewController;
 @property (nonatomic, retain) GCImageGridBrowserController *gridViewController;
 @property (nonatomic, retain) UIPopoverController *popoverController;

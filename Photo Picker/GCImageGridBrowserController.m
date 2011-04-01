@@ -152,7 +152,6 @@
 	
     // table view
     self.tableView.hidden = YES;
-    self.tableView.rowHeight = kRowHeight;
     self.tableView.separatorStyle = UITableViewCellSeparatorStyleNone;
     
     // gestures
@@ -283,6 +282,9 @@
 #pragma mark - table view
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)aTableView {
 	return 1;
+}
+- (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
+    return kRowHeight;
 }
 - (NSInteger)tableView:(UITableView *)aTableView numberOfRowsInSection:(NSInteger)section {
     NSInteger count = [allAssets count];

@@ -8,10 +8,14 @@
 
 #import "GCImageBrowserController.h"
 
+typedef void (^GCImageListBrowserSelectedGroupBlock) (ALAssetsGroup *group);
+
 @interface GCImageListBrowserController : GCImageBrowserController {
 @private
     ALAssetsLibrary *assetsLibrary;
 	NSArray *assetsGroups;
 }
+
+@property (nonatomic, copy) GCImageListBrowserSelectedGroupBlock selectedGroupBlock;
 
 @end

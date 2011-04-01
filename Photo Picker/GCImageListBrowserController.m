@@ -72,6 +72,8 @@
 
 @implementation GCImageListBrowserController
 
+@synthesize selectedGroupBlock=_selectedGroupBlock;
+
 #pragma mark - object lifecycle
 - (id)init {
 	self = [super init];
@@ -101,6 +103,7 @@
     assetsLibrary = nil;
 	[assetsGroups release];
 	assetsGroups = nil;
+    self.selectedGroupBlock = nil;
     [super dealloc];
 }
 
@@ -182,7 +185,7 @@
     UITableViewCell *cell = [aTableView dequeueReusableCellWithIdentifier:CellIdentifier];
     if (cell == nil) {
         cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleValue1 reuseIdentifier:CellIdentifier] autorelease];
-		cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
+        cell.accessoryType = (self.selectedGroupBlock) ? UITableViewCellAccessoryNone : UITableViewCellAccessoryDisclosureIndicator;
     }
     ALAssetsGroup *group = [assetsGroups objectAtIndex:indexPath.row];
 	cell.textLabel.text = [group valueForProperty:ALAssetsGroupPropertyName];
@@ -190,17 +193,23 @@
 	cell.detailTextLabel.text = [NSString stringWithFormat:@"%d", [group numberOfAssets]];
     return cell;
 }
-- (void)tableView:(UITableView *)aTableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
-	ALAssetsGroup *group = [assetsGroups objectAtIndex:indexPath.row];
-    NSString *groupID = [group valueForProperty:ALAssetsGroupPropertyPersistentID];
-    ALAssetsGroupType groupType = [[group valueForProperty:ALAssetsGroupPropertyType] unsignedIntegerValue];
-    NSString *groupName = [group valueForProperty:ALAssetsGroupPropertyName];
-	GCImagePickerController *browser = [[GCImageGridBrowserController alloc] initWithAssetsGroupTypes:groupType title:groupName groupID:groupID];
-    browser.actionBlock = self.actionBlock;
-    browser.actionEnabled = self.actionEnabled;
-    browser.actionTitle = self.actionTitle;
-	[self.navigationController pushViewController:browser animated:YES];
-    [browser release];
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
+    ALAssetsGroup *group = [assetsGroups objectAtIndex:indexPath.row];
+    if (self.selectedGroupBlock == nil) {
+        NSString *groupID = [group valueForProperty:ALAssetsGroupPropertyPersistentID];
+        ALAssetsGroupType groupType = [[group valueForProperty:ALAssetsGroupPropertyType] unsignedIntegerValue];
+        NSString *groupName = [group valueForProperty:ALAssetsGroupPropertyName];
+        GCImagePickerController *browser = [[GCImageGridBrowserController alloc] initWithAssetsGroupTypes:groupType title:groupName groupID:groupID];
+        browser.actionBlock = self.actionBlock;
+        browser.actionEnabled = self.actionEnabled;
+        browser.actionTitle = self.actionTitle;
+        [self.navigationController pushViewController:browser animated:YES];
+        [browser release];
+    }
+    else {
+        self.selectedGroupBlock(group);
+        [tableView deselectRowAtIndexPath:indexPath animated:YES];
+    }
 }
 
 @end

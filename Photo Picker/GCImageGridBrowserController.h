@@ -10,13 +10,25 @@
 
 @interface GCImageGridBrowserController : GCImageBrowserController {
 @private
+    
+    // button items
+    UIBarButtonItem *_selectButtonItem;
+    UIBarButtonItem *_actionButtonItem;
+    UIBarButtonItem *_cancelButtonItem;
+    
+    // other stuff
     ALAssetsGroupType groupTypes;
     ALAssetsLibrary *assetsLibrary;
     NSString *assetsGroupIdentifier;
     NSMutableSet *selectedAssets;
     NSArray *allAssets;
     NSString *baseTitle;
+    
 }
+
+@property (nonatomic, readonly) UIBarButtonItem *selectButtonItem;
+@property (nonatomic, readonly) UIBarButtonItem *actionButtonItem;
+@property (nonatomic, readonly) UIBarButtonItem *cancelButtonItem;
 
 - (id)initWithAssetsGroupTypes:(ALAssetsGroupType)types title:(NSString *)title groupID:(NSString *)groupID;
 

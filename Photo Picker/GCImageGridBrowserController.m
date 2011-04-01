@@ -13,24 +13,14 @@
 #define kSpaceSize 4.0
 #define kTileSize ((self.view.bounds.size.width - (kSpaceSize * 5.0)) / 4.0)
 #define kRowHeight (kTileSize + kSpaceSize)
-#define kButtonEnabled ([selectedAssets count] > 0)
 
 @interface GCImageGridBrowserController (private)
-- (UIBarButtonItem *)selectButton;
 - (void)reloadAssets;
 - (void)updateTitle;
+- (void)cleanup;
 @end
 
 @implementation GCImageGridBrowserController (private)
-- (UIBarButtonItem *)selectButton {
-    UIImage *image = [UIImage imageNamed:@"GCImagePickerControllerMultiSelect"];
-    UIBarButtonItem *item = [[UIBarButtonItem alloc]
-                             initWithImage:image
-                             style:UIBarButtonItemStyleBordered
-                             target:self
-                             action:@selector(action)];
-    return [item autorelease];
-}
 - (void)reloadAssets {
     [allAssets release];
     allAssets = nil;
@@ -84,49 +74,87 @@
         self.title = [NSString localizedStringWithFormat:GCImagePickerControllerLocalizedString(@"PHOTO_COUNT_MULTIPLE"), count];
     }
 }
+- (void)cleanup {
+    
+    [self willChangeValueForKey:@"selectButtonItem"];
+    [_selectButtonItem release];
+    _selectButtonItem = nil;
+    [self didChangeValueForKey:@"selectButtonItem"];
+    
+    [self willChangeValueForKey:@"actionButtonItem"];
+    [_actionButtonItem release];
+    _actionButtonItem = nil;
+    [self didChangeValueForKey:@"actionButtonItem"];
+    
+    [self willChangeValueForKey:@"cancelButtonItem"];
+    [_cancelButtonItem release];
+    _cancelButtonItem = nil;
+    [self didChangeValueForKey:@"cancelButtonItem"];
+    
+    [allAssets release];
+    allAssets = nil;
+    
+    [selectedAssets release];
+    selectedAssets = nil;
+    
+}
 @end
 
 @implementation GCImageGridBrowserController
+
+@synthesize selectButtonItem=_selectButtonItem;
+@synthesize actionButtonItem=_actionButtonItem;
+@synthesize cancelButtonItem=_cancelButtonItem;
 
 #pragma mark - object lifecycle
 - (id)initWithAssetsGroupTypes:(ALAssetsGroupType)types title:(NSString *)title groupID:(NSString *)groupID {
     self = [super init];
 	if (self) {
+        
         assetsLibrary = [[ALAssetsLibrary alloc] init];
         groupTypes = types;
         baseTitle = [title copy];
         assetsGroupIdentifier = [groupID copy];
+        
 		[self updateTitle];
+        
         [[NSNotificationCenter defaultCenter]
          addObserver:self
          selector:@selector(assetsLibraryDidChange:)
          name:ALAssetsLibraryChangedNotification
          object:assetsLibrary];
+        
         [self
          addObserver:self
          forKeyPath:@"mediaTypes"
          options:0
          context:nil];
+        
 	}
 	return self;
 }
 - (void)dealloc {
+    
+    [self cleanup];
+    
     [self removeObserver:self forKeyPath:@"mediaTypes"];
+    
     [[NSNotificationCenter defaultCenter]
      removeObserver:self
      name:ALAssetsLibraryChangedNotification
      object:assetsLibrary];
+    
     [assetsLibrary release];
     assetsLibrary = nil;
+    
 	[baseTitle release];
 	baseTitle = nil;
-	[selectedAssets release];
-	selectedAssets = nil;
+    
 	[assetsGroupIdentifier release];
 	assetsGroupIdentifier = nil;
-	[allAssets release];
-	allAssets = nil;
-    [super dealloc];	
+    
+    [super dealloc];
+    
 }
 
 #pragma mark - KVO
@@ -149,6 +177,30 @@
 #pragma mark - view lifecycle
 - (void)viewDidLoad {
 	[super viewDidLoad];
+    
+    [self willChangeValueForKey:@"selectButtonItem"];
+    UIImage *selectImage = [UIImage imageNamed:@"GCImagePickerControllerMultiSelect"];
+    _selectButtonItem = [[UIBarButtonItem alloc]
+                         initWithImage:selectImage
+                         style:UIBarButtonItemStyleBordered
+                         target:self
+                         action:@selector(select)];
+    [self didChangeValueForKey:@"selectButtonItem"];
+    
+    [self willChangeValueForKey:@"actionButtonItem"];
+    _actionButtonItem = [[UIBarButtonItem alloc]
+                         initWithTitle:self.actionTitle
+                         style:UIBarButtonItemStyleDone
+                         target:self
+                         action:@selector(action)];
+    [self didChangeValueForKey:@"actionButtonItem"];
+    
+    [self willChangeValueForKey:@"cancelButtonItem"];
+    _actionButtonItem = [[UIBarButtonItem alloc]
+                         initWithBarButtonSystemItem:UIBarButtonSystemItemCancel
+                         target:self
+                         action:@selector(cancel)];
+    [self didChangeValueForKey:@"cancelButtonItem"];
 	
     // table view
     self.tableView.hidden = YES;
@@ -164,7 +216,7 @@
     [tapRecognizer release];
     
 	// buttons
-	if ([self gc_isRootViewController] && !GC_IS_IPAD) {
+	if ([self gc_isRootViewController]) {
 		UIBarButtonItem *item = [[UIBarButtonItem alloc]
                                  initWithBarButtonSystemItem:UIBarButtonSystemItemDone
                                  target:self
@@ -173,8 +225,7 @@
 		[item release];
 	}
     if (self.actionEnabled && self.actionBlock && self.actionTitle) {
-        UIBarButtonItem *item = [self selectButton];
-        self.navigationItem.rightBarButtonItem = item;
+        self.navigationItem.rightBarButtonItem = self.selectButtonItem;
     }
 	
 	// offset
@@ -191,10 +242,7 @@
 }
 - (void)viewDidUnload {
     [super viewDidUnload];
-    [allAssets release];
-    allAssets = nil;
-    [selectedAssets release];
-    selectedAssets = nil;
+    [self cleanup];
 }
 - (void)viewWillAppear:(BOOL)animated {
 	[super viewWillAppear:animated];
@@ -206,63 +254,43 @@
 }
 
 #pragma mark - button actions
+- (void)setEditing:(BOOL)editing animated:(BOOL)animated {
+    [super setEditing:editing animated:animated];
+    if (editing) {
+        selectedAssets = [[NSMutableSet alloc] init];
+        self.navigationItem.leftBarButtonItem = self.cancelButtonItem;
+        self.navigationItem.rightBarButtonItem = self.actionButtonItem;
+        self.actionButtonItem.enabled = ([selectedAssets count] > 0);
+    }
+    else {
+        [selectedAssets release];
+        selectedAssets = nil;
+        if ([self gc_isRootViewController]) {
+            UIBarButtonItem *item = [[UIBarButtonItem alloc]
+                                     initWithBarButtonSystemItem:UIBarButtonSystemItemDone
+                                     target:self
+                                     action:@selector(done)];
+            self.navigationItem.leftBarButtonItem = item;
+            [item release];
+        }
+        else {
+            self.navigationItem.leftBarButtonItem = nil;
+        }
+        self.navigationItem.rightBarButtonItem = self.selectButtonItem;
+    }
+    [self updateTitle];
+	[self.tableView reloadData];
+}
 - (void)done {
 	[self dismissModalViewControllerAnimated:YES];
 }
-- (void)action {
-	
-	// buttons
-	UIBarButtonItem *item;
-	item = [[UIBarButtonItem alloc]
-			initWithBarButtonSystemItem:UIBarButtonSystemItemCancel
-			target:self
-			action:@selector(cancel)];
-	self.navigationItem.leftBarButtonItem = item;
-	[item release];
-	item = [[UIBarButtonItem alloc]
-			initWithTitle:self.actionTitle
-			style:UIBarButtonItemStyleDone
-			target:self
-			action:@selector(upload)];
-	item.enabled = kButtonEnabled;
-	self.navigationItem.rightBarButtonItem = item;
-	[item release];
-	
-	// self
-    if (GC_IS_IPAD) { self.modalInPopover = YES; }
-    
-    // selected
-    selectedAssets = [[NSMutableSet alloc] init];
-	
+- (void)select {
+    self.editing = YES;
 }
 - (void)cancel {
-	
-	// buttons
-	UIBarButtonItem *item = [self selectButton];
-    self.navigationItem.rightBarButtonItem = item;
-	if ([self gc_isRootViewController] && !GC_IS_IPAD) {
-		item = [[UIBarButtonItem alloc]
-				initWithBarButtonSystemItem:UIBarButtonSystemItemDone
-				target:self
-				action:@selector(done)];
-		self.navigationItem.leftBarButtonItem = item;
-		[item release];
-	}
-	else {
-		self.navigationItem.leftBarButtonItem = nil;
-	}
-	
-	// selected
-    [selectedAssets release];
-    selectedAssets = nil;
-	
-	// update views
-    if (GC_IS_IPAD) { self.modalInPopover = NO; }
-	[self updateTitle];
-	[self.tableView reloadData];
-	
+    self.editing = NO;
 }
-- (void)upload {
+- (void)action {
     NSSet *assetURLs = [selectedAssets copy];
     for (NSURL *url in assetURLs) {
         [assetsLibrary
@@ -331,7 +359,7 @@
 
 #pragma mark - gestures
 - (void)tableDidReceiveTap:(UITapGestureRecognizer *)tap {
-    if (selectedAssets != nil) {
+    if (selectedAssets) {
         
         // setup variables
         UITableView *tap_view = self.tableView;
@@ -380,7 +408,7 @@
             
             // update views
             [self updateTitle];
-            self.navigationItem.rightBarButtonItem.enabled = kButtonEnabled;
+            self.actionButtonItem.enabled = ([selectedAssets count] > 0);
             NSArray *paths = [NSArray arrayWithObject:[NSIndexPath indexPathForRow:index_y inSection:0]];
             [self.tableView reloadRowsAtIndexPaths:paths withRowAnimation:UITableViewRowAnimationNone];
             

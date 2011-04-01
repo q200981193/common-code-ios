@@ -46,16 +46,14 @@
         }
     }
     else {
+        UIBarButtonItem *item = [[UIBarButtonItem alloc]
+                                 initWithBarButtonSystemItem:UIBarButtonSystemItemDone
+                                 target:self
+                                 action:@selector(doneAction)];
+        [array addObject:item];
+        [item release];
         if (UIInterfaceOrientationIsPortrait(orientation)) {
             [array addObject:[self popoverButtonItem]];
-        }
-        else {
-            UIBarButtonItem *item = [[UIBarButtonItem alloc]
-                                     initWithBarButtonSystemItem:UIBarButtonSystemItemDone
-                                     target:self
-                                     action:@selector(doneAction)];
-            [array addObject:item];
-            [item release];
         }
         [array addObject:[self flexibleSpaceButtonItem]];
         if (self.gridViewController.selectButtonItem) {

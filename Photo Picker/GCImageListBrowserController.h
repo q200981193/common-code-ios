@@ -13,9 +13,10 @@ typedef void (^GCImageListBrowserSelectedGroupBlock) (ALAssetsGroup *group);
 @interface GCImageListBrowserController : GCImageBrowserController {
 @private
     ALAssetsLibrary *assetsLibrary;
-	NSArray *assetsGroups;
+	NSArray *_assetsGroups;
 }
 
 @property (nonatomic, copy) GCImageListBrowserSelectedGroupBlock selectedGroupBlock;
+@property (nonatomic, readonly) NSArray *assetsGroups;
 
 @end

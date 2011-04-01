@@ -15,8 +15,8 @@
 
 @implementation GCImageListBrowserController (private)
 - (void)reloadAssetsGroups {
-    [assetsGroups release];
-    assetsGroups = nil;
+    [self willChangeValueForKey:@"assetsGroups"];
+    [_assetsGroups release];
     NSMutableArray *albums = [NSMutableArray array];
     NSMutableArray *faces = [NSMutableArray array];
     NSMutableArray *events = [NSMutableArray array];
@@ -37,9 +37,10 @@
              [array addObjectsFromArray:albums];
              [array addObjectsFromArray:events];
              [array addObjectsFromArray:faces];
-             assetsGroups = array;
+             _assetsGroups = array;
+             [self didChangeValueForKey:@"assetsGroups"];
              [self.tableView reloadData];
-             self.tableView.hidden = ([assetsGroups count] == 0);
+             self.tableView.hidden = ([_assetsGroups count] == 0);
 		 }
 		 else {
              [group setAssetsFilter:filter];
@@ -63,7 +64,8 @@
 		 }
 	 }
 	 failureBlock:^(NSError *error){
-         assetsGroups = [[NSArray alloc] init];
+         _assetsGroups = [[NSArray alloc] init];
+         [self didChangeValueForKey:@"assetsGroups"];
          self.tableView.hidden = YES;
          self.failureBlock(error);
      }];
@@ -73,6 +75,7 @@
 @implementation GCImageListBrowserController
 
 @synthesize selectedGroupBlock=_selectedGroupBlock;
+@synthesize assetsGroups=_assetsGroups;
 
 #pragma mark - object lifecycle
 - (id)init {
@@ -101,8 +104,8 @@
      object:assetsLibrary];
     [assetsLibrary release];
     assetsLibrary = nil;
-	[assetsGroups release];
-	assetsGroups = nil;
+	[_assetsGroups release];
+	_assetsGroups = nil;
     self.selectedGroupBlock = nil;
     [super dealloc];
 }
@@ -126,15 +129,15 @@
 	
 	// groups
     [self reloadAssetsGroups];
-    while (assetsGroups == nil) {
+    while (self.assetsGroups == nil) {
         CFRunLoopRunInMode(kCFRunLoopDefaultMode, 0.1, NO);
     }
 	
 }
 - (void)viewDidUnload {
 	[super viewDidUnload];
-	[assetsGroups release];
-	assetsGroups = nil;
+	[_assetsGroups release];
+	_assetsGroups = nil;
 }
 - (void)viewWillAppear:(BOOL)animated {
 	[super viewWillAppear:animated];
@@ -150,7 +153,7 @@
     if (object == self) {
         if ([keyPath isEqualToString:@"mediaTypes"]) {
             [self reloadAssetsGroups];
-            while (assetsGroups == nil) {
+            while (self.assetsGroups == nil) {
                 CFRunLoopRunInMode(kCFRunLoopDefaultMode, 0.1, NO);
             }
         }
@@ -160,7 +163,7 @@
 #pragma mark - notifications
 - (void)assetsLibraryDidChange:(NSNotification *)notif {
     [self reloadAssetsGroups];
-    while (assetsGroups == nil) {
+    while (self.assetsGroups == nil) {
         CFRunLoopRunInMode(kCFRunLoopDefaultMode, 0.1, NO);
     }
 }
@@ -178,7 +181,7 @@
 	return 1;
 }
 - (NSInteger)tableView:(UITableView *)aTableView numberOfRowsInSection:(NSInteger)section {
-	return [assetsGroups count];
+	return [self.assetsGroups count];
 }
 - (UITableViewCell *)tableView:(UITableView *)aTableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
 	static NSString * CellIdentifier = @"Cell";
@@ -187,14 +190,14 @@
         cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleValue1 reuseIdentifier:CellIdentifier] autorelease];
         cell.accessoryType = (self.selectedGroupBlock) ? UITableViewCellAccessoryNone : UITableViewCellAccessoryDisclosureIndicator;
     }
-    ALAssetsGroup *group = [assetsGroups objectAtIndex:indexPath.row];
+    ALAssetsGroup *group = [self.assetsGroups objectAtIndex:indexPath.row];
 	cell.textLabel.text = [group valueForProperty:ALAssetsGroupPropertyName];
 	cell.imageView.image = [UIImage imageWithCGImage:[group posterImage]];
 	cell.detailTextLabel.text = [NSString stringWithFormat:@"%d", [group numberOfAssets]];
     return cell;
 }
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
-    ALAssetsGroup *group = [assetsGroups objectAtIndex:indexPath.row];
+    ALAssetsGroup *group = [self.assetsGroups objectAtIndex:indexPath.row];
     if (self.selectedGroupBlock == nil) {
         NSString *groupID = [group valueForProperty:ALAssetsGroupPropertyPersistentID];
         ALAssetsGroupType groupType = [[group valueForProperty:ALAssetsGroupPropertyType] unsignedIntegerValue];

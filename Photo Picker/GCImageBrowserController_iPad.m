@@ -25,11 +25,10 @@
     return [item autorelease];
 }
 - (void)cleanup {
-//    [self.gridViewController removeObserver:self forKeyPath:@"title"];
-    self.gridViewController = nil;
-    self.listViewController = nil;
     [self.popoverController dismissPopoverAnimated:NO];
     self.popoverController = nil;
+    self.gridViewController = nil;
+    self.listViewController = nil;
     self.leftView = nil;
     self.rightView = nil;
 }
@@ -68,6 +67,7 @@
         NSString *groupID = [group valueForProperty:ALAssetsGroupPropertyPersistentID];
         ALAssetsGroupType groupType = [[group valueForProperty:ALAssetsGroupPropertyType] unsignedIntegerValue];
         NSString *groupName = [group valueForProperty:ALAssetsGroupPropertyName];
+        self.title = groupName;
         
         // unload old view
         [self.gridViewController viewWillDisappear:NO];
@@ -89,6 +89,10 @@
         [gridView viewDidAppear:NO];
         self.gridViewController = gridView;
         [gridView release];
+        
+        // dsimiss popover
+        [self.popoverController dismissPopoverAnimated:YES];
+        self.popoverController = nil;
 
     };
     [self.leftView addSubview:listView.view];
@@ -185,13 +189,15 @@
 
 #pragma mark - button actions
 - (void)popoverAction:(UIBarButtonItem *)sender {
-    UINavigationController *nav = [[UINavigationController alloc] initWithRootViewController:self.listViewController];
-    UIPopoverController *popover = [[UIPopoverController alloc] initWithContentViewController:nav];
-    [popover setDelegate:self];
-    [popover presentPopoverFromBarButtonItem:sender permittedArrowDirections:UIPopoverArrowDirectionAny animated:YES];
-    self.popoverController = popover;
-    [popover release];
-    [nav release];
+    if (!self.popoverController) {
+        UINavigationController *nav = [[UINavigationController alloc] initWithRootViewController:self.listViewController];
+        UIPopoverController *popover = [[UIPopoverController alloc] initWithContentViewController:nav];
+        [popover setDelegate:self];
+        [popover presentPopoverFromBarButtonItem:sender permittedArrowDirections:UIPopoverArrowDirectionAny animated:YES];
+        self.popoverController = popover;
+        [popover release];
+        [nav release];
+    }
 }
 
 #pragma mark - popover delegate

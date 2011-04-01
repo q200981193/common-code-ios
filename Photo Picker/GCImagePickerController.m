@@ -11,26 +11,38 @@
 #import "GCImagePickerController.h"
 #import "GCImageListBrowserController.h"
 #import "GCImageGridBrowserController.h"
+#import "GCImageBrowserController_iPad.h"
 
 @implementation GCImagePickerController
 
 #pragma mark - class methods
 + (GCImagePickerController *)pickerWithSourceType:(UIImagePickerControllerSourceType)source {
-    if (source == UIImagePickerControllerSourceTypePhotoLibrary) {
-        return [[[GCImageListBrowserController alloc] init] autorelease];
-    }
-    else if (source == UIImagePickerControllerSourceTypeSavedPhotosAlbum) {
-        GCImagePickerController *picker = [[GCImageGridBrowserController alloc]
-                                           initWithAssetsGroupTypes:ALAssetsGroupSavedPhotos
-                                           title:GCImagePickerControllerLocalizedString(@"CAMERA_ROLL")
-                                           groupID:nil];
-        return [picker autorelease];
-    }
-    else {
+    
+    // arg check
+    if (source != UIImagePickerControllerSourceTypePhotoLibrary &&
+        source != UIImagePickerControllerSourceTypeSavedPhotosAlbum) {
         [NSException
          raise:NSInvalidArgumentException
          format:@"%@ does not support the specified source type.", NSStringFromClass(self)];
         return nil;
+    }
+    
+    if (GC_IS_IPAD) {
+        GCImageBrowserController_iPad *browser = [[GCImageBrowserController_iPad alloc] init];
+        browser.showAlbumList = (source == UIImagePickerControllerSourceTypePhotoLibrary);
+        return [browser autorelease];
+    }
+    else {
+        if (source == UIImagePickerControllerSourceTypeSavedPhotosAlbum) {
+            GCImagePickerController *picker = [[GCImageGridBrowserController alloc]
+                                               initWithAssetsGroupTypes:ALAssetsGroupSavedPhotos
+                                               title:GCImagePickerControllerLocalizedString(@"CAMERA_ROLL")
+                                               groupID:nil];
+            return [picker autorelease];
+        }
+        else {
+            return [[[GCImageListBrowserController alloc] init] autorelease];
+        }
     }
 }
 + (NSData *)dataForAssetRepresentation:(ALAssetRepresentation *)rep {
@@ -131,8 +143,7 @@
 - (id)initWithNibName:(NSString *)name bundle:(NSBundle *)bundle {
     self = [super initWithNibName:name bundle:bundle];
     if (self) {
-        if (GC_IS_IPAD) { self.contentSizeForViewInPopover = CGSizeMake(320, 460); }
-		else { self.wantsFullScreenLayout = YES; }
+        if (!GC_IS_IPAD) { self.wantsFullScreenLayout = YES; }
         self.mediaTypes = [NSArray arrayWithObject:(NSString *)kUTTypeImage];
         _failureBlock = Block_copy(^(NSError *error){
             GC_LOG_ERROR(@"%@", error);
@@ -157,31 +168,16 @@
 }
 
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation {
-    return (interfaceOrientation == UIInterfaceOrientationPortrait);
+    if (GC_IS_IPAD) { return YES; }
+    else { return (interfaceOrientation == UIInterfaceOrientationPortrait); }
 }
 
 #pragma mark - object methods
 - (void)presentFromViewController:(UIViewController *)controller {
-    if (GC_IS_IPAD) {
-		[NSException
-		 raise:NSInternalInconsistencyException
-		 format:@"%s should not be called on iPad", __PRETTY_FUNCTION__];
-	}
 	UINavigationController *nav = [[UINavigationController alloc] initWithRootViewController:self];
-	[nav.navigationBar setBarStyle:UIBarStyleBlackTranslucent];
+    if (GC_IS_IPAD) { nav.navigationBarHidden = YES; }
 	[controller presentModalViewController:nav animated:YES];
 	[nav release];
-}
-- (UIPopoverController *)popoverController {
-    if (!GC_IS_IPAD) {
-		[NSException
-		 raise:NSInternalInconsistencyException
-		 format:@"%s should not be called on iPhone", __PRETTY_FUNCTION__];
-	}
-    UINavigationController *nav = [[UINavigationController alloc] initWithRootViewController:self];
-    UIPopoverController *popover = [[UIPopoverController alloc] initWithContentViewController:nav];
-    [nav release];
-    return [popover autorelease];
 }
 - (ALAssetsFilter *)assetsFilter {
     BOOL images = [self.mediaTypes containsObject:(NSString *)kUTTypeImage];

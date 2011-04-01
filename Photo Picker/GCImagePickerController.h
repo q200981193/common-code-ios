@@ -12,7 +12,7 @@
 #define GCImagePickerControllerLocalizedString(key) NSLocalizedStringFromTable(key, @"GCImagePickerController", @"")
 
 @interface GCImagePickerController : UIViewController {
-        
+    
 }
 
 // enable select action
@@ -31,7 +31,6 @@
 
 // object methods
 - (void)presentFromViewController:(UIViewController *)controller;
-- (UIPopoverController *)popoverController;
 - (ALAssetsFilter *)assetsFilter;
 
 // utility methods

@@ -196,7 +196,7 @@
     [self didChangeValueForKey:@"actionButtonItem"];
     
     [self willChangeValueForKey:@"cancelButtonItem"];
-    _actionButtonItem = [[UIBarButtonItem alloc]
+    _cancelButtonItem = [[UIBarButtonItem alloc]
                          initWithBarButtonSystemItem:UIBarButtonSystemItemCancel
                          target:self
                          action:@selector(cancel)];

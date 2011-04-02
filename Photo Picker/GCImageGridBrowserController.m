@@ -8,10 +8,11 @@
 
 #import "GCImageGridBrowserController.h"
 #import "GCImageGridAssetView.h"
+#import "GCImageGridCell.h"
 #import "GCImageSlideshowController.h"
 
-#define kSpaceSize 4.0
-#define kTileSize ((self.view.bounds.size.width - (kSpaceSize * 5.0)) / 4.0)
+#define kSpaceSize assetSpacing
+#define kTileSize ((self.view.bounds.size.width - (kSpaceSize * (numberOfAssetsPerCell + 1))) / numberOfAssetsPerCell)
 #define kRowHeight (kTileSize + kSpaceSize)
 
 @interface GCImageGridBrowserController (private)
@@ -111,6 +112,14 @@
     self = [super init];
 	if (self) {
         
+        if (GC_IS_IPAD) {
+            assetSpacing = 10;
+            numberOfAssetsPerCell = 6;
+        }
+        else {
+            assetSpacing = 4.0;
+            numberOfAssetsPerCell = 4;
+        }
         assetsLibrary = [[ALAssetsLibrary alloc] init];
         groupTypes = types;
         baseTitle = [title copy];
@@ -316,32 +325,37 @@
 }
 - (NSInteger)tableView:(UITableView *)aTableView numberOfRowsInSection:(NSInteger)section {
     NSInteger count = [allAssets count];
-	NSInteger rows = count / 4;
-	if (count % 4 > 0) { rows++; }
+	NSInteger rows = count / numberOfAssetsPerCell;
+	if (count % numberOfAssetsPerCell > 0) { rows++; }
 	return rows;
 }
-- (UITableViewCell *)tableView:(UITableView *)aTableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
     
     // create cell
-	static NSString * CellIdentifier = @"Cell";
-	UITableViewCell *cell = [aTableView dequeueReusableCellWithIdentifier:CellIdentifier];
+	static NSString *CellIdentifier = @"Cell";
+	GCImageGridCell *cell = (GCImageGridCell *)[tableView dequeueReusableCellWithIdentifier:CellIdentifier];
 	if (cell == nil) {
-		cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier] autorelease];
+		cell = [[[GCImageGridCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier] autorelease];
 		cell.selectionStyle = UITableViewCellSelectionStyleNone;
-		CGFloat size = kTileSize;
-		for (NSInteger i = 0; i < 4; i++) {
-            CGRect frame = CGRectMake(i * size + kSpaceSize * (i + 1.0), 0, size, size);
-            GCImageGridAssetView *assetView = [[GCImageGridAssetView alloc] initWithFrame:frame];
+        cell.layoutBlock = ^(UIView *view, NSUInteger index) {
+            CGFloat tileSize = kTileSize;
+            CGFloat originX = (kSpaceSize * (index + 1)) + (tileSize * index);
+            CGRect viewFrame = CGRectMake(originX, 0.0, tileSize, tileSize);
+            GC_LOG_INFO(@"%@", NSStringFromCGRect(viewFrame));
+            view.frame = viewFrame;
+        };
+        for (NSInteger i = 0; i < numberOfAssetsPerCell; i++) {
+            GCImageGridAssetView *assetView = [[GCImageGridAssetView alloc] initWithFrame:CGRectZero];
             assetView.tag = 100 + i;
             [cell.contentView addSubview:assetView];
             [assetView release];
-		}
+        }
 	}
 	
     // configure cell
-	NSInteger start = indexPath.row * 4;
-	for (NSInteger i = start; i < start + 4; i++) {
-        NSInteger tag = 100 + (i % 4);
+	NSInteger start = indexPath.row * numberOfAssetsPerCell;
+	for (NSInteger i = start; i < start + numberOfAssetsPerCell; i++) {
+        NSInteger tag = 100 + (i % numberOfAssetsPerCell);
         GCImageGridAssetView *assetView = (GCImageGridAssetView *)[cell.contentView viewWithTag:tag];
         if (i < [allAssets count]) {
             ALAsset *asset = [allAssets objectAtIndex:i];
@@ -393,7 +407,7 @@
         }
         
         // calculate index
-        NSUInteger index = index_y * 4 + index_x;
+        NSUInteger index = index_y * numberOfAssetsPerCell + index_x;
         if (index < [allAssets count]) {
             
             // update model

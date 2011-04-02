@@ -16,6 +16,10 @@
     UIBarButtonItem *_actionButtonItem;
     UIBarButtonItem *_cancelButtonItem;
     
+    // view geometry
+    CGFloat assetSpacing;
+    NSUInteger numberOfAssetsPerCell;
+    
     // other stuff
     ALAssetsGroupType groupTypes;
     ALAssetsLibrary *assetsLibrary;

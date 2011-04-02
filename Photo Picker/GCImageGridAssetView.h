@@ -7,7 +7,8 @@
 //
 
 #import <UIKit/UIKit.h>
-#import <AssetsLibrary/AssetsLibrary.h>
+
+@class ALAsset;
 
 @interface GCImageGridAssetView : UIView {
     
@@ -15,5 +16,7 @@
 
 @property (nonatomic, retain) ALAsset *asset;
 @property (nonatomic, assign) BOOL selected;
+
+- (id)initWithFrame:(CGRect)frame;
 
 @end

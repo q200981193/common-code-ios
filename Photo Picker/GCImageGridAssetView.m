@@ -7,6 +7,7 @@
 //
 
 #import <QuartzCore/QuartzCore.h>
+#import <AssetsLibrary/AssetsLibrary.h>
 
 #import "GCImageGridAssetView.h"
 
@@ -21,11 +22,8 @@
 - (id)initWithFrame:(CGRect)frame {
     self = [super initWithFrame:frame];
     if (self) {
-        
-        // my layer
         [[self layer] setBorderColor:[[UIColor colorWithWhite:0.0 alpha:0.25] CGColor]];
         [[self layer] setBorderWidth:1.0];
-        
     }
     return self;
 }
@@ -34,6 +32,7 @@
     [super dealloc];
 }
 - (void)setAsset:(ALAsset *)newAsset {
+    [self willChangeValueForKey:@"asset"];
     [_asset release];
     _asset = [newAsset retain];
     UIImageView *thumbnailView = (UIImageView *)[self viewWithTag:kImageViewTag];
@@ -50,12 +49,14 @@
         // thumbnail view
         if (thumbnailView == nil) {
             thumbnailView = [[UIImageView alloc] initWithFrame:[self bounds]];
+            [thumbnailView setAutoresizingMask:(UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth)];
             [thumbnailView setTag:kImageViewTag];
             [self addSubview:thumbnailView];
             [thumbnailView release];
         }
         UIImage *thumbnail = [UIImage imageWithCGImage:[_asset thumbnail]];
         [thumbnailView setImage:thumbnail];
+        [self sendSubviewToBack:thumbnailView];
         
         // video views
         NSString *type = [_asset valueForProperty:ALAssetPropertyType];
@@ -76,25 +77,31 @@
         }
         
     }
+    [self didChangeValueForKey:@"asset"];
 }
-- (void)setSelected:(BOOL)newSelected {
-    _selected = newSelected;
-    UIImageView *imageView = (UIImageView *)[self viewWithTag:kSelectedViewTag];
-    if (_selected) {
-        if (imageView == nil) {
-            CGRect frame = CGRectMake(1, 1, self.bounds.size.width - 2, self.bounds.size.height - 2);
-            imageView = [[UIImageView alloc] initWithFrame:frame];
-            [imageView setTag:kSelectedViewTag];
-            [imageView setBackgroundColor:[UIColor colorWithWhite:1.0 alpha:0.5]];
-            [imageView setContentMode:UIViewContentModeBottomRight];
-            [imageView setImage:[UIImage imageNamed:@"GCImagePickerControllerCheckGreen"]];
-            [self addSubview:imageView];
+- (void)setSelected:(BOOL)selected {
+    if (self.selected != selected) {
+        [self willChangeValueForKey:@"selected"];
+        _selected = selected;
+        UIImageView *imageView = (UIImageView *)[self viewWithTag:kSelectedViewTag];
+        if (_selected) {
+            if (imageView == nil) {
+                CGRect frame = CGRectMake(1, 1, self.bounds.size.width - 2, self.bounds.size.height - 2);
+                imageView = [[UIImageView alloc] initWithFrame:frame];
+                [imageView setAutoresizingMask:(UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth)];
+                [imageView setTag:kSelectedViewTag];
+                [imageView setBackgroundColor:[UIColor colorWithWhite:1.0 alpha:0.5]];
+                [imageView setContentMode:UIViewContentModeBottomRight];
+                [imageView setImage:[UIImage imageNamed:@"GCImagePickerControllerCheckGreen"]];
+                [self addSubview:imageView];
+                [imageView release];
+            }
             [self bringSubviewToFront:imageView];
-            [imageView release];
         }
-    }
-    else {
-        [imageView removeFromSuperview];
+        else {
+            [imageView removeFromSuperview];
+        }
+        [self didChangeValueForKey:@"selected"];
     }
 }
 

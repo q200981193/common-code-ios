@@ -15,14 +15,22 @@
 
 @implementation GCImageListBrowserController (private)
 - (void)reloadAssetsGroups {
+    
+    // kvo
     [self willChangeValueForKey:@"assetsGroups"];
+    
+    // release old groups
     [_assetsGroups release];
+    
+    // setup containers for new groups
+    __block NSUInteger count = 0;
+    __block ALAssetsGroup *savedPhotos = nil;
+    ALAssetsFilter *filter = [self assetsFilter];
     NSMutableArray *albums = [NSMutableArray array];
     NSMutableArray *faces = [NSMutableArray array];
     NSMutableArray *events = [NSMutableArray array];
-    ALAssetsFilter *filter = [self assetsFilter];
-    __block NSUInteger count = 0;
-    __block ALAssetsGroup *savedPhotos = nil;
+    
+    // load gruops
 	[assetsLibrary
 	 enumerateGroupsWithTypes:ALAssetsGroupAll
 	 usingBlock:^(ALAssetsGroup *group, BOOL *stop) {
@@ -40,7 +48,7 @@
              _assetsGroups = array;
              [self didChangeValueForKey:@"assetsGroups"];
              [self.tableView reloadData];
-             self.tableView.hidden = ([_assetsGroups count] == 0);
+             self.tableView.hidden = ([self.assetsGroups count] == 0);
 		 }
 		 else {
              [group setAssetsFilter:filter];
@@ -69,6 +77,9 @@
          self.tableView.hidden = YES;
          self.failureBlock(error);
      }];
+    while (self.assetsGroups == nil) {
+        CFRunLoopRunInMode(kCFRunLoopDefaultMode, 0.1, NO);
+    }
 }
 @end
 
@@ -104,8 +115,10 @@
      object:assetsLibrary];
     [assetsLibrary release];
     assetsLibrary = nil;
+    [self willChangeValueForKey:@"assetsGroups"];
 	[_assetsGroups release];
 	_assetsGroups = nil;
+    [self didChangeValueForKey:@"assetsGroups"];
     self.selectedGroupBlock = nil;
     [super dealloc];
 }
@@ -113,9 +126,6 @@
 #pragma mark - view lifecycle
 - (void)viewDidLoad {
 	[super viewDidLoad];
-	
-    // table view
-    self.tableView.hidden = YES;
     
 	// button
 	if (!GC_IS_IPAD) {
@@ -129,43 +139,34 @@
 	
 	// groups
     [self reloadAssetsGroups];
-    while (self.assetsGroups == nil) {
-        CFRunLoopRunInMode(kCFRunLoopDefaultMode, 0.1, NO);
-    }
 	
 }
 - (void)viewDidUnload {
 	[super viewDidUnload];
+    [self willChangeValueForKey:@"assetsGroups"];
 	[_assetsGroups release];
 	_assetsGroups = nil;
+    [self didChangeValueForKey:@"assetsGroups"];
 }
 - (void)viewWillAppear:(BOOL)animated {
 	[super viewWillAppear:animated];
 	if (!GC_IS_IPAD) {
 		[[UIApplication sharedApplication]
-		 setStatusBarStyle:UIStatusBarStyleBlackTranslucent
-		 animated:animated];
+         setStatusBarStyle:UIStatusBarStyleBlackTranslucent
+         animated:animated];
 	}
 }
 
 #pragma mark - KVO
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context {
-    if (object == self) {
-        if ([keyPath isEqualToString:@"mediaTypes"]) {
-            [self reloadAssetsGroups];
-            while (self.assetsGroups == nil) {
-                CFRunLoopRunInMode(kCFRunLoopDefaultMode, 0.1, NO);
-            }
-        }
+    if (object == self && [keyPath isEqualToString:@"mediaTypes"]) {
+        [self reloadAssetsGroups];
     }
 }
 
 #pragma mark - notifications
 - (void)assetsLibraryDidChange:(NSNotification *)notif {
     [self reloadAssetsGroups];
-    while (self.assetsGroups == nil) {
-        CFRunLoopRunInMode(kCFRunLoopDefaultMode, 0.1, NO);
-    }
 }
 
 #pragma mark - button actions
@@ -177,15 +178,15 @@
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
 	return 60.0;
 }
-- (NSInteger)numberOfSectionsInTableView:(UITableView *)aTableView {
+- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
 	return 1;
 }
-- (NSInteger)tableView:(UITableView *)aTableView numberOfRowsInSection:(NSInteger)section {
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
 	return [self.assetsGroups count];
 }
-- (UITableViewCell *)tableView:(UITableView *)aTableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
-	static NSString * CellIdentifier = @"Cell";
-    UITableViewCell *cell = [aTableView dequeueReusableCellWithIdentifier:CellIdentifier];
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
+	static NSString *CellIdentifier = @"Cell";
+    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier];
     if (cell == nil) {
         cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleValue1 reuseIdentifier:CellIdentifier] autorelease];
         cell.accessoryType = (self.selectedGroupBlock) ? UITableViewCellAccessoryNone : UITableViewCellAccessoryDisclosureIndicator;

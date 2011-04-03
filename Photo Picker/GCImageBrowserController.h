@@ -16,4 +16,7 @@
 @property (nonatomic, retain) IBOutlet UITableView *tableView;
 @property (nonatomic, retain) IBOutlet UIImageView *imageView;
 
+// create browser
+- (id)init;
+
 @end

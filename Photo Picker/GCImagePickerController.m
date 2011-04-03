@@ -1,5 +1,5 @@
 //
-//  QSPhotoPickerController.m
+//  GCImagePickerController.m
 //  GUI Cocoa Common Code Library for iOS
 //
 //  Created by Caleb Davenport on 2/14/11.
@@ -27,11 +27,14 @@
         return nil;
     }
     
+    // ipad
     if (GC_IS_IPAD) {
         GCImageBrowserController_iPad *browser = [[GCImageBrowserController_iPad alloc] init];
         browser.showAlbumList = (source == UIImagePickerControllerSourceTypePhotoLibrary);
         return [browser autorelease];
     }
+    
+    // iphone
     else {
         if (source == UIImagePickerControllerSourceTypeSavedPhotosAlbum) {
             GCImagePickerController *picker = [[GCImageGridBrowserController alloc]
@@ -44,6 +47,7 @@
             return [[[GCImageListBrowserController alloc] init] autorelease];
         }
     }
+    
 }
 + (NSData *)dataForAssetRepresentation:(ALAssetRepresentation *)rep {
     [rep retain];
@@ -145,6 +149,7 @@
     if (self) {
         if (!GC_IS_IPAD) { self.wantsFullScreenLayout = YES; }
         self.mediaTypes = [NSArray arrayWithObject:(NSString *)kUTTypeImage];
+        [self willChangeValueForKey:@"failureBlock"];
         _failureBlock = Block_copy(^(NSError *error){
             GC_LOG_ERROR(@"%@", error);
             UIAlertView *alert = [[UIAlertView alloc]
@@ -156,20 +161,24 @@
             [alert show];
             [alert release];
         });
+        [self didChangeValueForKey:@"failureBlock"];
     }
     return self;
 }
 - (void)dealloc {
+    [self willChangeValueForKey:@"failureBlock"];
     Block_release(_failureBlock);_failureBlock = nil;
+    [self didChangeValueForKey:@"failureBlock"];
     self.actionBlock = nil;
     self.actionTitle = nil;
     self.mediaTypes = nil;
     [super dealloc];
 }
 
-- (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation {
+#pragma mark - view lifeccyle
+- (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)orientation {
     if (GC_IS_IPAD) { return YES; }
-    else { return (interfaceOrientation == UIInterfaceOrientationPortrait); }
+    else { return (orientation == UIInterfaceOrientationPortrait); }
 }
 
 #pragma mark - object methods

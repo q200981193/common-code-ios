@@ -1,5 +1,5 @@
 //
-//  QSPhotoPickerController.h
+//  GCImagePickerController.h
 //  GUI Cocoa Common Code Library for iOS
 //
 //  Created by Caleb Davenport on 2/14/11.

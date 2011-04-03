@@ -12,7 +12,7 @@
 #import "GCImageSlideshowController.h"
 
 #define kSpaceSize assetSpacing
-#define kTileSize ((self.view.bounds.size.width - (kSpaceSize * (numberOfAssetsPerCell + 1))) / numberOfAssetsPerCell)
+#define kTileSize floorf(((self.view.bounds.size.width - (kSpaceSize * (numberOfAssetsPerCell + 1))) / numberOfAssetsPerCell))
 #define kRowHeight (kTileSize + kSpaceSize)
 
 @interface GCImageGridBrowserController (private)
@@ -366,6 +366,7 @@
         else {
             assetView.asset = nil;
         }
+        [assetView setNeedsLayout];
 	}
 	
 	return cell;

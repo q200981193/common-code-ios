@@ -24,6 +24,7 @@
     if (self) {
         [[self layer] setBorderColor:[[UIColor colorWithWhite:0.0 alpha:0.25] CGColor]];
         [[self layer] setBorderWidth:1.0];
+        [self setAutoresizesSubviews:NO];
     }
     return self;
 }
@@ -48,8 +49,7 @@
         
         // thumbnail view
         if (thumbnailView == nil) {
-            thumbnailView = [[UIImageView alloc] initWithFrame:[self bounds]];
-            [thumbnailView setAutoresizingMask:(UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth)];
+            thumbnailView = [[UIImageView alloc] initWithFrame:CGRectZero];
             [thumbnailView setTag:kImageViewTag];
             [self addSubview:thumbnailView];
             [thumbnailView release];
@@ -86,9 +86,7 @@
         UIImageView *imageView = (UIImageView *)[self viewWithTag:kSelectedViewTag];
         if (_selected) {
             if (imageView == nil) {
-                CGRect frame = CGRectMake(1, 1, self.bounds.size.width - 2, self.bounds.size.height - 2);
-                imageView = [[UIImageView alloc] initWithFrame:frame];
-                [imageView setAutoresizingMask:(UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth)];
+                imageView = [[UIImageView alloc] initWithFrame:CGRectZero];
                 [imageView setTag:kSelectedViewTag];
                 [imageView setBackgroundColor:[UIColor colorWithWhite:1.0 alpha:0.5]];
                 [imageView setContentMode:UIViewContentModeBottomRight];
@@ -103,6 +101,13 @@
         }
         [self didChangeValueForKey:@"selected"];
     }
+}
+- (void)layoutSubviews {
+    [super layoutSubviews];
+    UIView *thumbnailView = [self viewWithTag:kImageViewTag];
+    thumbnailView.frame = self.bounds;
+    UIView *selectedView = [self viewWithTag:kSelectedViewTag];
+    selectedView.frame = CGRectMake(1, 1, self.bounds.size.width - 2, self.bounds.size.height - 2);
 }
 
 @end

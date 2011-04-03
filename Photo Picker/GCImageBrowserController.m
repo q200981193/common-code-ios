@@ -44,6 +44,10 @@
     NSIndexPath *path = [self.tableView indexPathForSelectedRow];
     [self.tableView deselectRowAtIndexPath:path animated:animated];
 }
+- (void)viewDidAppear:(BOOL)animated {
+    [super viewDidAppear:animated];
+    [self.tableView flashScrollIndicators];
+}
 
 #pragma mark - table view
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)aTableView {

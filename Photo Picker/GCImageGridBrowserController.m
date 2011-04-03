@@ -341,7 +341,6 @@
             CGFloat tileSize = kTileSize;
             CGFloat originX = (kSpaceSize * (index + 1)) + (tileSize * index);
             CGRect viewFrame = CGRectMake(originX, 0.0, tileSize, tileSize);
-            GC_LOG_INFO(@"%@", NSStringFromCGRect(viewFrame));
             view.frame = viewFrame;
         };
         for (NSInteger i = 0; i < numberOfAssetsPerCell; i++) {

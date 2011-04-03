@@ -13,7 +13,7 @@
 
 @interface GCImageBrowserController_iPad : GCImagePickerController <UIPopoverControllerDelegate> {
 @private
-    BOOL changeIsAnimated;
+    BOOL isRotationAnimated;
 }
 
 // interface builder properties

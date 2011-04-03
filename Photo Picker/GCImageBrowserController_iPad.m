@@ -69,6 +69,7 @@
     [self.popoverController dismissPopoverAnimated:NO];
     self.popoverController = nil;
     [self.gridViewController removeObserver:self forKeyPath:@"editing"];
+    [self.gridViewController removeObserver:self forKeyPath:@"title"];
     self.gridViewController = nil;
     self.listViewController = nil;
     self.leftView = nil;
@@ -83,8 +84,8 @@
 @synthesize toolbar=_toolbar;
 @synthesize titleLabel=_titleLabel;
 
-@synthesize listViewController=_listViewController;
 @synthesize gridViewController=_gridViewController;
+@synthesize listViewController=_listViewController;
 @synthesize showAlbumList=_showAlbumList;
 @synthesize popoverController=_popover;
 
@@ -109,54 +110,56 @@
 #pragma mark - view lifecycle
 - (void)viewDidLoad {
     [super viewDidLoad];
+    
+    // blocks
+    __block GCImageBrowserController_iPad *browser = self;
+    void (^gridLoadBlock) (ALAssetsGroup *group, BOOL callViewMethods) = ^(ALAssetsGroup *group, BOOL callViewMethods) {
         
-    // make list view
-    GCImageListBrowserController *listView = [[GCImageListBrowserController alloc] init];
-    listView.view.frame = self.leftView.bounds;
-    listView.view.autoresizingMask = (UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth);
-    listView.selectedGroupBlock = ^(ALAssetsGroup *group) {
+        // dsimiss popover
+        [browser.popoverController dismissPopoverAnimated:YES];
+        browser.popoverController = nil;
         
         // get group stuff
         NSString *groupID = [group valueForProperty:ALAssetsGroupPropertyPersistentID];
         ALAssetsGroupType groupType = [[group valueForProperty:ALAssetsGroupPropertyType] unsignedIntegerValue];
         NSString *groupName = [group valueForProperty:ALAssetsGroupPropertyName];
-        self.title = groupName;
+        browser.title = groupName;
         
         // unload old view
-        [self.gridViewController viewWillDisappear:NO];
-        [self.gridViewController.view removeFromSuperview];
-        [self.gridViewController viewDidDisappear:NO];
-        [self.gridViewController removeObserver:self forKeyPath:@"editing"];
+        if (callViewMethods) { [browser.gridViewController viewWillDisappear:NO]; }
+        [browser.gridViewController.view removeFromSuperview];
+        if (callViewMethods) { [browser.gridViewController viewDidDisappear:NO]; }
+        [browser.gridViewController removeObserver:self forKeyPath:@"editing"];
+        [browser.gridViewController removeObserver:self forKeyPath:@"title"];
         
         // make new view
-        GCImageGridBrowserController *gridView = [[GCImageGridBrowserController alloc]
-                                                  initWithAssetsGroupTypes:groupType
-                                                  title:groupName
-                                                  groupID:groupID];
-        [gridView
-         addObserver:self
-         forKeyPath:@"editing"
-         options:NSKeyValueObservingOptionNew
-         context:nil];
+        GCImageGridBrowserController *gridView = [[GCImageGridBrowserController alloc] initWithAssetsGroupTypes:groupType title:groupName groupID:groupID];
+        [gridView addObserver:self forKeyPath:@"editing" options:NSKeyValueObservingOptionNew context:nil];
+        [gridView addObserver:self forKeyPath:@"title" options:NSKeyValueObservingOptionNew context:nil];
         gridView.actionBlock = self.actionBlock;
         gridView.actionEnabled = self.actionEnabled;
         gridView.actionTitle = self.actionTitle;
         gridView.view.frame = self.rightView.bounds;
         gridView.view.autoresizingMask = (UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight);
-        [gridView viewWillAppear:NO];
+        if (callViewMethods) { [browser.gridViewController viewWillAppear:NO]; }
         [self.rightView addSubview:gridView.view];
-        [gridView viewDidAppear:NO];
+        if (callViewMethods) { [browser.gridViewController viewDidAppear:NO]; }
         self.gridViewController = gridView;
         [gridView release];
         
-        // dsimiss popover
-        [self.popoverController dismissPopoverAnimated:YES];
-        self.popoverController = nil;
-        
         // buttons
         [self updateToolbarItems];
-
+        
     };
+    GCImageListBrowserSelectedGroupBlock selectedBlock = ^(ALAssetsGroup *group) {
+        gridLoadBlock(group, YES);
+    };
+        
+    // make list view
+    GCImageListBrowserController *listView = [[GCImageListBrowserController alloc] init];
+    listView.selectedGroupBlock = selectedBlock;
+    listView.view.frame = self.leftView.bounds;
+    listView.view.autoresizingMask = (UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth);
     [self.leftView addSubview:listView.view];
     self.listViewController = listView;
     [listView release];
@@ -165,54 +168,13 @@
     NSArray *groups = self.listViewController.assetsGroups;
     if ([groups count]) {
         ALAssetsGroup *group = [self.listViewController.assetsGroups objectAtIndex:0];
-        self.listViewController.selectedGroupBlock(group);
-    }
-    
-    // portrait
-    if (UIInterfaceOrientationIsPortrait(self.interfaceOrientation)) {
-        self.navigationItem.leftBarButtonItem = [self popoverButtonItem];
+        gridLoadBlock(group, NO);
     }
     
 }
 - (void)viewDidUnload {
     [super viewDidUnload];
     [self cleanup];
-}
-- (void)willRotateToInterfaceOrientation:(UIInterfaceOrientation)orientation duration:(NSTimeInterval)duration {
-    if ([self isViewLoaded]) {
-        [self updateToolbarItemsForOrientation:orientation];
-    }
-    [self.popoverController dismissPopoverAnimated:NO];
-    self.popoverController = nil;
-    changeIsAnimated = (duration > 0);
-    if (UIInterfaceOrientationIsPortrait(orientation)) {
-        if (duration > 0) { [self.listViewController viewWillDisappear:YES]; }
-    }
-    else {
-        if (duration > 0) { [self.listViewController viewWillAppear:YES]; }
-        self.listViewController.view.frame = self.leftView.bounds;
-        [self.leftView addSubview:self.listViewController.view];
-    }
-}
-- (void)willAnimateRotationToInterfaceOrientation:(UIInterfaceOrientation)orientation duration:(NSTimeInterval)duration {
-    CGFloat originY = self.toolbar.bounds.size.height;
-    if (UIInterfaceOrientationIsLandscape(orientation)) {
-        self.leftView.frame = CGRectMake(0, originY, self.leftView.bounds.size.width, self.view.bounds.size.height - originY);
-        self.rightView.frame = CGRectMake(320.0, originY, self.view.bounds.size.width - 320.0, self.view.bounds.size.height - originY);
-    }
-    else {
-        self.leftView.frame = CGRectMake(-320.0, originY, self.leftView.bounds.size.width, self.view.bounds.size.height - originY);
-        self.rightView.frame = CGRectMake(0, originY, self.view.bounds.size.width, self.view.bounds.size.height - originY);
-    }
-}
-- (void)didRotateFromInterfaceOrientation:(UIInterfaceOrientation)orientation {
-    if (UIInterfaceOrientationIsPortrait(self.interfaceOrientation)) {
-        [self.listViewController.view removeFromSuperview];
-        if (changeIsAnimated) { [self.listViewController viewDidDisappear:YES]; }
-    }
-    else {
-        if (changeIsAnimated) { [self.listViewController viewDidAppear:YES]; }
-    }
 }
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
@@ -222,6 +184,7 @@
 }
 - (void)viewDidAppear:(BOOL)animated {
     [super viewDidAppear:animated];
+    [self.toolbar setNeedsLayout];
     [self.listViewController viewDidAppear:animated];
     [self.gridViewController viewDidAppear:animated];
 }
@@ -236,17 +199,102 @@
     [self.gridViewController viewDidDisappear:animated];
 }
 
+#pragma mark - view roration
+- (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)orientation {
+    return YES;
+}
+- (void)willRotateToInterfaceOrientation:(UIInterfaceOrientation)orientation duration:(NSTimeInterval)duration {
+    
+    // forward calls
+    [self.listViewController willRotateToInterfaceOrientation:orientation duration:duration];
+    [self.gridViewController willRotateToInterfaceOrientation:orientation duration:duration];
+    
+    // update toolbar
+    if ([self isViewLoaded]) { [self updateToolbarItemsForOrientation:orientation]; }
+    
+    // check if rotation is animated
+    isRotationAnimated = (duration > 0);
+    
+    // make sure we aren't rotating to a similar orientation
+    if (UIInterfaceOrientationIsPortrait(orientation) == UIInterfaceOrientationIsPortrait(self.interfaceOrientation)) {
+        return;
+    }
+    
+    // do stuff depending on the new orientation
+    if (UIInterfaceOrientationIsPortrait(orientation)) {
+        [self.listViewController viewWillDisappear:isRotationAnimated];
+    }
+    else {
+        [self.popoverController dismissPopoverAnimated:NO];
+        self.popoverController = nil;
+        [self.listViewController viewWillAppear:isRotationAnimated];
+        self.listViewController.view.frame = self.leftView.bounds;
+        [self.leftView addSubview:self.listViewController.view];
+    }
+        
+}
+- (void)didRotateFromInterfaceOrientation:(UIInterfaceOrientation)orientation {
+    
+    // forward calls
+    [self.listViewController didRotateFromInterfaceOrientation:orientation];
+    [self.gridViewController didRotateFromInterfaceOrientation:orientation];
+    
+    // make sure we aren't rotating to a similar orientation
+    if (UIInterfaceOrientationIsPortrait(orientation) == UIInterfaceOrientationIsPortrait(self.interfaceOrientation)) {
+        return;
+    }
+    
+    // do stuff depending on the new orientation
+    if (UIInterfaceOrientationIsPortrait(self.interfaceOrientation)) {
+        [self.listViewController viewDidDisappear:isRotationAnimated];
+    }
+    else {
+        [self.listViewController viewDidAppear:isRotationAnimated];
+    }
+}
+- (void)willAnimateRotationToInterfaceOrientation:(UIInterfaceOrientation)orientation duration:(NSTimeInterval)duration {
+    
+    // forward calls
+    [self.listViewController willAnimateRotationToInterfaceOrientation:orientation duration:duration];
+    [self.gridViewController willAnimateRotationToInterfaceOrientation:orientation duration:duration];
+    
+    // set new view positions
+    CGFloat originY = self.toolbar.bounds.size.height;
+    if (UIInterfaceOrientationIsLandscape(orientation)) {
+        self.leftView.frame = CGRectMake(0, originY, self.leftView.bounds.size.width, self.view.bounds.size.height - originY);
+        self.rightView.frame = CGRectMake(320.0, originY, self.view.bounds.size.width - 320.0, self.view.bounds.size.height - originY);
+    }
+    else {
+        self.leftView.frame = CGRectMake(-320.0, originY, self.leftView.bounds.size.width, self.view.bounds.size.height - originY);
+        self.rightView.frame = CGRectMake(0, originY, self.view.bounds.size.width, self.view.bounds.size.height - originY);
+    }
+    
+}
+- (void)willAnimateFirstHalfOfRotationToInterfaceOrientation:(UIInterfaceOrientation)orientation duration:(NSTimeInterval)duration {
+    [self.listViewController willAnimateFirstHalfOfRotationToInterfaceOrientation:orientation duration:duration];
+    [self.gridViewController willAnimateFirstHalfOfRotationToInterfaceOrientation:orientation duration:duration];
+}
+- (void)willAnimateSecondHalfOfRotationFromInterfaceOrientation:(UIInterfaceOrientation)orientation duration:(NSTimeInterval)duration {
+    [self.listViewController willAnimateSecondHalfOfRotationFromInterfaceOrientation:orientation duration:duration];
+    [self.gridViewController willAnimateSecondHalfOfRotationFromInterfaceOrientation:orientation duration:duration];
+}
+
 #pragma mark - kvo
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context {
     if (object == self && [keyPath isEqualToString:@"title"]) {
         id newValue = [change objectForKey:NSKeyValueChangeNewKey];
-        if (newValue == [NSNull null]) { self.title = nil; }
+        if (newValue == [NSNull null]) { self.titleLabel.text = nil; }
         else { self.titleLabel.text = newValue; }
     }
     else if (object == self.gridViewController && [keyPath isEqualToString:@"editing"]) {
         [self updateToolbarItems];
         [self.popoverController dismissPopoverAnimated:YES];
         self.popoverController = nil;
+    }
+    else if (object == self.gridViewController && [keyPath isEqualToString:@"title"]) {
+        id newValue = [change objectForKey:NSKeyValueChangeNewKey];
+        if (newValue == [NSNull null]) { self.title = nil; }
+        else { self.title = newValue; }
     }
 }
 
@@ -256,13 +304,11 @@
 }
 - (void)popoverAction:(UIBarButtonItem *)sender {
     if (!self.popoverController) {
-        UINavigationController *nav = [[UINavigationController alloc] initWithRootViewController:self.listViewController];
-        UIPopoverController *popover = [[UIPopoverController alloc] initWithContentViewController:nav];
+        UIPopoverController *popover = [[UIPopoverController alloc] initWithContentViewController:self.listViewController];
         [popover setDelegate:self];
         [popover presentPopoverFromBarButtonItem:sender permittedArrowDirections:UIPopoverArrowDirectionAny animated:YES];
         self.popoverController = popover;
         [popover release];
-        [nav release];
     }
 }
 

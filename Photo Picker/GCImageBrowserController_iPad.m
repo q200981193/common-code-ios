@@ -10,6 +10,8 @@
 #import "GCImageListBrowserController.h"
 #import "GCImageGridBrowserController.h"
 
+#define kGreyOutViewTag 100
+
 @interface GCImageBrowserController_iPad (private)
 - (UIBarButtonItem *)popoverButtonItem;
 - (UIBarButtonItem *)flexibleSpaceButtonItem;
@@ -230,6 +232,7 @@
         [self.listViewController viewWillAppear:isRotationAnimated];
         self.listViewController.view.frame = self.leftView.bounds;
         [self.leftView addSubview:self.listViewController.view];
+        [self.leftView sendSubviewToBack:self.listViewController.view];
     }
         
 }
@@ -290,6 +293,32 @@
         [self updateToolbarItems];
         [self.popoverController dismissPopoverAnimated:YES];
         self.popoverController = nil;
+        id newValue = [change objectForKey:NSKeyValueChangeNewKey];
+        BOOL editing = [newValue boolValue];
+        if (editing) {
+            UIView *greyOut = [[UIView alloc] initWithFrame:self.leftView.bounds];
+            greyOut.backgroundColor = [UIColor blackColor];
+            greyOut.alpha = 0.0;
+            greyOut.tag = kGreyOutViewTag;
+            [self.leftView addSubview:greyOut];
+            [UIView
+             animateWithDuration:0.3
+             animations:^{
+                 greyOut.alpha = 0.5;
+             }];
+            [greyOut release];
+        }
+        else {
+            UIView *greyOut = [self.leftView viewWithTag:kGreyOutViewTag];
+            [UIView
+             animateWithDuration:0.3
+             animations:^{
+                 greyOut.alpha = 0.0;
+             }
+             completion:^(BOOL finished){
+                 [greyOut removeFromSuperview];
+             }];
+        }
     }
     else if (object == self.gridViewController && [keyPath isEqualToString:@"title"]) {
         id newValue = [change objectForKey:NSKeyValueChangeNewKey];

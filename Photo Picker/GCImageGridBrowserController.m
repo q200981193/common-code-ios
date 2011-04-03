@@ -66,7 +66,7 @@
 - (void)updateTitle {
     NSUInteger count = [selectedAssets count];
     if (count == 0) {
-        self.title = baseTitle;
+        self.title = GCImagePickerControllerLocalizedString(@"SELECT_ITEMS");
     }
     else if (count == 1) {
         self.title = GCImagePickerControllerLocalizedString(@"PHOTO_COUNT_SINGLE");

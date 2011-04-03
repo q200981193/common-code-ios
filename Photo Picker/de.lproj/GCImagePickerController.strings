@@ -11,5 +11,6 @@
 "PHOTO_ROLL_LOCATION_ERROR" = "Da einige Fotos Standortdaten enthalten k√∂nnen, fordert iOS die Aktivierung der Ortungsdienste, um auf die Fotoalben zugreifen zu d√ºrfen.";
 "OK" = "OK";
 "PHOTO_LIBRARY" = "Fotoarchiv";
-"PHOTO_COUNT_SINGLE" = "1 Foto";
-"PHOTO_COUNT_MULTIPLE" = "%d Fotos";
+"PHOTO_COUNT_SINGLE" = "1 Objekte";
+"PHOTO_COUNT_MULTIPLE" = "%d Objekte";
+"SELECT_ITEMS" = "Objekte auswählen";

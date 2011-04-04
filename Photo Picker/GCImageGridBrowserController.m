@@ -189,13 +189,16 @@
                          action:@selector(select)];
     [self didChangeValueForKey:@"selectButtonItem"];
     
-    [self willChangeValueForKey:@"actionButtonItem"];
-    _actionButtonItem = [[UIBarButtonItem alloc]
-                         initWithTitle:self.actionTitle
-                         style:UIBarButtonItemStyleDone
-                         target:self
-                         action:@selector(action)];
-    [self didChangeValueForKey:@"actionButtonItem"];
+    if (self.actionEnabled && self.actionBlock && self.actionTitle) {
+        [self willChangeValueForKey:@"actionButtonItem"];
+        _actionButtonItem = [[UIBarButtonItem alloc]
+                             initWithTitle:self.actionTitle
+                             style:UIBarButtonItemStyleDone
+                             target:self
+                             action:@selector(action)];
+        [self didChangeValueForKey:@"actionButtonItem"];
+        self.navigationItem.rightBarButtonItem = self.selectButtonItem;
+    }
     
     [self willChangeValueForKey:@"cancelButtonItem"];
     _cancelButtonItem = [[UIBarButtonItem alloc]
@@ -225,9 +228,6 @@
 		self.navigationItem.leftBarButtonItem = item;
 		[item release];
 	}
-    if (self.actionEnabled && self.actionBlock && self.actionTitle) {
-        self.navigationItem.rightBarButtonItem = self.selectButtonItem;
-    }
 	
 	// inset
 	UIEdgeInsets insets = self.tableView.contentInset;

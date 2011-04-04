@@ -11,9 +11,11 @@
 #import "GCImageGridCell.h"
 #import "GCImageSlideshowController.h"
 
-#define kSpaceSize assetSpacing
-#define kTileSize floorf(((self.view.bounds.size.width - (kSpaceSize * (numberOfAssetsPerCell + 1))) / numberOfAssetsPerCell))
-#define kRowHeight (kTileSize + kSpaceSize)
+#define kNumberOfSpaces (numberOfAssetsPerRow + 1)
+#define kHorizontalSpaceSize (assetSpacing * kNumberOfSpaces)
+#define kTileSize \
+    floorf((self.tableView.bounds.size.width - kHorizontalSpaceSize) / numberOfAssetsPerRow)
+#define kRowHeight (kTileSize + assetSpacing)
 
 @interface GCImageGridBrowserController (private)
 - (void)reloadAssets;
@@ -27,7 +29,7 @@
     allAssets = nil;
     ALAssetsFilter *filter = [self assetsFilter];
     NSMutableArray *array = [[NSMutableArray alloc] init];
-    ALAssetsGroupEnumerationResultsBlock block = ^(ALAsset *result, NSUInteger index, BOOL *stop){
+    ALAssetsGroupEnumerationResultsBlock block = ^(ALAsset *result, NSUInteger index, BOOL *stop) {
 		if (result != nil) { [array addObject:result]; }
 	};
     [assetsLibrary
@@ -62,17 +64,25 @@
          allAssets = [[NSArray alloc] init];
          self.failureBlock(error);
      }];
+    while (allAssets == nil) {
+        CFRunLoopRunInMode(kCFRunLoopDefaultMode, 0.1, NO);
+    }
 }
 - (void)updateTitle {
-    NSUInteger count = [selectedAssets count];
-    if (count == 0) {
-        self.title = GCImagePickerControllerLocalizedString(@"SELECT_ITEMS");
-    }
-    else if (count == 1) {
-        self.title = GCImagePickerControllerLocalizedString(@"PHOTO_COUNT_SINGLE");
+    if (self.editing) {
+        NSUInteger count = [selectedAssets count];
+        if (count == 0) {
+            self.title = GCImagePickerControllerLocalizedString(@"SELECT_ITEMS");
+        }
+        else if (count == 1) {
+            self.title = GCImagePickerControllerLocalizedString(@"PHOTO_COUNT_SINGLE");
+        }
+        else {
+            self.title = [NSString localizedStringWithFormat:GCImagePickerControllerLocalizedString(@"PHOTO_COUNT_MULTIPLE"), count];
+        }
     }
     else {
-        self.title = [NSString localizedStringWithFormat:GCImagePickerControllerLocalizedString(@"PHOTO_COUNT_MULTIPLE"), count];
+        self.title = baseTitle;
     }
 }
 - (void)cleanup {
@@ -113,12 +123,12 @@
 	if (self) {
         
         if (GC_IS_IPAD) {
-            assetSpacing = 10;
-            numberOfAssetsPerCell = 6;
+            assetSpacing = 10.0;
+            numberOfAssetsPerRow = 6;
         }
         else {
             assetSpacing = 4.0;
-            numberOfAssetsPerCell = 4;
+            numberOfAssetsPerRow = 4;
         }
         assetsLibrary = [[ALAssetsLibrary alloc] init];
         groupTypes = types;
@@ -166,23 +176,6 @@
     
 }
 
-#pragma mark - KVO
-- (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context {
-    if (object == self) {
-        if ([keyPath isEqualToString:@"mediaTypes"]) {
-            [self reloadAssets];
-        }
-    }
-}
-
-#pragma mark - notifications
-- (void)assetsLibraryDidChange:(NSNotification *)notification {
-    [self reloadAssets];
-    while (allAssets == nil) {
-        CFRunLoopRunInMode(kCFRunLoopDefaultMode, 0.1, NO);
-    }
-}
-
 #pragma mark - view lifecycle
 - (void)viewDidLoad {
 	[super viewDidLoad];
@@ -212,7 +205,6 @@
     [self didChangeValueForKey:@"cancelButtonItem"];
 	
     // table view
-    self.tableView.hidden = YES;
     self.tableView.separatorStyle = UITableViewCellSeparatorStyleNone;
     
     // gestures
@@ -237,16 +229,13 @@
         self.navigationItem.rightBarButtonItem = self.selectButtonItem;
     }
 	
-	// offset
+	// inset
 	UIEdgeInsets insets = self.tableView.contentInset;
-    insets.top += kSpaceSize;
+    insets.top += assetSpacing;
     self.tableView.contentInset = insets;
     
-    // assets
+    // reload
     [self reloadAssets];
-    while (allAssets == nil) {
-        CFRunLoopRunInMode(kCFRunLoopDefaultMode, 0.1, NO);
-    }
     
 }
 - (void)viewDidUnload {
@@ -260,6 +249,18 @@
 		 setStatusBarStyle:UIStatusBarStyleBlackTranslucent
 		 animated:animated];
 	}
+}
+
+#pragma mark - KVO
+- (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context {
+    if (object == self && [keyPath isEqualToString:@"mediaTypes"]) {
+        [self reloadAssets];
+    }
+}
+
+#pragma mark - notifications
+- (void)assetsLibraryDidChange:(NSNotification *)notification {
+    [self reloadAssets];
 }
 
 #pragma mark - button actions
@@ -300,14 +301,14 @@
     self.editing = NO;
 }
 - (void)action {
-    NSSet *assetURLs = [selectedAssets copy];
-    for (NSURL *url in assetURLs) {
+    for (NSURL *URL in [selectedAssets allObjects]) {
         [assetsLibrary
-         assetForURL:url
+         assetForURL:URL
          resultBlock:self.actionBlock
-         failureBlock:self.failureBlock];
+         failureBlock:^(NSError *error) {
+             GC_LOG_ERROR(@"%@", error);
+         }];
     }
-    [assetURLs release];
     if ([self gc_isRootViewController]) {
         [self dismissModalViewControllerAnimated:YES];
     }
@@ -325,8 +326,8 @@
 }
 - (NSInteger)tableView:(UITableView *)aTableView numberOfRowsInSection:(NSInteger)section {
     NSInteger count = [allAssets count];
-	NSInteger rows = count / numberOfAssetsPerCell;
-	if (count % numberOfAssetsPerCell > 0) { rows++; }
+	NSInteger rows = count / numberOfAssetsPerRow;
+	if (count % numberOfAssetsPerRow > 0) { rows++; }
 	return rows;
 }
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
@@ -335,26 +336,37 @@
 	static NSString *CellIdentifier = @"Cell";
 	GCImageGridCell *cell = (GCImageGridCell *)[tableView dequeueReusableCellWithIdentifier:CellIdentifier];
 	if (cell == nil) {
+        
+        // setup cell
 		cell = [[[GCImageGridCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier] autorelease];
 		cell.selectionStyle = UITableViewCellSelectionStyleNone;
-        cell.layoutBlock = ^(UIView *view, NSUInteger index) {
-            CGFloat tileSize = kTileSize;
-            CGFloat originX = (kSpaceSize * (index + 1)) + (tileSize * index);
-            CGRect viewFrame = CGRectMake(originX, 0.0, tileSize, tileSize);
-            view.frame = viewFrame;
-        };
-        for (NSInteger i = 0; i < numberOfAssetsPerCell; i++) {
+        
+        // add subviews
+        for (NSInteger i = 0; i < numberOfAssetsPerRow; i++) {
             GCImageGridAssetView *assetView = [[GCImageGridAssetView alloc] initWithFrame:CGRectZero];
             assetView.tag = 100 + i;
             [cell.contentView addSubview:assetView];
             [assetView release];
         }
+        
+        // layout block
+        __block CGFloat blockPadding = assetSpacing;
+        __block NSUInteger blockCount = numberOfAssetsPerRow;
+        __block UIView *blockView = tableView;
+        cell.layoutBlock = ^(UIView *view, NSUInteger index) {
+            CGFloat totalSpaceSize = (blockCount + 1) * blockPadding;
+            CGFloat tileSize = (blockView.bounds.size.width - totalSpaceSize) / blockCount;
+            CGFloat originX = (blockPadding * (index + 1)) + (tileSize * index);
+            CGRect viewFrame = CGRectMake(originX, 0.0, tileSize, tileSize);
+            view.frame = viewFrame;
+        };
+        
 	}
 	
     // configure cell
-	NSInteger start = indexPath.row * numberOfAssetsPerCell;
-	for (NSInteger i = start; i < start + numberOfAssetsPerCell; i++) {
-        NSInteger tag = 100 + (i % numberOfAssetsPerCell);
+	NSInteger start = indexPath.row * numberOfAssetsPerRow;
+	for (NSInteger i = start; i < start + numberOfAssetsPerRow; i++) {
+        NSInteger tag = 100 + (i % numberOfAssetsPerRow);
         GCImageGridAssetView *assetView = (GCImageGridAssetView *)[cell.contentView viewWithTag:tag];
         if (i < [allAssets count]) {
             ALAsset *asset = [allAssets objectAtIndex:i];
@@ -373,68 +385,41 @@
 
 #pragma mark - gestures
 - (void)tableDidReceiveTap:(UITapGestureRecognizer *)tap {
-    if (selectedAssets) {
+    UIView *tapView = tap.view;
+    CGPoint location = [tap locationInView:tapView];
+    NSUInteger column = MIN(location.x / (assetSpacing + kTileSize), numberOfAssetsPerRow);
+    NSUInteger row = location.y / kRowHeight;
+    NSUInteger index = row * numberOfAssetsPerRow + column;
+    if (index < [allAssets count]) {
+        ALAsset *asset = [allAssets objectAtIndex:index];
+        ALAssetRepresentation *representation = [asset defaultRepresentation];
+        NSURL *defaultURL = [representation url];
         
-        // setup variables
-        UITableView *tap_view = self.tableView;
-        CGPoint location = [tap locationInView:tap_view];
-        CGFloat loc_x = kSpaceSize, loc_y = kSpaceSize;
-        CGFloat tile_size = kTileSize;
-        CGFloat view_width = tap_view.contentSize.width;
-        CGFloat view_height = tap_view.contentSize.height;
-        NSUInteger index_x = 0, index_y = 0;
-        
-        // find values
-        while (loc_x < view_width) {
-            CGFloat next_loc = loc_x + tile_size;
-            if (next_loc > location.x) {
-                loc_x = CGFLOAT_MAX;
-            }
-            else {
-                loc_x = next_loc + kSpaceSize;
-                index_x++;
-            }
-        }
-        while (loc_y < view_height) {
-            CGFloat next_loc = loc_y + tile_size;
-            if (next_loc > location.y) {
-                loc_y = CGFLOAT_MAX;
-            }
-            else {
-                loc_y = next_loc + kSpaceSize;
-                index_y++;
-            }
-        }
-        
-        // calculate index
-        NSUInteger index = index_y * numberOfAssetsPerCell + index_x;
-        if (index < [allAssets count]) {
-            
-            // update model
-            ALAsset *asset = [allAssets objectAtIndex:index];
-            NSURL *defaultURL = [[asset defaultRepresentation] url];
+        // edit mode
+        if (self.editing) {
             if ([selectedAssets containsObject:defaultURL]) {
                 [selectedAssets removeObject:defaultURL];
             }
             else {
                 [selectedAssets addObject:defaultURL];
             }
-            
-            // update views
             [self updateTitle];
             self.actionButtonItem.enabled = ([selectedAssets count] > 0);
-            NSArray *paths = [NSArray arrayWithObject:[NSIndexPath indexPathForRow:index_y inSection:0]];
+            NSArray *paths = [NSArray arrayWithObject:[NSIndexPath indexPathForRow:row inSection:0]];
             [self.tableView reloadRowsAtIndexPaths:paths withRowAnimation:UITableViewRowAnimationNone];
             
         }
-    }
+        
+        // not edit mode
+        else {
 #if 0
-    else {
-        GCImageSlideshowController *slideshow = [[GCImageSlideshowController alloc] initWithAssets:allAssets];
-        [self.navigationController pushViewController:slideshow animated:YES];
-        [slideshow release];
-    }
+            GCImageSlideshowController *slideshow = [[GCImageSlideshowController alloc] initWithAssets:allAssets];
+            [self.navigationController pushViewController:slideshow animated:YES];
+            [slideshow release];
 #endif
+        }
+        
+    }
 }
 
 @end

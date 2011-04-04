@@ -18,15 +18,15 @@
     
     // view geometry
     CGFloat assetSpacing;
-    NSUInteger numberOfAssetsPerCell;
+    NSUInteger numberOfAssetsPerRow;
     
     // other stuff
     ALAssetsGroupType groupTypes;
     ALAssetsLibrary *assetsLibrary;
-    NSString *assetsGroupIdentifier;
     NSMutableSet *selectedAssets;
-    NSArray *allAssets;
+    NSString *assetsGroupIdentifier;
     NSString *baseTitle;
+    NSArray *allAssets;
     
 }
 

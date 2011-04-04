@@ -387,7 +387,7 @@
 - (void)tableDidReceiveTap:(UITapGestureRecognizer *)tap {
     UIView *tapView = tap.view;
     CGPoint location = [tap locationInView:tapView];
-    NSUInteger column = MIN(location.x / (assetSpacing + kTileSize), numberOfAssetsPerRow);
+    NSUInteger column = MIN(location.x / (assetSpacing + kTileSize), numberOfAssetsPerRow - 1);
     NSUInteger row = location.y / kRowHeight;
     NSUInteger index = row * numberOfAssetsPerRow + column;
     if (index < [allAssets count]) {

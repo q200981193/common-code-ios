@@ -152,14 +152,26 @@
         [self willChangeValueForKey:@"failureBlock"];
         _failureBlock = Block_copy(^(NSError *error){
             GC_LOG_ERROR(@"%@", error);
-            UIAlertView *alert = [[UIAlertView alloc]
-                                  initWithTitle:GCImagePickerControllerLocalizedString(@"ERROR")
-                                  message:GCImagePickerControllerLocalizedString(@"PHOTO_ROLL_LOCATION_ERROR")
-                                  delegate:nil
-                                  cancelButtonTitle:GCImagePickerControllerLocalizedString(@"OK")
-                                  otherButtonTitles:nil];
-            [alert show];
-            [alert release];
+            if ([error code] == ALAssetsLibraryAccessUserDeniedError || [error code] == ALAssetsLibraryAccessGloballyDeniedError) {
+                UIAlertView *alert = [[UIAlertView alloc]
+                                      initWithTitle:GCImagePickerControllerLocalizedString(@"ERROR")
+                                      message:GCImagePickerControllerLocalizedString(@"PHOTO_ROLL_LOCATION_ERROR")
+                                      delegate:nil
+                                      cancelButtonTitle:GCImagePickerControllerLocalizedString(@"OK")
+                                      otherButtonTitles:nil];
+                [alert show];
+                [alert release];
+            }
+            else {
+                UIAlertView *alert = [[UIAlertView alloc]
+                                      initWithTitle:GCImagePickerControllerLocalizedString(@"ERROR")
+                                      message:GCImagePickerControllerLocalizedString(@"UNKNOWN_LIBRARY_ERROR")
+                                      delegate:nil
+                                      cancelButtonTitle:GCImagePickerControllerLocalizedString(@"OK")
+                                      otherButtonTitles:nil];
+                [alert show];
+                [alert release];
+            }
         });
         [self didChangeValueForKey:@"failureBlock"];
     }

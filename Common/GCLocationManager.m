@@ -13,6 +13,15 @@
 @synthesize locationManager=_locaionManager;
 
 GC_SINGLETON_INSTANCE(GCLocationManager, sharedManager);
+- (id)init {
+    self = [super init];
+    if (self) {
+        CLLocationManager *manager = [[CLLocationManager alloc] init];
+        self.locationManager = manager;
+        [manager release];
+    }
+    return self;
+}
 + (BOOL)areLocationServicesAvailable {
     BOOL enabled = [CLLocationManager locationServicesEnabled];
 	if (NSFoundationVersionNumber >= NSFoundationVersionNumber_iOS_4_2) {

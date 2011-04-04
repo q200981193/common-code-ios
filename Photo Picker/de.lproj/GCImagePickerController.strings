@@ -8,9 +8,10 @@
 "ERROR" = "Fehler";
 "CAMERA_ROLL" = "Aufnahmen";
 "LOCATION_SERVICES" = "Ortungsdienste";
-"PHOTO_ROLL_LOCATION_ERROR" = "Da einige Fotos Standortdaten enthalten k√∂nnen, fordert iOS die Aktivierung der Ortungsdienste, um auf die Fotoalben zugreifen zu d√ºrfen.";
+"PHOTO_ROLL_LOCATION_ERROR" = "Da einige Fotos Standortdaten enthalten können, fordert iOS die Aktivierung der Ortungsdienste, um auf die Fotoalben zugreifen zu dürfen.";
+"UNKNOWN_LIBRARY_ERROR" = "An unknown error has occurred.";
 "OK" = "OK";
 "PHOTO_LIBRARY" = "Fotoarchiv";
-"PHOTO_COUNT_SINGLE" = "1 Objekte";
+"PHOTO_COUNT_SINGLE" = "1 Objekt";
 "PHOTO_COUNT_MULTIPLE" = "%d Objekte";
 "SELECT_ITEMS" = "Objekte auswählen";

@@ -34,6 +34,7 @@
     NSString *identifier = [[UIDevice currentDevice] uniqueIdentifier];
     NSMutableDictionary *dictionary = [[self dictionaryForKey:identifier] mutableCopy];
     [dictionary setObject:value forKey:key];
+    [self setObject:dictionary forKey:identifier];
     [dictionary release];
 }
 - (void)setByHostDouble:(double)value forKey:(NSString *)key {

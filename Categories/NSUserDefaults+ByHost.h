@@ -10,6 +10,9 @@
 
 @interface NSUserDefaults (ByHost)
 
+// remove values
+- (void)removeByHostObjectForKey:(NSString *)key;
+
 // set values
 - (void)setByHostBool:(BOOL)value forKey:(NSString *)key;
 - (void)setByHostFloat:(float)value forKey:(NSString *)key;

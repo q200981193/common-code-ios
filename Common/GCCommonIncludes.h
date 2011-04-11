@@ -7,6 +7,8 @@
 //
 
 #import "UIViewController+GCExtensions.h"
+#import "NSUserDefaults+ByHost.h"
+
 #import "GCTextFieldCell.h"
 #import "GCSwitchCell.h"
 

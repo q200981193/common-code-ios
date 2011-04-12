@@ -140,6 +140,7 @@
         gridView.actionBlock = self.actionBlock;
         gridView.actionEnabled = self.actionEnabled;
         gridView.actionTitle = self.actionTitle;
+        //gridView.mediaTypes = self.mediaTypes;
         gridView.view.frame = self.rightView.bounds;
         gridView.view.autoresizingMask = (UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight);
         if (callViewMethods) { [browser.gridViewController viewWillAppear:NO]; }
@@ -159,6 +160,7 @@
     // make list view
     GCImageListBrowserController *listView = [[GCImageListBrowserController alloc] init];
     listView.selectedGroupBlock = selectedBlock;
+    listView.mediaTypes = self.mediaTypes;
     listView.view.frame = self.leftView.bounds;
     listView.view.autoresizingMask = (UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth);
     [self.leftView addSubview:listView.view];

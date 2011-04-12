@@ -11,8 +11,9 @@
 
 #import "GCImageGridAssetView.h"
 
-#define kImageViewTag 1
+#define kThumbnailViewTag 1
 #define kSelectedViewTag 2
+#define kVideoViewTag 3
 
 @implementation GCImageGridAssetView
 
@@ -34,15 +35,16 @@
 }
 - (void)setAsset:(ALAsset *)newAsset {
     [self willChangeValueForKey:@"asset"];
+    
+    // set value
     [_asset release];
     _asset = [newAsset retain];
-    UIImageView *thumbnailView = (UIImageView *)[self viewWithTag:kImageViewTag];
-    if (_asset == nil) {
-        self.hidden = YES;
-        self.selected = NO;
-        [thumbnailView removeFromSuperview];
-    }
-    else {
+    
+    // get thumbnail view
+    UIImageView *thumbnailView = (UIImageView *)[self viewWithTag:kThumbnailViewTag];
+    
+    // set views
+    if (_asset) {
         
         // self
         self.hidden = NO;
@@ -50,33 +52,43 @@
         // thumbnail view
         if (thumbnailView == nil) {
             thumbnailView = [[UIImageView alloc] initWithFrame:CGRectZero];
-            [thumbnailView setTag:kImageViewTag];
+            thumbnailView.tag = kThumbnailViewTag;
             [self addSubview:thumbnailView];
             [thumbnailView release];
         }
         UIImage *thumbnail = [UIImage imageWithCGImage:[_asset thumbnail]];
-        [thumbnailView setImage:thumbnail];
-        [self sendSubviewToBack:thumbnailView];
+        thumbnailView.image = thumbnail;
         
-        // video views
-        NSString *type = [_asset valueForProperty:ALAssetPropertyType];
-        if ([type isEqualToString:ALAssetTypeVideo]) {
-//            UIImage *image = [UIImage imageNamed:@"VideoOverlay"];
-//            image = [image stretchableImageWithLeftCapWidth:36 topCapHeight:0];
-//            video = [[UIImageView alloc] initWithImage:image];
-//            video.tag = base + 8;
-//            video.frame = CGRectMake(tile.frame.origin.x,
-//                                     tile.frame.origin.y + tile.frame.size.height - image.size.height,
-//                                     tile.frame.size.width,
-//                                     image.size.height);
-//            [cell.contentView addSubview:video];
-//            [video release];
+        // video view
+        UIImageView *videoView = (UIImageView *)[self viewWithTag:kVideoViewTag];
+        NSString *assetType = [_asset valueForProperty:ALAssetPropertyType];
+        if ([assetType isEqualToString:ALAssetTypeVideo]) {
+            if (videoView == nil) {
+                UIImage *videoImage = [UIImage imageNamed:@"VideoAsset"];
+                videoImage = [videoImage stretchableImageWithLeftCapWidth:(videoImage.size.width - 2) topCapHeight:0];
+                videoView = [[UIImageView alloc] initWithFrame:CGRectZero];
+                videoView.tag = kVideoViewTag;
+                videoView.image = videoImage;
+                [self addSubview:videoView];
+                [videoView release];
+            }
         }
         else {
-            
+            [videoView removeFromSuperview];
         }
         
     }
+    
+    // clear views
+    else {
+        self.hidden = YES;
+        self.selected = NO;
+        [thumbnailView removeFromSuperview];
+    }
+    
+    // set needs layout
+    [self setNeedsLayout];
+    
     [self didChangeValueForKey:@"asset"];
 }
 - (void)setSelected:(BOOL)selected {
@@ -104,10 +116,26 @@
 }
 - (void)layoutSubviews {
     [super layoutSubviews];
-    UIView *thumbnailView = [self viewWithTag:kImageViewTag];
+    
+    // thumbnail view
+    UIView *thumbnailView = [self viewWithTag:kThumbnailViewTag];
     thumbnailView.frame = self.bounds;
+    
+    // video view
+    UIImageView *videoView = (UIImageView *)[self viewWithTag:kVideoViewTag];
+    if (videoView) {
+        UIImage *videoImage = videoView.image;
+        videoView.frame = CGRectMake(0, self.bounds.size.height - videoImage.size.height,
+                                     self.bounds.size.width, videoImage.size.height);
+        [self bringSubviewToFront:videoView];
+    }
+    
+    // selected view
     UIView *selectedView = [self viewWithTag:kSelectedViewTag];
-    selectedView.frame = CGRectMake(1, 1, self.bounds.size.width - 2, self.bounds.size.height - 2);
+    if (selectedView) {
+        selectedView.frame = CGRectMake(1, 1, self.bounds.size.width - 2, self.bounds.size.height - 2);
+        [self bringSubviewToFront:selectedView];
+    }
 }
 
 @end

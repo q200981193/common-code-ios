@@ -158,7 +158,9 @@
 #pragma mark - KVO
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context {
     if (object == self && [keyPath isEqualToString:@"mediaTypes"]) {
-        [self reloadAssetsGroups];
+        if ([self isViewLoaded]) {
+            [self reloadAssetsGroups];
+        }
     }
 }
 
@@ -205,6 +207,7 @@
         browser.actionBlock = self.actionBlock;
         browser.actionEnabled = self.actionEnabled;
         browser.actionTitle = self.actionTitle;
+        browser.mediaTypes = self.mediaTypes;
         [self.navigationController pushViewController:browser animated:YES];
         [browser release];
     }

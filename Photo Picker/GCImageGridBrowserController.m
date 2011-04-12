@@ -247,7 +247,9 @@
 #pragma mark - KVO
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context {
     if (object == self && [keyPath isEqualToString:@"mediaTypes"]) {
-        [self reloadAssets];
+        if ([self isViewLoaded]) {
+            [self reloadAssets];
+        }
     }
 }
 

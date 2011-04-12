@@ -88,7 +88,6 @@
 
 @synthesize gridViewController=_gridViewController;
 @synthesize listViewController=_listViewController;
-@synthesize showAlbumList=_showAlbumList;
 @synthesize popoverController=_popover;
 
 #pragma mark - object lifecycle

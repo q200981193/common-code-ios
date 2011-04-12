@@ -180,16 +180,19 @@
 - (void)viewDidLoad {
 	[super viewDidLoad];
     
-    [self willChangeValueForKey:@"selectButtonItem"];
-    UIImage *selectImage = [UIImage imageNamed:@"GCImagePickerControllerMultiSelect"];
-    _selectButtonItem = [[UIBarButtonItem alloc]
-                         initWithImage:selectImage
-                         style:UIBarButtonItemStyleBordered
-                         target:self
-                         action:@selector(select)];
-    [self didChangeValueForKey:@"selectButtonItem"];
-    
     if (self.actionEnabled && self.actionBlock && self.actionTitle) {
+        
+        // multi select button
+        [self willChangeValueForKey:@"selectButtonItem"];
+        UIImage *selectImage = [UIImage imageNamed:@"GCImagePickerControllerMultiSelect"];
+        _selectButtonItem = [[UIBarButtonItem alloc]
+                             initWithImage:selectImage
+                             style:UIBarButtonItemStyleBordered
+                             target:self
+                             action:@selector(select)];
+        [self didChangeValueForKey:@"selectButtonItem"];
+        
+        // action button item
         [self willChangeValueForKey:@"actionButtonItem"];
         _actionButtonItem = [[UIBarButtonItem alloc]
                              initWithTitle:self.actionTitle
@@ -198,6 +201,7 @@
                              action:@selector(action)];
         [self didChangeValueForKey:@"actionButtonItem"];
         self.navigationItem.rightBarButtonItem = self.selectButtonItem;
+        
     }
     
     [self willChangeValueForKey:@"cancelButtonItem"];

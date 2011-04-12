@@ -29,7 +29,4 @@
 // popover
 @property (nonatomic, retain) UIPopoverController *popoverController;
 
-// control whether the album list is shown
-@property (nonatomic, assign) BOOL showAlbumList;
-
 @end

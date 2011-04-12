@@ -10,6 +10,7 @@
 #import "GCImageGridAssetView.h"
 #import "GCImageGridCell.h"
 #import "GCImageSlideshowController.h"
+#import "GCImagePreviewController.h"
 
 #define kNumberOfSpaces (numberOfAssetsPerRow + 1)
 #define kHorizontalSpaceSize (assetSpacing * kNumberOfSpaces)
@@ -391,11 +392,7 @@
         
         // not edit mode
         else {
-#if 0
-            GCImageSlideshowController *slideshow = [[GCImageSlideshowController alloc] initWithAssets:allAssets];
-            [self.navigationController pushViewController:slideshow animated:YES];
-            [slideshow release];
-#endif
+            
         }
         
     }

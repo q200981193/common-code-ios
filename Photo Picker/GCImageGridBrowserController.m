@@ -9,8 +9,6 @@
 #import "GCImageGridBrowserController.h"
 #import "GCImageGridAssetView.h"
 #import "GCImageGridCell.h"
-#import "GCImageSlideshowController.h"
-#import "GCImagePreviewController.h"
 
 #define kNumberOfSpaces (numberOfAssetsPerRow + 1)
 #define kHorizontalSpaceSize (assetSpacing * kNumberOfSpaces)

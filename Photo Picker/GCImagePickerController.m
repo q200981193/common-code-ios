@@ -16,36 +16,16 @@
 @implementation GCImagePickerController
 
 #pragma mark - class methods
-+ (GCImagePickerController *)pickerWithSourceType:(UIImagePickerControllerSourceType)source {
-    
-    // arg check
-    if (source != UIImagePickerControllerSourceTypePhotoLibrary &&
-        source != UIImagePickerControllerSourceTypeSavedPhotosAlbum) {
-        [NSException
-         raise:NSInvalidArgumentException
-         format:@"%@ does not support the specified source type.", NSStringFromClass(self)];
-        return nil;
-    }
++ (GCImagePickerController *)imagePicker {
     
     // ipad
     if (GC_IS_IPAD) {
-        GCImageBrowserController_iPad *browser = [[GCImageBrowserController_iPad alloc] init];
-        browser.showAlbumList = (source == UIImagePickerControllerSourceTypePhotoLibrary);
-        return [browser autorelease];
+        return [[[GCImageBrowserController_iPad alloc] init] autorelease];
     }
     
     // iphone
     else {
-        if (source == UIImagePickerControllerSourceTypeSavedPhotosAlbum) {
-            GCImagePickerController *picker = [[GCImageGridBrowserController alloc]
-                                               initWithAssetsGroupTypes:ALAssetsGroupSavedPhotos
-                                               title:GCImagePickerControllerLocalizedString(@"CAMERA_ROLL")
-                                               groupID:nil];
-            return [picker autorelease];
-        }
-        else {
-            return [[[GCImageListBrowserController alloc] init] autorelease];
-        }
+        return [[[GCImageListBrowserController alloc] init] autorelease];
     }
     
 }

@@ -218,16 +218,6 @@
 	tapRecognizer.numberOfTouchesRequired = 1;
 	[self.tableView addGestureRecognizer:tapRecognizer];
     [tapRecognizer release];
-    
-	// buttons
-	if ([self gc_isRootViewController]) {
-		UIBarButtonItem *item = [[UIBarButtonItem alloc]
-                                 initWithBarButtonSystemItem:UIBarButtonSystemItemDone
-                                 target:self
-                                 action:@selector(done)];
-		self.navigationItem.leftBarButtonItem = item;
-		[item release];
-	}
 	
 	// inset
 	UIEdgeInsets insets = self.tableView.contentInset;
@@ -275,17 +265,7 @@
     else {
         [selectedAssets release];
         selectedAssets = nil;
-        if ([self gc_isRootViewController]) {
-            UIBarButtonItem *item = [[UIBarButtonItem alloc]
-                                     initWithBarButtonSystemItem:UIBarButtonSystemItemDone
-                                     target:self
-                                     action:@selector(done)];
-            self.navigationItem.leftBarButtonItem = item;
-            [item release];
-        }
-        else {
-            self.navigationItem.leftBarButtonItem = nil;
-        }
+        self.navigationItem.leftBarButtonItem = nil;
         self.navigationItem.rightBarButtonItem = self.selectButtonItem;
     }
     [self updateTitle];
@@ -309,12 +289,7 @@
              GC_LOG_ERROR(@"%@", error);
          }];
     }
-    if ([self gc_isRootViewController]) {
-        [self dismissModalViewControllerAnimated:YES];
-    }
-    else {
-        [self cancel];
-    }
+    self.editing = NO;
 }
 
 #pragma mark - table view

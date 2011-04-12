@@ -27,7 +27,7 @@
 @property (nonatomic, readonly) ALAssetsLibraryAccessFailureBlock failureBlock;
 
 // methods to get a certain picker
-+ (GCImagePickerController *)pickerWithSourceType:(UIImagePickerControllerSourceType)source;
++ (GCImagePickerController *)imagePicker;
 
 // object methods
 - (void)presentFromViewController:(UIViewController *)controller;

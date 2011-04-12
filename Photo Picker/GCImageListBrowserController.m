@@ -127,15 +127,13 @@
 - (void)viewDidLoad {
 	[super viewDidLoad];
     
-	// button
-	if (!GC_IS_IPAD) {
-		UIBarButtonItem *item = [[UIBarButtonItem alloc]
-								 initWithBarButtonSystemItem:UIBarButtonSystemItemDone
-								 target:self
-								 action:@selector(done)];
-		self.navigationItem.leftBarButtonItem = item;
-		[item release];
-	}
+	// done button
+	UIBarButtonItem *item = [[UIBarButtonItem alloc]
+                             initWithBarButtonSystemItem:UIBarButtonSystemItemDone
+                             target:self
+                             action:@selector(doneAction)];
+    self.navigationItem.leftBarButtonItem = item;
+    [item release];
 	
 	// groups
     [self reloadAssetsGroups];
@@ -170,7 +168,7 @@
 }
 
 #pragma mark - button actions
-- (void)done {
+- (void)doneAction {
 	[self dismissModalViewControllerAnimated:YES];
 }
 

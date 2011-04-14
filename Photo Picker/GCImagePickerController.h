@@ -9,10 +9,17 @@
 #import <UIKit/UIKit.h>
 #import <AssetsLibrary/AssetsLibrary.h>
 
+#import "GCImageBrowserController.h"
+
 #define GCImagePickerControllerLocalizedString(key) NSLocalizedStringFromTable(key, @"GCImagePickerController", @"")
 
-@interface GCImagePickerController : UIViewController {
-    
+/*
+ provides a common interface for creating and interacting with
+ an image picker controller
+ */
+@interface GCImagePickerController : UINavigationController <GCImageBrowserDataSource> {
+@private
+    ALAssetsLibrary *assetsLibrary;
 }
 
 // enable select action
@@ -26,12 +33,8 @@
 // internal
 @property (nonatomic, readonly) ALAssetsLibraryAccessFailureBlock failureBlock;
 
-// methods to get a certain picker
-+ (GCImagePickerController *)imagePicker;
-
-// object methods
-- (void)presentFromViewController:(UIViewController *)controller;
-- (ALAssetsFilter *)assetsFilter;
+// make a picker
+- (id)init;
 
 // utility methods
 + (NSData *)dataForAssetRepresentation:(ALAssetRepresentation *)rep;

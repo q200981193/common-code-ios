@@ -9,26 +9,11 @@
 #import <MobileCoreServices/MobileCoreServices.h>
 
 #import "GCImagePickerController.h"
-#import "GCImageListBrowserController.h"
-#import "GCImageGridBrowserController.h"
-#import "GCImageBrowserController_iPad.h"
+#import "GCImageBrowserViewController_iPad.h"
 
 @implementation GCImagePickerController
 
 #pragma mark - class methods
-+ (GCImagePickerController *)imagePicker {
-    
-    // ipad
-    if (GC_IS_IPAD) {
-        return [[[GCImageBrowserController_iPad alloc] init] autorelease];
-    }
-    
-    // iphone
-    else {
-        return [[[GCImageListBrowserController alloc] init] autorelease];
-    }
-    
-}
 + (NSData *)dataForAssetRepresentation:(ALAssetRepresentation *)rep {
     [rep retain];
     long long size = [rep size], offset = 0;
@@ -124,62 +109,69 @@
 @synthesize mediaTypes=_mediaTypes;
 
 #pragma mark - object lifecycle
-- (id)initWithNibName:(NSString *)name bundle:(NSBundle *)bundle {
-    self = [super initWithNibName:name bundle:bundle];
+- (id)init {
+    self = [super init];
     if (self) {
-        if (!GC_IS_IPAD) { self.wantsFullScreenLayout = YES; }
-        self.mediaTypes = [NSArray arrayWithObject:(NSString *)kUTTypeImage];
-        [self willChangeValueForKey:@"failureBlock"];
-        _failureBlock = Block_copy(^(NSError *error){
-            GC_LOG_ERROR(@"%@", error);
-            if ([error code] == ALAssetsLibraryAccessUserDeniedError || [error code] == ALAssetsLibraryAccessGloballyDeniedError) {
-                UIAlertView *alert = [[UIAlertView alloc]
-                                      initWithTitle:GCImagePickerControllerLocalizedString(@"ERROR")
-                                      message:GCImagePickerControllerLocalizedString(@"PHOTO_ROLL_LOCATION_ERROR")
-                                      delegate:nil
-                                      cancelButtonTitle:GCImagePickerControllerLocalizedString(@"OK")
-                                      otherButtonTitles:nil];
-                [alert show];
-                [alert release];
-            }
-            else {
-                UIAlertView *alert = [[UIAlertView alloc]
-                                      initWithTitle:GCImagePickerControllerLocalizedString(@"ERROR")
-                                      message:GCImagePickerControllerLocalizedString(@"UNKNOWN_LIBRARY_ERROR")
-                                      delegate:nil
-                                      cancelButtonTitle:GCImagePickerControllerLocalizedString(@"OK")
-                                      otherButtonTitles:nil];
-                [alert show];
-                [alert release];
-            }
-        });
-        [self didChangeValueForKey:@"failureBlock"];
+        
+        // push root view
+        if (GC_IS_IPAD) {
+            GCImageBrowserViewController_iPad *browser = [[GCImageBrowserViewController_iPad alloc] init];
+            browser.dataSource = self;
+            [self pushViewController:browser animated:NO];
+            [browser release];
+        }
+        else {
+            
+        }
+        
+        // assets library
+        assetsLibrary = [[ALAssetsLibrary alloc] init];
+        
+//        self.mediaTypes = [NSArray arrayWithObject:(NSString *)kUTTypeImage];
+//        [self willChangeValueForKey:@"failureBlock"];
+//        _failureBlock = Block_copy(^(NSError *error){
+//            GC_LOG_ERROR(@"%@", error);
+//            if ([error code] == ALAssetsLibraryAccessUserDeniedError || [error code] == ALAssetsLibraryAccessGloballyDeniedError) {
+//                UIAlertView *alert = [[UIAlertView alloc]
+//                                      initWithTitle:GCImagePickerControllerLocalizedString(@"ERROR")
+//                                      message:GCImagePickerControllerLocalizedString(@"PHOTO_ROLL_LOCATION_ERROR")
+//                                      delegate:nil
+//                                      cancelButtonTitle:GCImagePickerControllerLocalizedString(@"OK")
+//                                      otherButtonTitles:nil];
+//                [alert show];
+//                [alert release];
+//            }
+//            else {
+//                UIAlertView *alert = [[UIAlertView alloc]
+//                                      initWithTitle:GCImagePickerControllerLocalizedString(@"ERROR")
+//                                      message:GCImagePickerControllerLocalizedString(@"UNKNOWN_LIBRARY_ERROR")
+//                                      delegate:nil
+//                                      cancelButtonTitle:GCImagePickerControllerLocalizedString(@"OK")
+//                                      otherButtonTitles:nil];
+//                [alert show];
+//                [alert release];
+//            }
+//        });
+//        [self didChangeValueForKey:@"failureBlock"];
     }
     return self;
 }
 - (void)dealloc {
-    [self willChangeValueForKey:@"failureBlock"];
-    Block_release(_failureBlock);_failureBlock = nil;
-    [self didChangeValueForKey:@"failureBlock"];
-    self.actionBlock = nil;
-    self.actionTitle = nil;
-    self.mediaTypes = nil;
+    [assetsLibrary release];
+    assetsLibrary = nil;
+    
+//    [self willChangeValueForKey:@"failureBlock"];
+//    Block_release(_failureBlock);_failureBlock = nil;
+//    [self didChangeValueForKey:@"failureBlock"];
+//    self.actionBlock = nil;
+//    self.actionTitle = nil;
+//    self.mediaTypes = nil;
     [super dealloc];
 }
 
-#pragma mark - view lifeccyle
-- (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)orientation {
-    if (GC_IS_IPAD) { return YES; }
-    else { return (orientation == UIInterfaceOrientationPortrait); }
-}
-
-#pragma mark - object methods
-- (void)presentFromViewController:(UIViewController *)controller {
-	UINavigationController *nav = [[UINavigationController alloc] initWithRootViewController:self];
-    if (GC_IS_IPAD) { nav.navigationBarHidden = YES; }
-    else { nav.navigationBar.barStyle = UIBarStyleBlackTranslucent; }
-	[controller presentModalViewController:nav animated:YES];
-	[nav release];
+#pragma mark - data source
+- (ALAssetsLibrary *)assetsLibrary {
+    return assetsLibrary;
 }
 - (ALAssetsFilter *)assetsFilter {
     BOOL images = [self.mediaTypes containsObject:(NSString *)kUTTypeImage];

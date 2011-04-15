@@ -127,7 +127,6 @@
 @implementation GCImageBrowserViewController_iPad
 
 @synthesize dataSource=_dataSource;
-
 @synthesize leftView=_leftView;
 @synthesize rightView=_rightView;
 @synthesize toolbar=_toolbar;

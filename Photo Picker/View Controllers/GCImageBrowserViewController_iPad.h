@@ -12,7 +12,10 @@
 // ipad image browser
 @interface GCImageBrowserViewController_iPad : UIViewController
 <UIPopoverControllerDelegate, GCImageListBrowserDelegate> {
-    
+@private
+    GCImageListBrowserController *listController;
+    GCImageGridBrowserController *gridController;
+    UIPopoverController *popoverController;
 }
 
 // data source
@@ -23,12 +26,5 @@
 @property (nonatomic, retain) IBOutlet UIView *rightView;
 @property (nonatomic, retain) IBOutlet UIToolbar *toolbar;
 @property (nonatomic, retain) IBOutlet UILabel *titleLabel;
-
-// master & detail views
-@property (nonatomic, retain) GCImageListBrowserController *listController;
-@property (nonatomic, retain) GCImageGridBrowserController *gridController;
-
-// popover
-@property (nonatomic, retain) UIPopoverController *popover;
 
 @end

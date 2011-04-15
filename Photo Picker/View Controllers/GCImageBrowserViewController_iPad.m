@@ -35,17 +35,12 @@
 @implementation GCImageBrowserViewController_iPad (private)
 - (void)updateToolbarItemsForOrientation:(UIInterfaceOrientation)orientation {
     NSMutableArray *array = [NSMutableArray array];
-//    if (self.gridViewController.editing) {
-//        if (self.gridViewController.actionButtonItem) {
-//            [array addObject:self.gridViewController.actionButtonItem];
-//        }
-//        [array addObject:[self flexibleSpaceButtonItem]];
-//        if (self.gridViewController.cancelButtonItem) {
-//            [array addObject:self.gridViewController.cancelButtonItem];
-//        }
-//    }
-    if (self.gridController.editing) {
+    if (gridController.editing) {
+        if (gridController.actionButtonItem) {
+            [array addObject:gridController.actionButtonItem];
+        }
         [array addObject:[self flexibleSpaceButtonItem]];
+        [array addObject:gridController.cancelButtonItem];
     }
     else {
         
@@ -62,7 +57,7 @@
         // popover button
         if (UIInterfaceOrientationIsPortrait(orientation)) {
             UIBarButtonItem *item = [[UIBarButtonItem alloc]
-                                     initWithTitle:self.listController.title
+                                     initWithTitle:listController.title
                                      style:UIBarButtonItemStyleBordered
                                      target:self
                                      action:@selector(popoverAction:)];
@@ -72,6 +67,11 @@
         
         // space
         [array addObject:[self flexibleSpaceButtonItem]];
+        
+        // select button
+        if (gridController.selectButtonItem) {
+            [array addObject:gridController.selectButtonItem];
+        }
         
     }
     self.toolbar.items = array;
@@ -94,18 +94,22 @@
     [self updateViewLayoutForOrientation:self.interfaceOrientation];
 }
 - (void)cleanup {
-    [self.popover dismissPopoverAnimated:NO];
-    self.popover = nil;
-    [self.gridController removeObserver:self forKeyPath:@"editing"];
-    [self.gridController removeObserver:self forKeyPath:@"title"];
-    self.gridController = nil;
-    self.listController = nil;
+    [popoverController dismissPopoverAnimated:NO];
+    [popoverController release];
+    popoverController = nil;
+    [gridController removeObserver:self forKeyPath:@"editing"];
+    [gridController removeObserver:self forKeyPath:@"title"];
+    [gridController removeObserver:self forKeyPath:@"actionButtonItem"];
+    [gridController release];
+    gridController = nil;
+    [listController release];
+    listController = nil;
     self.leftView = nil;
     self.rightView = nil;
 }
 - (UIBarButtonItem *)popoverButtonItem {
     return [[[UIBarButtonItem alloc]
-             initWithTitle:self.listController.title
+             initWithTitle:listController.title
              style:UIBarButtonItemStyleBordered
              target:self
              action:@selector(popoverAction:)]
@@ -128,10 +132,6 @@
 @synthesize rightView=_rightView;
 @synthesize toolbar=_toolbar;
 @synthesize titleLabel=_titleLabel;
-
-@synthesize gridController=_gridViewController;
-@synthesize listController=_listViewController;
-@synthesize popover=_popover;
 
 #pragma mark - object lifecycle
 - (id)init {
@@ -158,22 +158,20 @@
     [super viewDidLoad];
         
     // make list view
-    GCImageListBrowserController *browser = [[GCImageListBrowserController alloc] init];
-    browser.view.frame = self.leftView.bounds;
-    browser.view.autoresizingMask = (UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth);
-    browser.dataSource = self.dataSource;
-    browser.delegate = self;
-    browser.showDisclosureIndicator = NO;
-    [browser reloadData];
-    [self.leftView addSubview:browser.view];
-    self.listController = browser;
-    [browser release];
+    listController = [[GCImageListBrowserController alloc] init];
+    listController.view.frame = self.leftView.bounds;
+    listController.view.autoresizingMask = (UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth);
+    listController.dataSource = self.dataSource;
+    listController.delegate = self;
+    listController.showDisclosureIndicator = NO;
+    [listController reloadData];
+    [self.leftView addSubview:listController.view];
     
     // set asset group view
-    NSArray *groups = self.listController.assetsGroups;
+    NSArray *groups = listController.assetsGroups;
     if ([groups count]) {
-        ALAssetsGroup *group = [self.listController.assetsGroups objectAtIndex:0];
-        [self listBrowser:self.listController didSelectAssetGroup:group];
+        ALAssetsGroup *group = [listController.assetsGroups objectAtIndex:0];
+        [self listBrowser:listController didSelectAssetGroup:group];
     }
     
 }
@@ -189,39 +187,41 @@
 - (void)viewDidAppear:(BOOL)animated {
     [super viewDidAppear:animated];
     [self.toolbar setNeedsLayout];
-    [self.gridController.tableView flashScrollIndicators];
-    [self.listController.tableView flashScrollIndicators];
+    [gridController.tableView flashScrollIndicators];
+    [listController.tableView flashScrollIndicators];
 }
 
 #pragma mark - list browser delegate
 - (void)listBrowser:(GCImageListBrowserController *)controller didSelectAssetGroup:(ALAssetsGroup *)group {
     
     // dsimiss popover
-    [self.popover dismissPopoverAnimated:YES];
-    self.popover = nil;
+    [popoverController dismissPopoverAnimated:YES];
+    [popoverController release];
+    popoverController = nil;
     
     // get group stuff
     NSString *groupID = [group valueForProperty:ALAssetsGroupPropertyPersistentID];
     
     // unload old view
-    [self.gridController.view removeFromSuperview];
-    [self.gridController removeObserver:self forKeyPath:@"editing"];
-    [self.gridController removeObserver:self forKeyPath:@"title"];
+    [gridController.view removeFromSuperview];
+    [gridController removeObserver:self forKeyPath:@"editing"];
+    [gridController removeObserver:self forKeyPath:@"title"];
+    [gridController removeObserver:self forKeyPath:@"actionButtonItem"];
+    [gridController release];
     
     // make new view
-    GCImageGridBrowserController *browser = [[GCImageGridBrowserController alloc] initWithAssetsGroupIdentifier:groupID];
-    browser.view.frame = self.rightView.bounds;
-    browser.view.autoresizingMask = (UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight);
-    browser.dataSource = self.dataSource;
-    browser.numberOfAssetsPerRow = 6;
-    browser.assetViewPadding = 10.0;
-    browser.tableView.contentInset = UIEdgeInsetsMake(browser.assetViewPadding, 0, 0, 0);
-    self.gridController = browser;
-    [browser addObserver:self forKeyPath:@"editing" options:NSKeyValueObservingOptionNew context:nil];
-    [browser addObserver:self forKeyPath:@"title" options:NSKeyValueObservingOptionNew context:nil];
-    [browser reloadData];
-    [self.rightView addSubview:browser.view];
-    [browser release];
+    gridController = [[GCImageGridBrowserController alloc] initWithAssetsGroupIdentifier:groupID];
+    [gridController addObserver:self forKeyPath:@"editing" options:0 context:nil];
+    [gridController addObserver:self forKeyPath:@"title" options:0 context:nil];
+    [gridController addObserver:self forKeyPath:@"actionButtonItem" options:0 context:nil];
+    gridController.view.frame = self.rightView.bounds;
+    gridController.view.autoresizingMask = (UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight);
+    gridController.dataSource = self.dataSource;
+    gridController.numberOfAssetsPerRow = 6;
+    gridController.assetViewPadding = 10.0;
+    gridController.tableView.contentInset = UIEdgeInsetsMake(gridController.assetViewPadding, 0, 0, 0);
+    [gridController reloadData];
+    [self.rightView addSubview:gridController.view];
     
     // update interface
     [self updateToolbarItems];
@@ -247,11 +247,12 @@
     
     // do stuff depending on the new orientation
     if (UIInterfaceOrientationIsLandscape(orientation)) {
-        [self.popover dismissPopoverAnimated:NO];
-        self.popover = nil;
-        self.listController.view.frame = self.leftView.bounds;
-        [self.leftView addSubview:self.listController.view];
-        [self.leftView sendSubviewToBack:self.listController.view];
+        [popoverController dismissPopoverAnimated:NO];
+        [popoverController release];
+        popoverController = nil;
+        listController.view.frame = self.leftView.bounds;
+        [self.leftView addSubview:listController.view];
+        [self.leftView sendSubviewToBack:listController.view];
     }
         
 }
@@ -264,11 +265,12 @@
     if (object == self && [keyPath isEqualToString:@"title"]) {
         self.titleLabel.text = self.title;
     }
-    else if (object == self.gridController && [keyPath isEqualToString:@"editing"]) {
+    else if (object == gridController && [keyPath isEqualToString:@"editing"]) {
         [self updateToolbarItems];
-        [self.popover dismissPopoverAnimated:YES];
-        self.popover = nil;
-        if (self.gridController.editing) {
+        [popoverController dismissPopoverAnimated:YES];
+        [popoverController release];
+        popoverController = nil;
+        if (gridController.editing) {
             UIView *greyOut = [[UIView alloc] initWithFrame:self.leftView.bounds];
             greyOut.backgroundColor = [UIColor blackColor];
             greyOut.alpha = 0.0;
@@ -294,8 +296,11 @@
              }];
         }
     }
-    else if (object == self.gridController && [keyPath isEqualToString:@"title"]) {
-        self.title = self.gridController.title;
+    else if (object == gridController && [keyPath isEqualToString:@"title"]) {
+        self.title = gridController.title;
+    }
+    else if (object == gridController && [keyPath isEqualToString:@"actionButtonItem"]) {
+        [self updateToolbarItems];
     }
 }
 
@@ -304,22 +309,21 @@
     [self dismissModalViewControllerAnimated:YES];
 }
 - (void)popoverAction:(UIBarButtonItem *)sender {
-    if (!self.popover) {
+    if (popoverController == nil) {
         GCImageBrowserViewController *controller = [[GCImageBrowserViewController alloc] init];
-        controller.browser = self.listController;
-        UIPopoverController *popover = [[UIPopoverController alloc] initWithContentViewController:controller];
-        self.popover = popover;
-        popover.delegate = self;
-        [popover presentPopoverFromBarButtonItem:sender permittedArrowDirections:UIPopoverArrowDirectionAny animated:YES];
-        [popover release];
+        controller.browser = listController;
+        popoverController = [[UIPopoverController alloc] initWithContentViewController:controller];
+        popoverController.delegate = self;
+        [popoverController presentPopoverFromBarButtonItem:sender permittedArrowDirections:UIPopoverArrowDirectionAny animated:YES];
         [controller release];
     }
 }
 
 #pragma mark - popover delegate
 - (void)popoverControllerDidDismissPopover:(UIPopoverController *)popover {
-    if (popover == self.popover) {
-        self.popover = nil;
+    if (popover == popoverController) {
+        [popoverController release];
+        popoverController = nil;
     }
 }
 

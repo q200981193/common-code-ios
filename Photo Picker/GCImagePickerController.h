@@ -22,13 +22,20 @@
     ALAssetsLibrary *assetsLibrary;
 }
 
-// enable select action
-@property (nonatomic, copy) ALAssetsLibraryAssetForURLResultBlock actionBlock;
-@property (nonatomic, copy) NSString *actionTitle;
-@property (nonatomic, assign) BOOL actionEnabled;
+// multi-select action
+@property (nonatomic, copy) NSString *selectActionTitle;
+@property (nonatomic, assign) BOOL selectActionEnabled;
 
-// media type
+// media types
 @property (nonatomic, copy) NSArray *mediaTypes;
+
+
+
+
+@property (nonatomic, copy) ALAssetsLibraryAssetForURLResultBlock actionBlock;
+
+
+
 
 // internal
 @property (nonatomic, readonly) ALAssetsLibraryAccessFailureBlock failureBlock;

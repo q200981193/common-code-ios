@@ -102,16 +102,27 @@
     }
 }
 
-@synthesize actionBlock=_actionBlock;
-@synthesize actionTitle=_actionTitle;
-@synthesize actionEnabled=_actionEnabled;
-@synthesize failureBlock=_failureBlock;
+#pragma mark - properties
+@synthesize selectActionTitle=_selectActionTitle;
+@synthesize selectActionEnabled=_selectActionEnabled;
 @synthesize mediaTypes=_mediaTypes;
+
+
+
+@synthesize actionBlock=_actionBlock;
+@synthesize failureBlock=_failureBlock;
+
 
 #pragma mark - object lifecycle
 - (id)init {
     self = [super init];
     if (self) {
+        
+        // assets library
+        assetsLibrary = [[ALAssetsLibrary alloc] init];
+        
+        // base media types
+        self.mediaTypes = [NSArray arrayWithObject:(NSString *)kUTTypeImage];
         
         // push root view
         if (GC_IS_IPAD) {
@@ -121,13 +132,10 @@
             [browser release];
         }
         else {
-            
+            GCImageListBrowserController *browser = [[GCImageListBrowserController alloc] init];
+            browser.dataSource = self;
         }
         
-        // assets library
-        assetsLibrary = [[ALAssetsLibrary alloc] init];
-        
-//        self.mediaTypes = [NSArray arrayWithObject:(NSString *)kUTTypeImage];
 //        [self willChangeValueForKey:@"failureBlock"];
 //        _failureBlock = Block_copy(^(NSError *error){
 //            GC_LOG_ERROR(@"%@", error);
@@ -159,13 +167,13 @@
 - (void)dealloc {
     [assetsLibrary release];
     assetsLibrary = nil;
+    self.mediaTypes = nil;
+    self.selectActionTitle = nil;
     
 //    [self willChangeValueForKey:@"failureBlock"];
 //    Block_release(_failureBlock);_failureBlock = nil;
 //    [self didChangeValueForKey:@"failureBlock"];
 //    self.actionBlock = nil;
-//    self.actionTitle = nil;
-//    self.mediaTypes = nil;
     [super dealloc];
 }
 

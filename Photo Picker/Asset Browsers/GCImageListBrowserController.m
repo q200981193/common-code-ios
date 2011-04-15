@@ -52,7 +52,6 @@
     NSMutableArray *events = [NSMutableArray array];
     
     // load gruops
-    NSLog(@"%@", self.dataSource);
 	[[self.dataSource assetsLibrary]
 	 enumerateGroupsWithTypes:ALAssetsGroupAll
 	 usingBlock:^(ALAssetsGroup *group, BOOL *stop) {

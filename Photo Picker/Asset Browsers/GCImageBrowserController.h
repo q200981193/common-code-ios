@@ -16,6 +16,8 @@
 @required
 - (ALAssetsLibrary *)assetsLibrary;
 - (ALAssetsFilter *)assetsFilter;
+- (NSString *)selectActionTitle;
+- (BOOL)selectActionEnabled;
 @end
 
 // image browser controller

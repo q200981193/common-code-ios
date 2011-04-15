@@ -34,7 +34,6 @@
     [super dealloc];
 }
 - (void)setAsset:(ALAsset *)newAsset {
-    [self willChangeValueForKey:@"asset"];
     
     // set value
     [_asset release];
@@ -89,11 +88,9 @@
     // set needs layout
     [self setNeedsLayout];
     
-    [self didChangeValueForKey:@"asset"];
 }
 - (void)setSelected:(BOOL)selected {
     if (self.selected != selected) {
-        [self willChangeValueForKey:@"selected"];
         _selected = selected;
         UIImageView *imageView = (UIImageView *)[self viewWithTag:kSelectedViewTag];
         if (_selected) {
@@ -111,7 +108,6 @@
         else {
             [imageView removeFromSuperview];
         }
-        [self didChangeValueForKey:@"selected"];
     }
 }
 - (void)layoutSubviews {

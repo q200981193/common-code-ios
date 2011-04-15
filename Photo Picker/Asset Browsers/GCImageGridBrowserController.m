@@ -70,15 +70,25 @@
 //            numberOfAssetsPerRow = 4;
 //        }
         
+        // select button
+        [self willChangeValueForKey:@"selectButtonItem"];
+        _selectButtonItem = [[UIBarButtonItem alloc]
+                             initWithImage:[UIImage imageNamed:@"GCImagePickerControllerMultiSelect"]
+                             style:UIBarButtonItemStyleBordered
+                             target:self
+                             action:@selector(selectAction)];
+        [self didChangeValueForKey:@"selectButtonItem"];
+        
+        // cancel button
+        [self willChangeValueForKey:@"cancelButtonItem"];
+        _cancelButtonItem = [[UIBarButtonItem alloc]
+                             initWithBarButtonSystemItem:UIBarButtonSystemItemCancel
+                             target:self
+                             action:@selector(cancelAction)];
+        [self didChangeValueForKey:@"cancelButtonItem"];
+        
         // save group
         assetsGroupIdentifier = [groupIdentifier copy];
-        
-        // kvo
-        [self
-         addObserver:self
-         forKeyPath:@"editing"
-         options:0
-         context:nil];
         
         // table view
         self.tableView.separatorStyle = UITableViewCellSeparatorStyleNone;
@@ -88,16 +98,27 @@
 }
 - (void)dealloc {
     
-    [self removeObserver:self forKeyPath:@"editing"];
+    // select button
+    [self willChangeValueForKey:@"selectButtonItem"];
+    [_selectButtonItem release];
+    _selectButtonItem = nil;
+    [self didChangeValueForKey:@"selectButtonItem"];
     
+    // cancel button
+    [self willChangeValueForKey:@"cancelButtonItem"];
+    [_cancelButtonItem release];
+    _cancelButtonItem = nil;
+    [self didChangeValueForKey:@"cancelButtonItem"];
+    
+    // other crap
     [allAssets release];
     allAssets = nil;
-    
     [selectedAssetURLs release];
     selectedAssetURLs = nil;
-    
     [assetsGroupIdentifier release];
     assetsGroupIdentifier = nil;
+    [assetsGroup release];
+    assetsGroup = nil;
     
     [super dealloc];
     
@@ -123,7 +144,11 @@
     [[self.dataSource assetsLibrary]
      enumerateGroupsWithTypes:ALAssetsGroupAll
      usingBlock:^(ALAssetsGroup *group, BOOL *stop) {
-         if (group) {
+         if (group == nil) {
+             *stop = YES;
+             allAssets = array;
+         }
+         else {
              NSString *groupID = [group valueForProperty:ALAssetsGroupPropertyPersistentID];
              if ([groupID isEqualToString:assetsGroupIdentifier]) {
                  [group setAssetsFilter:filter];
@@ -131,10 +156,6 @@
                  assetsGroup = [group retain];
                  *stop = YES;
              }
-         }
-         else {
-             *stop = YES;
-             allAssets = array;
          }
      }
      failureBlock:^(NSError *error){
@@ -166,25 +187,28 @@
     
 }
 
-#pragma mark - KVO
-- (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context {
-    if (object == self && [keyPath isEqualToString:@"editing"]) {
-        if (self.editing) {
-            selectedAssetURLs = [[NSMutableSet alloc] init];
-            self.actionButtonItem.enabled = ([selectedAssetURLs count] > 0);
-        }
-        else {
-            [selectedAssetURLs release];
-            selectedAssetURLs = nil;
-            self.actionButtonItem.enabled = NO;
-        }
-        [self updateTitle];
-        [self.tableView reloadData];
+#pragma mark - accessors
+- (void)setEditing:(BOOL)editing {
+    if (_editing == editing) {
+        return;
     }
+    [self willChangeValueForKey:@"editing"];
+    _editing = editing;
+    if (_editing) {
+        selectedAssetURLs = [[NSMutableSet alloc] init];
+        self.actionButtonItem.enabled = ([selectedAssetURLs count] > 0);
+    }
+    else {
+        [selectedAssetURLs release];
+        selectedAssetURLs = nil;
+        self.actionButtonItem.enabled = NO;
+    }
+    [self.tableView reloadData];
+    [self didChangeValueForKey:@"editing"];
 }
 
 #pragma mark - button actions
-- (void)select {
+- (void)selectAction {
     self.editing = YES;
 }
 - (void)cancel {

@@ -40,10 +40,12 @@
 @property (nonatomic, assign) CGFloat assetViewPadding;
 @property (nonatomic, assign) NSUInteger numberOfAssetsPerRow;
 
+// button accessors
 @property (nonatomic, readonly) UIBarButtonItem *selectButtonItem;
 @property (nonatomic, readonly) UIBarButtonItem *actionButtonItem;
 @property (nonatomic, readonly) UIBarButtonItem *cancelButtonItem;
 
+// initializer
 - (id)initWithAssetsGroupIdentifier:(NSString *)groupIdentifier;
 
 @end

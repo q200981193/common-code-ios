@@ -21,6 +21,7 @@
 
 @interface GCImageGridBrowserController (private)
 - (void)updateTitle;
+- (void)updateActionButtonItem;
 @end
 
 @implementation GCImageGridBrowserController (private)
@@ -41,6 +42,23 @@
         NSString *groupTitle = [assetsGroup valueForProperty:ALAssetsGroupPropertyName];
         self.title = groupTitle;
     }
+}
+- (void)updateActionButtonItem {
+    [self willChangeValueForKey:@"cancelButtonItem"];
+    [_actionButtonItem release];
+    NSString *title = [self.dataSource selectActionTitle];
+    if (title == nil) {
+        _actionButtonItem = nil;
+    }
+    else {
+        _actionButtonItem = [[UIBarButtonItem alloc]
+                             initWithTitle:[self.dataSource selectActionTitle]
+                             style:UIBarButtonItemStyleDone
+                             target:self
+                             action:@selector(actionAction)];
+        _actionButtonItem.enabled = ([selectedAssetURLs count] > 0);
+    }
+    [self didChangeValueForKey:@"cancelButtonItem"];
 }
 @end
 
@@ -87,11 +105,19 @@
                              action:@selector(cancelAction)];
         [self didChangeValueForKey:@"cancelButtonItem"];
         
+        // action button
+        [self updateActionButtonItem];
+        
         // save group
         assetsGroupIdentifier = [groupIdentifier copy];
         
         // table view
         self.tableView.separatorStyle = UITableViewCellSeparatorStyleNone;
+        UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc]
+                                       initWithTarget:self
+                                       action:@selector(tableDidReceiveTap:)];
+        [self.tableView addGestureRecognizer:tap];
+        [tap release];
         
 	}
 	return self;
@@ -109,6 +135,12 @@
     [_cancelButtonItem release];
     _cancelButtonItem = nil;
     [self didChangeValueForKey:@"cancelButtonItem"];
+    
+    // action button
+    [self willChangeValueForKey:@"actionButtonItem"];
+    [_actionButtonItem release];
+    _actionButtonItem = nil;
+    [self didChangeValueForKey:@"actionButtonItem"];
     
     // other crap
     [allAssets release];
@@ -172,6 +204,7 @@
     [self.tableView reloadData];
     self.tableView.hidden = ([allAssets count] == 0);
     [self updateTitle];
+    [self updateActionButtonItem];
     if (assetsGroup && [allAssets count] > self.numberOfAssetsPerRow) {
         NSNumber *groupTypeNumber = [assetsGroup valueForProperty:ALAssetsGroupPropertyType];
         ALAssetsGroupType groupType = [groupTypeNumber unsignedIntegerValue];
@@ -192,7 +225,6 @@
     if (_editing == editing) {
         return;
     }
-    [self willChangeValueForKey:@"editing"];
     _editing = editing;
     if (_editing) {
         selectedAssetURLs = [[NSMutableSet alloc] init];
@@ -204,17 +236,16 @@
         self.actionButtonItem.enabled = NO;
     }
     [self.tableView reloadData];
-    [self didChangeValueForKey:@"editing"];
 }
 
 #pragma mark - button actions
 - (void)selectAction {
     self.editing = YES;
 }
-- (void)cancel {
+- (void)cancelAction {
     self.editing = NO;
 }
-- (void)action {
+- (void)actionAction {
     [self.delegate gridBrowser:self didSelectAssets:selectedAssetURLs];
 //    for (NSURL *URL in [selectedAssetURLs allObjects]) {
 //        [assetsLibrary

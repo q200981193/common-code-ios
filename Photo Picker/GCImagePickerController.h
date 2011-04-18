@@ -9,7 +9,8 @@
 #import <UIKit/UIKit.h>
 #import <AssetsLibrary/AssetsLibrary.h>
 
-#import "GCImageBrowserController.h"
+#import "GCImageListBrowserController.h"
+#import "GCImageGridBrowserController.h"
 
 #define GCImagePickerControllerLocalizedString(key) NSLocalizedStringFromTable(key, @"GCImagePickerController", @"")
 
@@ -17,7 +18,8 @@
  provides a common interface for creating and interacting with
  an image picker controller
  */
-@interface GCImagePickerController : UINavigationController <GCImageBrowserDataSource> {
+@interface GCImagePickerController : UINavigationController
+<GCImageBrowserDataSource, GCImageListBrowserDelegate> {
 @private
     ALAssetsLibrary *assetsLibrary;
 }

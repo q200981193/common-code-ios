@@ -10,6 +10,7 @@
 
 #import "GCImagePickerController.h"
 #import "GCImageBrowserViewController_iPad.h"
+#import "GCImageBrowserViewController_iPhone.h"
 
 @implementation GCImagePickerController
 
@@ -126,14 +127,21 @@
         
         // push root view
         if (GC_IS_IPAD) {
-            GCImageBrowserViewController_iPad *browser = [[GCImageBrowserViewController_iPad alloc] init];
-            browser.dataSource = self;
-            [self pushViewController:browser animated:NO];
-            [browser release];
+            GCImageBrowserViewController_iPad *controller = [[GCImageBrowserViewController_iPad alloc] init];
+            controller.dataSource = self;
+            [self pushViewController:controller animated:NO];
+            [controller release];
         }
         else {
+            self.navigationBar.barStyle = UIBarStyleBlackTranslucent;
             GCImageListBrowserController *browser = [[GCImageListBrowserController alloc] init];
             browser.dataSource = self;
+            browser.showDisclosureIndicator = YES;
+            browser.delegate = self;
+            GCImageBrowserViewController_iPhone *controller = [[GCImageBrowserViewController_iPhone alloc] initWithBrowser:browser];
+            [self pushViewController:controller animated:NO];
+            [browser release];
+            [controller release];
         }
         
 //        [self willChangeValueForKey:@"failureBlock"];
@@ -187,6 +195,30 @@
     if (images && videos) { return [ALAssetsFilter allAssets]; }
     else if (videos) { return [ALAssetsFilter allVideos]; }
     else { return [ALAssetsFilter allPhotos]; }
+}
+
+#pragma mark - list browser delegate
+- (void)listBrowser:(GCImageListBrowserController *)listBrowser didSelectAssetGroup:(ALAssetsGroup *)group {
+    NSString *groupID = [group valueForProperty:ALAssetsGroupPropertyPersistentID];
+    GCImageGridBrowserController *browser = [[GCImageGridBrowserController alloc] initWithAssetsGroupIdentifier:groupID];
+    browser.dataSource = self;
+    browser.assetViewPadding = 4.0;
+    browser.numberOfAssetsPerRow = 4;
+    GCImageBrowserViewController_iPhone *controller = [[GCImageBrowserViewController_iPhone alloc] initWithBrowser:browser];
+    [self pushViewController:controller animated:YES];
+    [controller release];
+    [browser release];
+    
+    //        
+    //        ALAssetsGroupType groupType = [[group valueForProperty:ALAssetsGroupPropertyType] unsignedIntegerValue];
+    //        NSString *groupName = [group valueForProperty:ALAssetsGroupPropertyName];
+    //        GCImagePickerController *browser = [[GCImageGridBrowserController alloc] initWithAssetsGroupTypes:groupType title:groupName groupID:groupID];
+    //        browser.actionBlock = self.actionBlock;
+    //        browser.actionEnabled = self.actionEnabled;
+    //        browser.actionTitle = self.actionTitle;
+    //        browser.mediaTypes = self.mediaTypes;
+    //        [self.navigationController pushViewController:browser animated:YES];
+    //        [browser release];
 }
 
 @end

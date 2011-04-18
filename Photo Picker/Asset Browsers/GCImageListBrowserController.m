@@ -94,6 +94,8 @@
          self.tableView.hidden = YES;
          //self.failureBlock(error);
      }];
+    
+    // wait
     while (self.assetsGroups == nil) {
         CFRunLoopRunInMode(kCFRunLoopDefaultMode, 0.1, NO);
     }
@@ -138,24 +140,6 @@
     else {
         [tableView deselectRowAtIndexPath:indexPath animated:YES];
     }
-    
-//    
-//    if (self.selectedGroupBlock == nil) {
-//        NSString *groupID = [group valueForProperty:ALAssetsGroupPropertyPersistentID];
-//        ALAssetsGroupType groupType = [[group valueForProperty:ALAssetsGroupPropertyType] unsignedIntegerValue];
-//        NSString *groupName = [group valueForProperty:ALAssetsGroupPropertyName];
-//        GCImagePickerController *browser = [[GCImageGridBrowserController alloc] initWithAssetsGroupTypes:groupType title:groupName groupID:groupID];
-//        browser.actionBlock = self.actionBlock;
-//        browser.actionEnabled = self.actionEnabled;
-//        browser.actionTitle = self.actionTitle;
-//        browser.mediaTypes = self.mediaTypes;
-//        [self.navigationController pushViewController:browser animated:YES];
-//        [browser release];
-//    }
-//    else {
-//        self.selectedGroupBlock(group);
-//        [tableView deselectRowAtIndexPath:indexPath animated:YES];
-//    }
 }
 
 @end

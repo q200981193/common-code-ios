@@ -77,16 +77,6 @@
 - (id)initWithAssetsGroupIdentifier:(NSString *)groupIdentifier {
     self = [super init];
 	if (self) {
-
-        // view geometry
-//        if (GC_IS_IPAD) {
-//            assetSpacing = 10.0;
-//            numberOfAssetsPerRow = 6;
-//        }
-//        else {
-//            assetSpacing = 4.0;
-//            numberOfAssetsPerRow = 4;
-//        }
         
         // select button
         [self willChangeValueForKey:@"selectButtonItem"];
@@ -263,7 +253,12 @@
 	return 1;
 }
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
-    return kRowHeight;
+    if (indexPath.section == 0) {
+        return kRowHeight + self.assetViewPadding;
+    }
+    else {
+        return kRowHeight;
+    }
 }
 - (NSInteger)tableView:(UITableView *)aTableView numberOfRowsInSection:(NSInteger)section {
     NSInteger count = [allAssets count];

@@ -13,16 +13,26 @@
 @synthesize browser=_browser;
 
 #pragma mark - object lifecycle
-- (id)init {
+- (id)initWithBrowser:(GCImageBrowserController *)browser {
     self = [super initWithNibName:nil bundle:nil];
-    return self;
-}
-- (id)initWithNibName:(NSString *)nib bundle:(NSBundle *)bundle {
-    self = [super initWithNibName:nib bundle:bundle];
+    if (self) {
+        [self willChangeValueForKey:@"browser"];
+        _browser = [browser retain];
+        [self didChangeValueForKey:@"browser"];
+        [_browser
+         addObserver:self
+         forKeyPath:@"title"
+         options:0
+         context:nil];
+    }
     return self;
 }
 - (void)dealloc {
-    self.browser = nil;
+    [_browser removeObserver:self forKeyPath:@"title"];
+    [self willChangeValueForKey:@"browser"];
+    [_browser release];
+    _browser = nil;
+    [self didChangeValueForKey:@"browser"];
     [super dealloc];
 }
 
@@ -32,35 +42,28 @@
     self.browser.view.autoresizingMask = (UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth);
     self.browser.view.frame = self.view.bounds;
     [self.view addSubview:self.browser.view];
+    [self.browser reloadData];
+    self.title = self.browser.title;
+}
+- (void)viewWillAppear:(BOOL)animated {
+    NSIndexPath *path = [self.browser.tableView indexPathForSelectedRow];
+    [self.browser.tableView deselectRowAtIndexPath:path animated:animated];
+}
+- (void)viewDidAppear:(BOOL)animated {
+    [super viewDidAppear:animated];
+    [self.browser.tableView flashScrollIndicators];
 }
 
-#pragma mark - accessors
-- (void)setBrowser:(GCImageBrowserController *)browser {
-    
-    // duplicate check
-    if (browser == _browser) {
-        return;
-    }
-    
-    // kvo
-    [self willChangeValueForKey:@"browser"];
-    
-    // release and retain new
-    [_browser release];
-    _browser = browser;
-    [_browser retain];
-    
-    // add view
-    if ([self isViewLoaded]) {
-        _browser.view.autoresizingMask = (UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth);
-        _browser.view.frame = self.view.bounds;
-        [self.view addSubview:_browser.view];
-    }
-    
-    // kvo
-    [self didChangeValueForKey:@"browser"];
-    
+#pragma mark - object methods
+- (void)reloadData {
+    [self.browser reloadData];
 }
 
+#pragma mark - kvo
+- (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context {
+    if (object == self.browser && [keyPath isEqualToString:@"title"]) {
+        self.title = self.browser.title;
+    }
+}
 
 @end

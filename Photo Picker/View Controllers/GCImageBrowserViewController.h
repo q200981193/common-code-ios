@@ -6,14 +6,19 @@
 //  Copyright 2011 GUI Cocoa, LLC. All rights reserved.
 //
 
-#import <UIKit/UIKit.h>
-
 #import "GCImageBrowserController.h"
 
 @interface GCImageBrowserViewController : UIViewController {
     
 }
 
-@property (nonatomic, retain) GCImageBrowserController *browser;
+// image browser
+@property (nonatomic, readonly) GCImageBrowserController *browser;
+
+// init
+- (id)initWithBrowser:(GCImageBrowserController *)browser;
+
+// reload
+- (void)reloadData;
 
 @end

@@ -33,9 +33,7 @@
 
 #pragma mark - reload
 - (void)reloadData {
-//    if (self.dataSource == nil) {
-//        // raise exception
-//    }
+    
 }
 
 #pragma mark - table view

@@ -33,35 +33,10 @@
 
 #pragma mark - reload
 - (void)reloadData {
-    if (self.dataSource == nil) {
-        // raise exception
-    }
+//    if (self.dataSource == nil) {
+//        // raise exception
+//    }
 }
-
-//#pragma mark - view lifecycle
-//- (void)viewDidLoad {
-//    [super viewDidLoad];
-//	if (!GC_IS_IPAD) {
-//		CGFloat top = self.navigationController.navigationBar.frame.size.height;
-//		top += [[UIApplication sharedApplication] statusBarFrame].size.height;
-//		self.tableView.contentInset = UIEdgeInsetsMake(top, 0, 0, 0);
-//		self.tableView.scrollIndicatorInsets = UIEdgeInsetsMake(top, 0, 0, 0);
-//	}
-//}
-//- (void)viewDidUnload {
-//    [super viewDidUnload];
-//    self.tableView = nil;
-//    self.imageView = nil;
-//}
-//- (void)viewWillAppear:(BOOL)animated {
-//    [super viewWillAppear:animated];
-//    NSIndexPath *path = [self.tableView indexPathForSelectedRow];
-//    [self.tableView deselectRowAtIndexPath:path animated:animated];
-//}
-//- (void)viewDidAppear:(BOOL)animated {
-//    [super viewDidAppear:animated];
-//    [self.tableView flashScrollIndicators];
-//}
 
 #pragma mark - table view
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)aTableView {

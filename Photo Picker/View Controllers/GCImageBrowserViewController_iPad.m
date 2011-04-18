@@ -8,7 +8,6 @@
 
 #import <AssetsLibrary/AssetsLibrary.h>
 
-#import "GCImageBrowserViewController.h"
 #import "GCImageBrowserViewController_iPad.h"
 
 #define kGreyOutViewTag 100
@@ -218,7 +217,6 @@
     gridController.dataSource = self.dataSource;
     gridController.numberOfAssetsPerRow = 6;
     gridController.assetViewPadding = 10.0;
-    gridController.tableView.contentInset = UIEdgeInsetsMake(gridController.assetViewPadding, 0, 0, 0);
     [gridController reloadData];
     [self.rightView addSubview:gridController.view];
     
@@ -261,6 +259,13 @@
 
 #pragma mark - kvo
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context {
+    
+    // super
+    if ([super respondsToSelector:_cmd]) {
+        [super observeValueForKeyPath:keyPath ofObject:object change:change context:context];
+    }
+    
+    // self
     if (object == self && [keyPath isEqualToString:@"title"]) {
         self.titleLabel.text = self.title;
     }
@@ -309,12 +314,16 @@
 }
 - (void)popoverAction:(UIBarButtonItem *)sender {
     if (popoverController == nil) {
-        GCImageBrowserViewController *controller = [[GCImageBrowserViewController alloc] init];
-        controller.browser = listController;
-        popoverController = [[UIPopoverController alloc] initWithContentViewController:controller];
+        GCImageBrowserViewController *controller = [[GCImageBrowserViewController alloc] initWithBrowser:listController];
+        UINavigationController *navController = [[UINavigationController alloc] initWithRootViewController:controller];
+        popoverController = [[UIPopoverController alloc] initWithContentViewController:navController];
         popoverController.delegate = self;
-        [popoverController presentPopoverFromBarButtonItem:sender permittedArrowDirections:UIPopoverArrowDirectionAny animated:YES];
+        [popoverController
+         presentPopoverFromBarButtonItem:sender
+         permittedArrowDirections:UIPopoverArrowDirectionAny
+         animated:YES];
         [controller release];
+        [navController release];
     }
 }
 

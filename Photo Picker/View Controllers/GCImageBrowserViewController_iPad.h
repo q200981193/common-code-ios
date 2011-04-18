@@ -6,11 +6,12 @@
 //  Copyright 2011 GUI Cocoa, LLC. All rights reserved.
 //
 
+#import "GCImageBrowserViewController.h"
 #import "GCImageListBrowserController.h"
 #import "GCImageGridBrowserController.h"
 
 // ipad image browser
-@interface GCImageBrowserViewController_iPad : UIViewController
+@interface GCImageBrowserViewController_iPad : GCImageBrowserViewController
 <UIPopoverControllerDelegate, GCImageListBrowserDelegate> {
 @private
     GCImageListBrowserController *listController;

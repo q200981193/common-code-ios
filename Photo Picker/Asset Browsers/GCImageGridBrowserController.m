@@ -227,6 +227,13 @@
     }
     [self.tableView reloadData];
 }
+- (void)setAssetViewPadding:(CGFloat)padding {
+    if (_assetViewPadding == padding) {
+        return;
+    }
+    _assetViewPadding = padding;
+    self.tableView.contentInset = UIEdgeInsetsMake(_assetViewPadding, 0.0, 0.0, 0.0);
+}
 
 #pragma mark - button actions
 - (void)selectAction {
@@ -253,12 +260,7 @@
 	return 1;
 }
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
-    if (indexPath.section == 0) {
-        return kRowHeight + self.assetViewPadding;
-    }
-    else {
-        return kRowHeight;
-    }
+    return kRowHeight;
 }
 - (NSInteger)tableView:(UITableView *)aTableView numberOfRowsInSection:(NSInteger)section {
     NSInteger count = [allAssets count];

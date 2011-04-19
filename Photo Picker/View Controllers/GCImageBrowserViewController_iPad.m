@@ -125,7 +125,7 @@
 
 @implementation GCImageBrowserViewController_iPad
 
-@synthesize dataSource=_dataSource;
+@synthesize browserDelegate=_browserDelegate;
 @synthesize leftView=_leftView;
 @synthesize rightView=_rightView;
 @synthesize toolbar=_toolbar;
@@ -140,10 +140,13 @@
          forKeyPath:@"title"
          options:0
          context:nil];
+        assetsLibrary = [[ALAssetsLibrary alloc] init];
     }
     return self;
 }
 - (void)dealloc {
+    [assetsLibrary release];
+    assetsLibrary = nil;
     [self removeObserver:self forKeyPath:@"title"];
     [self cleanup];
     [super dealloc];
@@ -156,11 +159,11 @@
     [super viewDidLoad];
         
     // make list view
-    listController = [[GCImageListBrowserController alloc] init];
+    listController = [[GCImageListBrowserController alloc] initWithAssetsLibrary:assetsLibrary];
     listController.view.frame = self.leftView.bounds;
     listController.view.autoresizingMask = (UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth);
-    listController.dataSource = self.dataSource;
-    listController.delegate = self;
+    listController.browserDelegate = self.browserDelegate;
+    listController.listBrowserDelegate = self;
     listController.showDisclosureIndicator = NO;
     [listController reloadData];
     [self.leftView addSubview:listController.view];
@@ -208,13 +211,13 @@
     [gridController release];
     
     // make new view
-    gridController = [[GCImageGridBrowserController alloc] initWithAssetsGroupIdentifier:groupID];
+    gridController = [[GCImageGridBrowserController alloc] initWithAssetsLibrary:assetsLibrary groupIdentifier:groupID];
     [gridController addObserver:self forKeyPath:@"editing" options:0 context:nil];
     [gridController addObserver:self forKeyPath:@"title" options:0 context:nil];
     [gridController addObserver:self forKeyPath:@"actionButtonItem" options:0 context:nil];
     gridController.view.frame = self.rightView.bounds;
     gridController.view.autoresizingMask = (UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight);
-    gridController.dataSource = self.dataSource;
+    gridController.browserDelegate = self.browserDelegate;
     gridController.numberOfAssetsPerRow = 6;
     gridController.assetViewPadding = 10.0;
     [gridController reloadData];

@@ -23,9 +23,9 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     CGFloat top = self.navigationController.navigationBar.frame.size.height;
-    top += [[UIApplication sharedApplication] statusBarFrame].size.height;
-    self.browser.tableView.contentInset = UIEdgeInsetsMake(top + self.browser.tableView.contentInset.top, 0, 0, 0);
-    self.browser.tableView.scrollIndicatorInsets = UIEdgeInsetsMake(top, 0, 0, 0);
+    self.browser.tableView.contentInset = UIEdgeInsetsMake(top, 0.0, 0.0, 0.0);
+    self.browser.tableView.scrollIndicatorInsets = UIEdgeInsetsMake(top, 0.0, 0.0, 0.0);
+    self.browser.tableView.contentOffset = CGPointMake(0.0, top);
 }
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];

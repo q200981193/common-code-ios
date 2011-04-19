@@ -10,6 +10,8 @@
 #import "GCImageListBrowserController.h"
 #import "GCImageGridBrowserController.h"
 
+@class ALAssetsLibrary;
+
 // ipad image browser
 @interface GCImageBrowserViewController_iPad : GCImageBrowserViewController
 <UIPopoverControllerDelegate, GCImageListBrowserDelegate> {
@@ -17,10 +19,11 @@
     GCImageListBrowserController *listController;
     GCImageGridBrowserController *gridController;
     UIPopoverController *popoverController;
+    ALAssetsLibrary *assetsLibrary;
 }
 
 // data source
-@property (nonatomic, assign) id<GCImageBrowserDataSource> dataSource;
+ @property (nonatomic, assign) id<GCImageBrowserDelegate> browserDelegate;
 
 // interface builder properties
 @property (nonatomic, retain) IBOutlet UIView *leftView;

@@ -19,9 +19,8 @@
  an image picker controller
  */
 @interface GCImagePickerController : UINavigationController
-<GCImageBrowserDataSource, GCImageListBrowserDelegate> {
-@private
-    ALAssetsLibrary *assetsLibrary;
+<GCImageBrowserDelegate, GCImageListBrowserDelegate> {
+    
 }
 
 // multi-select action

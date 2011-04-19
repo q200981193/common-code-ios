@@ -119,29 +119,45 @@
     self = [super init];
     if (self) {
         
-        // assets library
-        assetsLibrary = [[ALAssetsLibrary alloc] init];
-        
         // base media types
         self.mediaTypes = [NSArray arrayWithObject:(NSString *)kUTTypeImage];
         
         // push root view
         if (GC_IS_IPAD) {
             GCImageBrowserViewController_iPad *controller = [[GCImageBrowserViewController_iPad alloc] init];
-            controller.dataSource = self;
+            controller.browserDelegate = self;
             [self pushViewController:controller animated:NO];
             [controller release];
         }
         else {
+            
+            // self
             self.navigationBar.barStyle = UIBarStyleBlackTranslucent;
-            GCImageListBrowserController *browser = [[GCImageListBrowserController alloc] init];
-            browser.dataSource = self;
+            
+            // browser
+            ALAssetsLibrary *library = [[ALAssetsLibrary alloc] init];
+            GCImageListBrowserController *browser = [[GCImageListBrowserController alloc] initWithAssetsLibrary:library];
+            browser.browserDelegate = self;
+            browser.listBrowserDelegate = self;
             browser.showDisclosureIndicator = YES;
-            browser.delegate = self;
+            [library release];
+            
+            // view
             GCImageBrowserViewController_iPhone *controller = [[GCImageBrowserViewController_iPhone alloc] initWithBrowser:browser];
+            UIBarButtonItem *button = [[UIBarButtonItem alloc]
+                                       initWithBarButtonSystemItem:UIBarButtonSystemItemDone
+                                       target:self
+                                       action:@selector(doneAction)];
+            controller.navigationItem.rightBarButtonItem = button;
+            [button release];
+            
+            // push
             [self pushViewController:controller animated:NO];
+            
+            // release
             [browser release];
             [controller release];
+            
         }
         
 //        [self willChangeValueForKey:@"failureBlock"];
@@ -173,8 +189,6 @@
     return self;
 }
 - (void)dealloc {
-    [assetsLibrary release];
-    assetsLibrary = nil;
     self.mediaTypes = nil;
     self.selectActionTitle = nil;
     
@@ -185,10 +199,12 @@
     [super dealloc];
 }
 
-#pragma mark - data source
-- (ALAssetsLibrary *)assetsLibrary {
-    return assetsLibrary;
+#pragma mark - object methods
+- (void)doneAction {
+    [self dismissModalViewControllerAnimated:YES];
 }
+
+#pragma mark - data source
 - (ALAssetsFilter *)assetsFilter {
     BOOL images = [self.mediaTypes containsObject:(NSString *)kUTTypeImage];
     BOOL videos = [self.mediaTypes containsObject:(NSString *)kUTTypeVideo];
@@ -199,26 +215,29 @@
 
 #pragma mark - list browser delegate
 - (void)listBrowser:(GCImageListBrowserController *)listBrowser didSelectAssetGroup:(ALAssetsGroup *)group {
+    
+    // get broup
     NSString *groupID = [group valueForProperty:ALAssetsGroupPropertyPersistentID];
-    GCImageGridBrowserController *browser = [[GCImageGridBrowserController alloc] initWithAssetsGroupIdentifier:groupID];
-    browser.dataSource = self;
+    
+    // make new browser
+    GCImageGridBrowserController *browser = [[GCImageGridBrowserController alloc]
+                                             initWithAssetsLibrary:listBrowser.assetsLibrary
+                                             groupIdentifier:groupID];
+    browser.browserDelegate = self;
     browser.assetViewPadding = 4.0;
     browser.numberOfAssetsPerRow = 4;
-    GCImageBrowserViewController_iPhone *controller = [[GCImageBrowserViewController_iPhone alloc] initWithBrowser:browser];
+    
+    // view controller
+    GCImageBrowserViewController_iPhone *controller = [[GCImageBrowserViewController_iPhone alloc]
+                                                       initWithBrowser:browser];
+    
+    // push
     [self pushViewController:controller animated:YES];
+    
+    // release
     [controller release];
     [browser release];
     
-    //        
-    //        ALAssetsGroupType groupType = [[group valueForProperty:ALAssetsGroupPropertyType] unsignedIntegerValue];
-    //        NSString *groupName = [group valueForProperty:ALAssetsGroupPropertyName];
-    //        GCImagePickerController *browser = [[GCImageGridBrowserController alloc] initWithAssetsGroupTypes:groupType title:groupName groupID:groupID];
-    //        browser.actionBlock = self.actionBlock;
-    //        browser.actionEnabled = self.actionEnabled;
-    //        browser.actionTitle = self.actionTitle;
-    //        browser.mediaTypes = self.mediaTypes;
-    //        [self.navigationController pushViewController:browser animated:YES];
-    //        [browser release];
 }
 
 @end

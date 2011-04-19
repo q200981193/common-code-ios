@@ -19,7 +19,8 @@
         [self willChangeValueForKey:@"browser"];
         _browser = [browser retain];
         [self didChangeValueForKey:@"browser"];
-        [_browser
+        self.title = self.browser.title;
+        [self.browser
          addObserver:self
          forKeyPath:@"title"
          options:0
@@ -28,7 +29,7 @@
     return self;
 }
 - (void)dealloc {
-    [_browser removeObserver:self forKeyPath:@"title"];
+    [self.browser removeObserver:self forKeyPath:@"title"];
     [self willChangeValueForKey:@"browser"];
     [_browser release];
     _browser = nil;
@@ -43,7 +44,6 @@
     self.browser.view.frame = self.view.bounds;
     [self.view addSubview:self.browser.view];
     [self.browser reloadData];
-    self.title = self.browser.title;
 }
 - (void)viewWillAppear:(BOOL)animated {
     NSIndexPath *path = [self.browser.tableView indexPathForSelectedRow];

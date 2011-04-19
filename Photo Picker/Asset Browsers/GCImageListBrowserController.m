@@ -18,8 +18,8 @@
 @synthesize listBrowserDelegate=_listBrowserDelegate;
 
 #pragma mark - object lifecycle
-- (id)init {
-	self = [super init];
+- (id)initWithAssetsLibrary:(ALAssetsLibrary *)library {
+	self = [super initWithAssetsLibrary:library];
 	if (self) {
 		self.title = GCImagePickerControllerLocalizedString(@"PHOTO_LIBRARY");
         self.showDisclosureIndicator = NO;

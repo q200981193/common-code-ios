@@ -23,7 +23,7 @@
 }
 
 @property (nonatomic, readonly) NSArray *assetsGroups;
-@property (nonatomic, assign) id<GCImageListBrowserDelegate> delegate;
+@property (nonatomic, assign) id<GCImageListBrowserDelegate> listBrowserDelegate;
 @property (nonatomic, assign) BOOL showDisclosureIndicator;
 
 @end

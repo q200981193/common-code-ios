@@ -12,9 +12,8 @@
 @class ALAssetsFilter;
 
 // image browser data source
-@protocol GCImageBrowserDataSource <NSObject>
+@protocol GCImageBrowserDelegate <NSObject>
 @required
-- (ALAssetsLibrary *)assetsLibrary;
 - (ALAssetsFilter *)assetsFilter;
 - (NSString *)selectActionTitle;
 - (BOOL)selectActionEnabled;
@@ -27,9 +26,10 @@
 
 // properties
 @property (nonatomic, copy) NSString *title;
-@property (nonatomic, assign) id<GCImageBrowserDataSource> dataSource;
+@property (nonatomic, assign) id<GCImageBrowserDelegate> browserDelegate;
 
 // internal
+@property (nonatomic, readonly) ALAssetsLibrary *assetsLibrary;
 @property (nonatomic, retain) IBOutlet UIView *view;
 @property (nonatomic, retain) IBOutlet UITableView *tableView;
 @property (nonatomic, retain) IBOutlet UIImageView *imageView;
@@ -38,7 +38,7 @@
  designated initializer
  loads associated nib
  */
-- (id)init;
+- (id)initWithAssetsLibrary:(ALAssetsLibrary *)library;
 
 /*
  reload data

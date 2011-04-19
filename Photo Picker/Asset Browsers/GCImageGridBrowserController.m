@@ -46,13 +46,13 @@
 - (void)updateActionButtonItem {
     [self willChangeValueForKey:@"cancelButtonItem"];
     [_actionButtonItem release];
-    NSString *title = [self.dataSource selectActionTitle];
+    NSString *title = [self.browserDelegate selectActionTitle];
     if (title == nil) {
         _actionButtonItem = nil;
     }
     else {
         _actionButtonItem = [[UIBarButtonItem alloc]
-                             initWithTitle:[self.dataSource selectActionTitle]
+                             initWithTitle:title
                              style:UIBarButtonItemStyleDone
                              target:self
                              action:@selector(actionAction)];
@@ -65,17 +65,16 @@
 @implementation GCImageGridBrowserController
 
 @synthesize editing=_editing;
-@synthesize delegate=_delegate;
+@synthesize gridBrowserDelegate=_gridBrowserDelegate;
 @synthesize numberOfAssetsPerRow=_numberOfAssetsPerRow;
 @synthesize assetViewPadding=_assetViewPadding;
-
 @synthesize selectButtonItem=_selectButtonItem;
 @synthesize actionButtonItem=_actionButtonItem;
 @synthesize cancelButtonItem=_cancelButtonItem;
 
 #pragma mark - object lifecycle
-- (id)initWithAssetsGroupIdentifier:(NSString *)groupIdentifier {
-    self = [super init];
+- (id)initWithAssetsLibrary:(ALAssetsLibrary *)library groupIdentifier:(NSString *)identifier {
+    self = [super initWithAssetsLibrary:library];
 	if (self) {
         
         // select button
@@ -99,7 +98,7 @@
         [self updateActionButtonItem];
         
         // save group
-        assetsGroupIdentifier = [groupIdentifier copy];
+        assetsGroupIdentifier = [identifier copy];
         
         // table view
         self.tableView.separatorStyle = UITableViewCellSeparatorStyleNone;
@@ -156,14 +155,14 @@
     assetsGroup = nil;
     
     // prepare to get assets
-    ALAssetsFilter *filter = [self.dataSource assetsFilter];
+    ALAssetsFilter *filter = [self.browserDelegate assetsFilter];
     NSMutableArray *array = [[NSMutableArray alloc] init];
     ALAssetsGroupEnumerationResultsBlock block = ^(ALAsset *result, NSUInteger index, BOOL *stop) {
 		if (result != nil) { [array addObject:result]; }
 	};
     
     // get new assets
-    [[self.dataSource assetsLibrary]
+    [self.assetsLibrary
      enumerateGroupsWithTypes:ALAssetsGroupAll
      usingBlock:^(ALAssetsGroup *group, BOOL *stop) {
          if (group == nil) {
@@ -182,7 +181,7 @@
      }
      failureBlock:^(NSError *error){
          allAssets = [[NSArray alloc] init];
-         //self.failureBlock(error);
+         // TODO: failure action
      }];
     
     // wait for it to finish
@@ -227,13 +226,6 @@
     }
     [self.tableView reloadData];
 }
-- (void)setAssetViewPadding:(CGFloat)padding {
-    if (_assetViewPadding == padding) {
-        return;
-    }
-    _assetViewPadding = padding;
-    self.tableView.contentInset = UIEdgeInsetsMake(_assetViewPadding, 0.0, 0.0, 0.0);
-}
 
 #pragma mark - button actions
 - (void)selectAction {
@@ -243,15 +235,18 @@
     self.editing = NO;
 }
 - (void)actionAction {
-    [self.delegate gridBrowser:self didSelectAssets:selectedAssetURLs];
-//    for (NSURL *URL in [selectedAssetURLs allObjects]) {
-//        [assetsLibrary
-//         assetForURL:URL
-//         resultBlock:self.actionBlock
-//         failureBlock:^(NSError *error) {
-//             GC_LOG_ERROR(@"%@", error);
-//         }];
-//    }
+    ALAssetsLibraryAssetForURLResultBlock block;// = [nil copy];
+    for (NSURL *URL in selectedAssetURLs) {
+        [self.assetsLibrary
+         assetForURL:URL
+         resultBlock:^(ALAsset *asset){
+             // TODO: success case
+         }
+         failureBlock:^(NSError *error) {
+             // TODO: error case
+         }];
+    }
+    [block release];
     self.editing = NO;
 }
 

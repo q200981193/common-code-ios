@@ -23,9 +23,9 @@
     
     // assets
     NSString *assetsGroupIdentifier;
+    ALAssetsGroup *assetsGroup;
     NSMutableSet *selectedAssetURLs;
     NSArray *allAssets;
-    ALAssetsGroup *assetsGroup;
     
     // button items
     UIBarButtonItem *_selectButtonItem;
@@ -36,7 +36,7 @@
 
 // view properties
 @property (nonatomic, assign) BOOL editing;
-@property (nonatomic, assign) id<GCImageGridBrowserDelegate> delegate;
+@property (nonatomic, assign) id<GCImageGridBrowserDelegate> gridBrowserDelegate;
 @property (nonatomic, assign) CGFloat assetViewPadding;
 @property (nonatomic, assign) NSUInteger numberOfAssetsPerRow;
 
@@ -46,6 +46,6 @@
 @property (nonatomic, readonly) UIBarButtonItem *cancelButtonItem;
 
 // initializer
-- (id)initWithAssetsGroupIdentifier:(NSString *)groupIdentifier;
+- (id)initWithAssetsLibrary:(ALAssetsLibrary *)library groupIdentifier:(NSString *)identifier;
 
 @end

@@ -11,20 +11,34 @@
 @implementation GCImageBrowserController
 
 @synthesize title=_title;
-@synthesize dataSource=_dataSource;
+@synthesize browserDelegate=_browserDelegate;
+@synthesize assetsLibrary=_assetsLibrary;
 @synthesize view=_view;
 @synthesize tableView=_tableView;
 @synthesize imageView=_imageView;
 
 #pragma mark - object lifecycle
-- (id)init {
+- (id)initWithAssetsLibrary:(ALAssetsLibrary *)library {
+    if (library == nil) {
+        [NSException
+         raise:NSInvalidArgumentException
+         format:@"%s was called with a nil library", __PRETTY_FUNCTION__];
+        return nil;
+    }
     self = [super init];
     if (self) {
         [[NSBundle mainBundle] loadNibNamed:@"GCImageBrowserController" owner:self options:nil];
+        [self willChangeValueForKey:@"assetsLibrary"];
+        _assetsLibrary = [library retain];
+        [self didChangeValueForKey:@"assetsLibrary"];
     }
     return self;
 }
 - (void)dealloc {
+    [self willChangeValueForKey:@"assetsLibrary"];
+    [_assetsLibrary release];
+    _assetsLibrary = nil;
+    [self didChangeValueForKey:@"assetsLibrary"];
     self.view = nil;
     self.tableView = nil;
     self.imageView = nil;

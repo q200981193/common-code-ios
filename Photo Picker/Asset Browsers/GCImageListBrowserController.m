@@ -15,7 +15,7 @@
 
 @synthesize showDisclosureIndicator=_showDisclosureIndicator;
 @synthesize assetsGroups=_assetsGroups;
-@synthesize delegate=_delegate;
+@synthesize listBrowserDelegate=_listBrowserDelegate;
 
 #pragma mark - object lifecycle
 - (id)init {
@@ -46,13 +46,13 @@
     // setup containers for new groups
     __block NSUInteger count = 0;
     __block ALAssetsGroup *savedPhotos = nil;
-    ALAssetsFilter *filter = [self.dataSource assetsFilter];
+    ALAssetsFilter *filter = [self.browserDelegate assetsFilter];
     NSMutableArray *albums = [NSMutableArray array];
     NSMutableArray *faces = [NSMutableArray array];
     NSMutableArray *events = [NSMutableArray array];
     
     // load gruops
-	[[self.dataSource assetsLibrary]
+	[self.assetsLibrary
 	 enumerateGroupsWithTypes:ALAssetsGroupAll
 	 usingBlock:^(ALAssetsGroup *group, BOOL *stop) {
 		 if (group == nil) {
@@ -91,8 +91,7 @@
 	 }
 	 failureBlock:^(NSError *error){
          _assetsGroups = [[NSArray alloc] init];
-         self.tableView.hidden = YES;
-         //self.failureBlock(error);
+         // TODO: failure case
      }];
     
     // wait
@@ -133,9 +132,9 @@
     return cell;
 }
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
-    if (self.delegate) {
+    if (self.listBrowserDelegate) {
         ALAssetsGroup *group = [self.assetsGroups objectAtIndex:indexPath.row];
-        [self.delegate listBrowser:self didSelectAssetGroup:group];
+        [self.listBrowserDelegate listBrowser:self didSelectAssetGroup:group];
     }
     else {
         [tableView deselectRowAtIndexPath:indexPath animated:YES];

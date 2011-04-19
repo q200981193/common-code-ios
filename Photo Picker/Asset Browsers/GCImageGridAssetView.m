@@ -63,9 +63,10 @@
         NSString *assetType = [_asset valueForProperty:ALAssetPropertyType];
         if ([assetType isEqualToString:ALAssetTypeVideo]) {
             if (videoView == nil) {
-                UIImage *videoImage = [UIImage imageNamed:@"VideoAsset"];
-                videoImage = [videoImage stretchableImageWithLeftCapWidth:(videoImage.size.width - 2) topCapHeight:0];
+                UIImage *videoImage = [UIImage imageNamed:@"GCImagePickerControllerVideoAsset"];
                 videoView = [[UIImageView alloc] initWithFrame:CGRectZero];
+                [[videoView layer] setBackgroundColor:[[UIColor colorWithWhite:0.0 alpha:0.25] CGColor]];
+                videoView.contentMode = UIViewContentModeLeft;
                 videoView.tag = kVideoViewTag;
                 videoView.image = videoImage;
                 [self addSubview:videoView];
@@ -121,8 +122,8 @@
     UIImageView *videoView = (UIImageView *)[self viewWithTag:kVideoViewTag];
     if (videoView) {
         UIImage *videoImage = videoView.image;
-        videoView.frame = CGRectMake(0, self.bounds.size.height - videoImage.size.height,
-                                     self.bounds.size.width, videoImage.size.height);
+        videoView.frame = CGRectMake(1, self.bounds.size.height - videoImage.size.height - 1,
+                                     self.bounds.size.width - 2, videoImage.size.height);
         [self bringSubviewToFront:videoView];
     }
     

@@ -7,6 +7,7 @@
 //
 
 #import "GCImageBrowserViewController_iPhone.h"
+#import "GCImageGridBrowserController.h"
 
 @implementation GCImageBrowserViewController_iPhone
 
@@ -22,10 +23,15 @@
 #pragma mark - view lifecycle
 - (void)viewDidLoad {
     [super viewDidLoad];
-    CGFloat top = self.navigationController.navigationBar.frame.size.height;
-    self.browser.tableView.contentInset = UIEdgeInsetsMake(top, 0.0, 0.0, 0.0);
-    self.browser.tableView.scrollIndicatorInsets = UIEdgeInsetsMake(top, 0.0, 0.0, 0.0);
-    self.browser.tableView.contentOffset = CGPointMake(0.0, top);
+//    CGFloat nav = self.navigationController.navigationBar.frame.size.height;
+//    CGFloat status = [[UIApplication sharedApplication] statusBarFrame].size.height;
+//    CGFloat offset = nav + status;
+//    if ([self.browser isKindOfClass:[GCImageGridBrowserController class]]) {
+//        offset += [(GCImageGridBrowserController *)self.browser assetViewPadding];
+//    }
+//    self.browser.tableView.contentInset = UIEdgeInsetsMake(offset, 0.0, 0.0, 0.0);
+//    self.browser.tableView.scrollIndicatorInsets = UIEdgeInsetsMake(offset, 0.0, 0.0, 0.0);
+//    self.browser.tableView.contentOffset = CGPointMake(0.0, offset * -1.0);
 }
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];

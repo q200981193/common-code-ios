@@ -13,7 +13,7 @@
 
 @implementation GCImageListBrowserController
 
-@synthesize showDisclosureIndicator=_showDisclosureIndicator;
+@synthesize showDisclosureIndicators=_showDisclosureIndicators;
 @synthesize assetsGroups=_assetsGroups;
 @synthesize listBrowserDelegate=_listBrowserDelegate;
 
@@ -22,7 +22,7 @@
 	self = [super initWithAssetsLibrary:library];
 	if (self) {
 		self.title = GCImagePickerControllerLocalizedString(@"PHOTO_LIBRARY");
-        self.showDisclosureIndicator = NO;
+        self.showDisclosureIndicators = NO;
 	}
 	return self;
 }
@@ -123,7 +123,7 @@
     UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier];
     if (cell == nil) {
         cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleValue1 reuseIdentifier:CellIdentifier] autorelease];
-        cell.accessoryType = (self.showDisclosureIndicator) ? UITableViewCellAccessoryDisclosureIndicator : UITableViewCellAccessoryNone;
+        cell.accessoryType = (self.showDisclosureIndicators) ? UITableViewCellAccessoryDisclosureIndicator : UITableViewCellAccessoryNone;
     }
     ALAssetsGroup *group = [self.assetsGroups objectAtIndex:indexPath.row];
 	cell.textLabel.text = [group valueForProperty:ALAssetsGroupPropertyName];

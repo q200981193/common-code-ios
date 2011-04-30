@@ -6,7 +6,7 @@
 //  Copyright 2011 GUI Cocoa, LLC. All rights reserved.
 //
 
-#import "GCImageBrowserController.h"
+#import "GCImageBrowserTableController.h"
 
 @class ALAssetsGroup;
 @class GCImageListBrowserController;
@@ -18,12 +18,12 @@
 @end
 
 // list browser controller
-@interface GCImageListBrowserController : GCImageBrowserController {
+@interface GCImageListBrowserController : GCImageBrowserTableController {
     
 }
 
 @property (nonatomic, readonly) NSArray *assetsGroups;
 @property (nonatomic, assign) id<GCImageListBrowserDelegate> listBrowserDelegate;
-@property (nonatomic, assign) BOOL showDisclosureIndicator;
+@property (nonatomic, assign) BOOL showDisclosureIndicators;
 
 @end

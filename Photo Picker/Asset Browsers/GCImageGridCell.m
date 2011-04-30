@@ -10,17 +10,14 @@
 
 @implementation GCImageGridCell
 
-@synthesize layoutBlock=_layoutBlock;
+@synthesize delegate=_delegate;
 
-- (void)dealloc {
-    self.layoutBlock = nil;
-    [super dealloc];
-}
 - (void)layoutSubviews {
     [super layoutSubviews];
     NSArray *subviews = self.contentView.subviews;
     for (NSUInteger i = 0; i < [subviews count]; i++) {
-        self.layoutBlock([subviews objectAtIndex:i], i);
+        UIView *view = [subviews objectAtIndex:i];
+        [self.delegate positionView:view forIndex:i];
     }
 }
 

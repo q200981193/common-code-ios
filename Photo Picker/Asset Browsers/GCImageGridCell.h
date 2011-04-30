@@ -8,12 +8,18 @@
 
 #import <UIKit/UIKit.h>
 
-typedef void (^GCImageGridCellLayoutBlock) (UIView *view, NSUInteger index);
+// protocol
+@class GCImageGridCell;
+@protocol GCImageGridCellDelegate <NSObject>
+@required
+- (void)positionView:(UIView *)view forIndex:(NSUInteger)index;
+@end
 
+// class
 @interface GCImageGridCell : UITableViewCell {
     
 }
 
-@property (nonatomic, copy) GCImageGridCellLayoutBlock layoutBlock;
+@property (nonatomic, assign) id<GCImageGridCellDelegate> delegate;
 
 @end

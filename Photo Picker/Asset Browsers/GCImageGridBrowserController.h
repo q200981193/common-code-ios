@@ -6,7 +6,8 @@
 //  Copyright 2011 GUI Cocoa, LLC. All rights reserved.
 //
 
-#import "GCImageBrowserController.h"
+#import "GCImageBrowserTableController.h"
+#import "GCImageGridCell.h"
 
 @class GCImageGridBrowserController;
 @class ALAssetsGroup;
@@ -18,7 +19,7 @@
 @end
 
 // grid browser
-@interface GCImageGridBrowserController : GCImageBrowserController {
+@interface GCImageGridBrowserController : GCImageBrowserTableController <GCImageGridCellDelegate> {
 @private
     
     // assets

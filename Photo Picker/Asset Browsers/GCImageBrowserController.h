@@ -20,19 +20,21 @@
 @end
 
 // image browser controller
-@interface GCImageBrowserController : NSObject <UITableViewDelegate, UITableViewDataSource> {
+@interface GCImageBrowserController : NSObject {
     
 }
 
-// properties
+// title that a view controller can display
 @property (nonatomic, copy) NSString *title;
+
+// browser delegate
 @property (nonatomic, assign) id<GCImageBrowserDelegate> browserDelegate;
 
-// internal
+// library to read data from
 @property (nonatomic, readonly) ALAssetsLibrary *assetsLibrary;
+
+// view that a view controller can display
 @property (nonatomic, retain) IBOutlet UIView *view;
-@property (nonatomic, retain) IBOutlet UITableView *tableView;
-@property (nonatomic, retain) IBOutlet UIImageView *imageView;
 
 /*
  designated initializer

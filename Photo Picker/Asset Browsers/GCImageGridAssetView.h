@@ -17,6 +17,4 @@
 @property (nonatomic, retain) ALAsset *asset;
 @property (nonatomic, assign) BOOL selected;
 
-- (id)initWithFrame:(CGRect)frame;
-
 @end

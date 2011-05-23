@@ -213,9 +213,6 @@
 }
 
 #pragma mark - button actions
-- (void)selectAction {
-    self.editing = YES;
-}
 - (void)cancelAction {
     self.editing = NO;
 }

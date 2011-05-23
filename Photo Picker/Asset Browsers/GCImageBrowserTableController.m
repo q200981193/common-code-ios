@@ -1,6 +1,6 @@
 //
 //  GCImageBrowserTableController.m
-//  QuickShot
+//  GUI Cocoa Common Code Library for iOS
 //
 //  Created by Caleb Davenport on 4/30/11.
 //  Copyright 2011 GUI Cocoa, LLC. All rights reserved.

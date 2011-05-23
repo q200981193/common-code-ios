@@ -43,16 +43,6 @@
     }
     else {
         
-        // done button
-        {
-            UIBarButtonItem *item = [[UIBarButtonItem alloc]
-                                     initWithBarButtonSystemItem:UIBarButtonSystemItemDone
-                                     target:self
-                                     action:@selector(doneAction)];
-            [array addObject:item];
-            [item release];
-        }
-        
         // popover button
         if (UIInterfaceOrientationIsPortrait(orientation)) {
             UIBarButtonItem *item = [[UIBarButtonItem alloc]
@@ -67,9 +57,14 @@
         // space
         [array addObject:[self flexibleSpaceButtonItem]];
         
-        // select button
-        if (gridController.selectButtonItem) {
-            [array addObject:gridController.selectButtonItem];
+        // done button
+        {
+            UIBarButtonItem *item = [[UIBarButtonItem alloc]
+                                     initWithBarButtonSystemItem:UIBarButtonSystemItemDone
+                                     target:self
+                                     action:@selector(doneAction)];
+            [array addObject:item];
+            [item release];
         }
         
     }
@@ -164,7 +159,7 @@
     listController.view.autoresizingMask = (UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth);
     listController.browserDelegate = self.browserDelegate;
     listController.listBrowserDelegate = self;
-    listController.showDisclosureIndicator = NO;
+    listController.showDisclosureIndicators = NO;
     [listController reloadData];
     [self.leftView addSubview:listController.view];
     
@@ -285,7 +280,7 @@
             greyOut.autoresizingMask = (UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth);
             [self.leftView addSubview:greyOut];
             [UIView
-             animateWithDuration:0.3
+             animateWithDuration:0.2
              animations:^{
                  greyOut.alpha = 0.5;
              }];
@@ -294,7 +289,7 @@
         else {
             UIView *greyOut = [self.leftView viewWithTag:kGreyOutViewTag];
             [UIView
-             animateWithDuration:0.3
+             animateWithDuration:0.2
              animations:^{
                  greyOut.alpha = 0.0;
              }

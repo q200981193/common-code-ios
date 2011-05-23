@@ -62,7 +62,6 @@
 @synthesize gridBrowserDelegate=_gridBrowserDelegate;
 @synthesize numberOfAssetsPerRow=_numberOfAssetsPerRow;
 @synthesize assetViewPadding=_assetViewPadding;
-@synthesize selectButtonItem=_selectButtonItem;
 @synthesize actionButtonItem=_actionButtonItem;
 @synthesize cancelButtonItem=_cancelButtonItem;
 
@@ -71,22 +70,11 @@
     self = [super initWithAssetsLibrary:library];
 	if (self) {
         
-        // select button
-        [self willChangeValueForKey:@"selectButtonItem"];
-        _selectButtonItem = [[UIBarButtonItem alloc]
-                             initWithImage:[UIImage imageNamed:@"GCImagePickerControllerMultiSelect"]
-                             style:UIBarButtonItemStyleBordered
-                             target:self
-                             action:@selector(selectAction)];
-        [self didChangeValueForKey:@"selectButtonItem"];
-        
         // cancel button
-        [self willChangeValueForKey:@"cancelButtonItem"];
         _cancelButtonItem = [[UIBarButtonItem alloc]
                              initWithBarButtonSystemItem:UIBarButtonSystemItemCancel
                              target:self
                              action:@selector(cancelAction)];
-        [self didChangeValueForKey:@"cancelButtonItem"];
         
         // action button
         [self updateActionButtonItem];
@@ -116,17 +104,9 @@
 }
 - (void)dealloc {
     
-    // select button
-    [self willChangeValueForKey:@"selectButtonItem"];
-    [_selectButtonItem release];
-    _selectButtonItem = nil;
-    [self didChangeValueForKey:@"selectButtonItem"];
-    
     // cancel button
-    [self willChangeValueForKey:@"cancelButtonItem"];
     [_cancelButtonItem release];
     _cancelButtonItem = nil;
-    [self didChangeValueForKey:@"cancelButtonItem"];
     
     // action button
     [self willChangeValueForKey:@"actionButtonItem"];
@@ -197,18 +177,19 @@
     self.tableView.hidden = ([allAssets count] == 0);
     [self updateTitle];
     [self updateActionButtonItem];
-    if (assetsGroup && [allAssets count] > self.numberOfAssetsPerRow) {
-        NSNumber *groupTypeNumber = [assetsGroup valueForProperty:ALAssetsGroupPropertyType];
-        ALAssetsGroupType groupType = [groupTypeNumber unsignedIntegerValue];
-        if (groupType == ALAssetsGroupSavedPhotos) {
-            NSUInteger row = MAX(0, [self.tableView numberOfRowsInSection:0] - 1);
-            NSIndexPath *path = [NSIndexPath indexPathForRow:row inSection:0];
-            [self.tableView
-             scrollToRowAtIndexPath:path
-             atScrollPosition:UITableViewScrollPositionBottom
-             animated:NO];
-        }
-    }
+//    if (assetsGroup) {
+//        NSNumber *groupTypeNumber = [assetsGroup valueForProperty:ALAssetsGroupPropertyType];
+//        ALAssetsGroupType groupType = [groupTypeNumber unsignedIntegerValue];
+//        if (groupType == ALAssetsGroupSavedPhotos) {
+//            NSUInteger row = MAX(0, [self.tableView numberOfRowsInSection:0] - 1);
+//            NSIndexPath *path = [NSIndexPath indexPathForRow:row inSection:0];
+//            [self.tableView
+//             scrollToRowAtIndexPath:path
+//             atScrollPosition:UITableViewScrollPositionBottom
+//             animated:NO];
+//            NSLog(@"%@", NSStringFromCGRect(self.tableView.frame));
+//        }
+//    }
     
 }
 

@@ -99,12 +99,12 @@
         CFRunLoopRunInMode(kCFRunLoopDefaultMode, 0.1, NO);
     }
     
-    // kvo
-    [self didChangeValueForKey:@"assetsGroups"];
-    
     // reload view
     [self.tableView reloadData];
     self.tableView.hidden = ([self.assetsGroups count] == 0);
+    
+    // kvo
+    [self didChangeValueForKey:@"assetsGroups"];
     
 }
 
@@ -132,13 +132,8 @@
     return cell;
 }
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
-    if (self.listBrowserDelegate) {
-        ALAssetsGroup *group = [self.assetsGroups objectAtIndex:indexPath.row];
-        [self.listBrowserDelegate listBrowser:self didSelectAssetGroup:group];
-    }
-    else {
-        [tableView deselectRowAtIndexPath:indexPath animated:YES];
-    }
+    ALAssetsGroup *group = [self.assetsGroups objectAtIndex:indexPath.row];
+    [self.listBrowserDelegate listBrowser:self didSelectAssetGroup:group];
 }
 
 @end

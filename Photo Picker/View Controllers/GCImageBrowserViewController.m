@@ -7,6 +7,7 @@
 //
 
 #import "GCImageBrowserViewController.h"
+#import "GCImageBrowserTableController.h"
 
 @implementation GCImageBrowserViewController
 
@@ -16,9 +17,7 @@
 - (id)initWithBrowser:(GCImageBrowserController *)browser {
     self = [super initWithNibName:nil bundle:nil];
     if (self) {
-        [self willChangeValueForKey:@"browser"];
         _browser = [browser retain];
-        [self didChangeValueForKey:@"browser"];
         self.title = self.browser.title;
         [self.browser
          addObserver:self
@@ -30,33 +29,34 @@
 }
 - (void)dealloc {
     [self.browser removeObserver:self forKeyPath:@"title"];
-    [self willChangeValueForKey:@"browser"];
     [_browser release];
     _browser = nil;
-    [self didChangeValueForKey:@"browser"];
     [super dealloc];
 }
 
 #pragma mark - view lifecycle
 - (void)viewDidLoad {
     [super viewDidLoad];
-    self.browser.view.autoresizingMask = (UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth);
     self.browser.view.frame = self.view.bounds;
+    self.browser.view.autoresizingMask = (UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth);
     [self.view addSubview:self.browser.view];
     [self.browser reloadData];
 }
 - (void)viewWillAppear:(BOOL)animated {
-    NSIndexPath *path = [self.browser.tableView indexPathForSelectedRow];
-    [self.browser.tableView deselectRowAtIndexPath:path animated:animated];
+    [super viewWillAppear:animated];
+    if ([self.browser isKindOfClass:[GCImageBrowserTableController class]]) {
+        GCImageBrowserTableController *tableController = (GCImageBrowserTableController *)self.browser;
+        NSIndexPath *path = [tableController.tableView indexPathForSelectedRow];
+        [tableController.tableView deselectRowAtIndexPath:path animated:animated];
+    }
 }
 - (void)viewDidAppear:(BOOL)animated {
     [super viewDidAppear:animated];
-    [self.browser.tableView flashScrollIndicators];
-}
-
-#pragma mark - object methods
-- (void)reloadData {
-    [self.browser reloadData];
+    if ([self.browser respondsToSelector:@selector(tableView)]) {
+        GCImageBrowserTableController *tableController = (GCImageBrowserTableController *)self.browser;
+        [tableController.tableView flashScrollIndicators];
+        NSLog(@"%@", NSStringFromCGRect(tableController.tableView.frame));
+    }
 }
 
 #pragma mark - kvo

@@ -21,22 +21,14 @@
 - (id)initWithAssetsLibrary:(ALAssetsLibrary *)library {
     self = [super init];
     if (self) {
-        [self willChangeValueForKey:@"assetsLibrary"];
-        if (library == nil) {
-            _assetsLibrary = [[ALAssetsLibrary alloc] init];
-        }
-        else {
-            _assetsLibrary = [library retain];
-        }
-        [self didChangeValueForKey:@"assetsLibrary"];
+        if (library == nil) { _assetsLibrary = [[ALAssetsLibrary alloc] init]; }
+        else { _assetsLibrary = [library retain]; }
     }
     return self;
 }
 - (void)dealloc {
-    [self willChangeValueForKey:@"assetsLibrary"];
     [_assetsLibrary release];
     _assetsLibrary = nil;
-    [self didChangeValueForKey:@"assetsLibrary"];
     self.view = nil;
     [super dealloc];
 }

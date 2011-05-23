@@ -16,29 +16,65 @@
     self = [super initWithBrowser:browser];
     if (self) {
         self.wantsFullScreenLayout = YES;
+        [self.browser
+         addObserver:self
+         forKeyPath:@"editing"
+         options:0
+         context:nil];
+        [self.browser
+         addObserver:self
+         forKeyPath:@"actionButtonItem"
+         options:0
+         context:nil];
     }
     return self;
 }
+- (void)dealloc {
+    [self.browser removeObserver:self forKeyPath:@"editing"];
+    [self.browser removeObserver:self forKeyPath:@"actionButtonItem"];
+    [super dealloc];
+}
+
+#pragma mark - kvo
+- (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context {
+    
+    // super
+    if ([super respondsToSelector:_cmd]) {
+        [super observeValueForKeyPath:keyPath ofObject:object change:change context:context];
+    }
+    
+    // self
+    if (object == self.browser && [keyPath isEqualToString:@"editing"]) {
+        if ([self.browser isKindOfClass:[GCImageGridBrowserController class]]) {
+            GCImageGridBrowserController *gridBrowser = (GCImageGridBrowserController *)self.browser;
+            if (gridBrowser.editing) {
+                self.navigationItem.leftBarButtonItem = gridBrowser.cancelButtonItem;
+                self.navigationItem.rightBarButtonItem = gridBrowser.actionButtonItem;
+            }
+            else {
+                self.navigationItem.leftBarButtonItem = nil;
+                self.navigationItem.rightBarButtonItem = nil;
+            }
+        }
+    }
+    else if (object == self.browser && [keyPath isEqualToString:@"actionButtonItem"]) {
+        if ([self.browser isKindOfClass:[GCImageGridBrowserController class]]) {
+            GCImageGridBrowserController *gridBrowser = (GCImageGridBrowserController *)self.browser;
+            if (gridBrowser.editing) {
+                self.navigationItem.rightBarButtonItem = gridBrowser.actionButtonItem;
+            }
+        }
+    }
+    
+}
 
 #pragma mark - view lifecycle
-- (void)viewDidLoad {
-    [super viewDidLoad];
-//    CGFloat nav = self.navigationController.navigationBar.frame.size.height;
-//    CGFloat status = [[UIApplication sharedApplication] statusBarFrame].size.height;
-//    CGFloat offset = nav + status;
-//    if ([self.browser isKindOfClass:[GCImageGridBrowserController class]]) {
-//        offset += [(GCImageGridBrowserController *)self.browser assetViewPadding];
-//    }
-//    self.browser.tableView.contentInset = UIEdgeInsetsMake(offset, 0.0, 0.0, 0.0);
-//    self.browser.tableView.scrollIndicatorInsets = UIEdgeInsetsMake(offset, 0.0, 0.0, 0.0);
-//    self.browser.tableView.contentOffset = CGPointMake(0.0, offset * -1.0);
+- (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation {
+    return (interfaceOrientation == UIInterfaceOrientationPortrait);
 }
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
-    [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleBlackTranslucent animated:animated];
-}
-- (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation {
-    return (interfaceOrientation == UIInterfaceOrientationPortrait);
+    [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleDefault animated:animated];
 }
 
 @end

@@ -131,15 +131,12 @@
         }
         else {
             
-            // self
-            self.navigationBar.barStyle = UIBarStyleBlackTranslucent;
-            
             // browser
             ALAssetsLibrary *library = [[ALAssetsLibrary alloc] init];
             GCImageListBrowserController *browser = [[GCImageListBrowserController alloc] initWithAssetsLibrary:library];
             browser.browserDelegate = self;
             browser.listBrowserDelegate = self;
-            browser.showDisclosureIndicator = YES;
+            browser.showDisclosureIndicators = YES;
             [library release];
             
             // view

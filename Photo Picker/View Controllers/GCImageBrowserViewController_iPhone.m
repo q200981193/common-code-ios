@@ -44,7 +44,8 @@
     }
     
     // self
-    if (object == self.browser && [keyPath isEqualToString:@"editing"]) {
+    NSArray *keys = [NSArray arrayWithObjects:@"editing", @"actionButtonItem", nil];
+    if (object == self.browser && [keys containsObject:keyPath]) {
         if ([self.browser isKindOfClass:[GCImageGridBrowserController class]]) {
             GCImageGridBrowserController *gridBrowser = (GCImageGridBrowserController *)self.browser;
             if (gridBrowser.editing) {
@@ -54,14 +55,6 @@
             else {
                 self.navigationItem.leftBarButtonItem = nil;
                 self.navigationItem.rightBarButtonItem = nil;
-            }
-        }
-    }
-    else if (object == self.browser && [keyPath isEqualToString:@"actionButtonItem"]) {
-        if ([self.browser isKindOfClass:[GCImageGridBrowserController class]]) {
-            GCImageGridBrowserController *gridBrowser = (GCImageGridBrowserController *)self.browser;
-            if (gridBrowser.editing) {
-                self.navigationItem.rightBarButtonItem = gridBrowser.actionButtonItem;
             }
         }
     }

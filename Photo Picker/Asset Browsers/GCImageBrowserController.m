@@ -23,10 +23,19 @@
     if (self) {
         if (library == nil) { _assetsLibrary = [[ALAssetsLibrary alloc] init]; }
         else { _assetsLibrary = [library retain]; }
+        [[NSNotificationCenter defaultCenter]
+         addObserver:self
+         selector:@selector(libraryDidChange:)
+         name:ALAssetsLibraryChangedNotification
+         object:_assetsLibrary];
     }
     return self;
 }
 - (void)dealloc {
+    [[NSNotificationCenter defaultCenter]
+     removeObserver:self
+     name:ALAssetsLibraryChangedNotification
+     object:_assetsLibrary];
     [_assetsLibrary release];
     _assetsLibrary = nil;
     self.view = nil;
@@ -36,6 +45,11 @@
 #pragma mark - reload
 - (void)reloadData {
     
+}
+
+#pragma mark - notifications
+- (void)libraryDidChange:(NSNotification *)notif {
+    [self reloadData];
 }
 
 @end

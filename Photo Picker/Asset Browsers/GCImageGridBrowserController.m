@@ -91,13 +91,13 @@
         tap.numberOfTouchesRequired = 1;
         [self.tableView addGestureRecognizer:tap];
         [tap release];
-        UILongPressGestureRecognizer *press = [[UILongPressGestureRecognizer alloc]
-                                               initWithTarget:self
-                                               action:@selector(tableDidReceiveLongPress:)];
-        press.minimumPressDuration = 0.7;
-        press.numberOfTouchesRequired = 1;
-        [self.tableView addGestureRecognizer:press];
-        [press release];
+//        UILongPressGestureRecognizer *press = [[UILongPressGestureRecognizer alloc]
+//                                               initWithTarget:self
+//                                               action:@selector(tableDidReceiveLongPress:)];
+//        press.minimumPressDuration = 0.7;
+//        press.numberOfTouchesRequired = 1;
+//        [self.tableView addGestureRecognizer:press];
+//        [press release];
         
 	}
 	return self;
@@ -293,20 +293,38 @@
 }
 
 #pragma mark - gestures
-- (void)tableDidReceiveLongPress:(UILongPressGestureRecognizer *)press {
+- (void)tableDidReceiveLongPress:(UILongPressGestureRecognizer *)gesture {
     
-    // log
-    GC_LOG_INFO(@"");
+//    // log
+//    GC_LOG_INFO(@"");
+//    
+//    // do stuff
+//    CGPoint location = [gesture locationInView:gesture.view];
+//    NSUInteger column = MIN(location.x / (self.assetViewPadding + kTileSize), self.numberOfAssetsPerRow - 1);
+//    NSUInteger row = location.y / kRowHeight;
+//    NSUInteger index = row * self.numberOfAssetsPerRow + column;
+//    if (index < [allAssets count]) {
+//        CGRect cellRect = [self.tableView rectForRowAtIndexPath:[NSIndexPath indexPathForRow:row inSection:0]];
+//        CGFloat tileSize = kTileSize;
+//        CGPoint origin = CGPointZero;
+//        origin.x = (self.assetViewPadding * (index + 1)) + (tileSize * index);
+//        origin.y = (cellRect.size.height - self.assetViewPadding - tileSize);
+//        CGRect tileRect = CGRectMake(origin.x, origin.y + cellRect.origin.y, tileSize, tileSize);
+//        [[UIMenuController sharedMenuController] setTargetRect:tileRect inView:self.view];
+//        [[UIMenuController sharedMenuController] setTargetRect:CGRectZero inView:self.view];
+//        UIMenuItem *item = [[UIMenuItem alloc] initWithTitle:@"Copy" action:@selector(copyAsset)];
+//        [[UIMenuController sharedMenuController] setMenuItems:<#(NSArray *)#>];
+//        [[UIMenuController sharedMenuController] setMenuVisible:YES animated:YES];
+//    }
     
 }
-- (void)tableDidReceiveTap:(UITapGestureRecognizer *)tap {
+- (void)tableDidReceiveTap:(UITapGestureRecognizer *)gesture {
     
     // log
     GC_LOG_INFO(@"");
     
     // do stuff
-    UIView *tapView = tap.view;
-    CGPoint location = [tap locationInView:tapView];
+    CGPoint location = [gesture locationInView:gesture.view];
     NSUInteger column = MIN(location.x / (self.assetViewPadding + kTileSize), self.numberOfAssetsPerRow - 1);
     NSUInteger row = location.y / kRowHeight;
     NSUInteger index = row * self.numberOfAssetsPerRow + column;

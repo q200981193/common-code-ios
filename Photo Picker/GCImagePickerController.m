@@ -104,13 +104,15 @@
 }
 
 #pragma mark - properties
-@synthesize selectActionTitle=_selectActionTitle;
-@synthesize selectActionEnabled=_selectActionEnabled;
+@synthesize actionTitle=_actionTitle;
+@synthesize actionEnabled=_actionEnabled;
+@synthesize actionBlock=_actionBlock;
+
+
 @synthesize mediaTypes=_mediaTypes;
 
 
 
-@synthesize actionBlock=_actionBlock;
 @synthesize failureBlock=_failureBlock;
 
 
@@ -187,12 +189,13 @@
 }
 - (void)dealloc {
     self.mediaTypes = nil;
-    self.selectActionTitle = nil;
+    self.actionTitle = nil;
+    self.actionBlock = nil;
     
 //    [self willChangeValueForKey:@"failureBlock"];
 //    Block_release(_failureBlock);_failureBlock = nil;
 //    [self didChangeValueForKey:@"failureBlock"];
-//    self.actionBlock = nil;
+//    
     [super dealloc];
 }
 
@@ -201,7 +204,7 @@
     [self dismissModalViewControllerAnimated:YES];
 }
 
-#pragma mark - data source
+#pragma mark - browser delegate
 - (ALAssetsFilter *)assetsFilter {
     BOOL images = [self.mediaTypes containsObject:(NSString *)kUTTypeImage];
     BOOL videos = [self.mediaTypes containsObject:(NSString *)kUTTypeVideo];

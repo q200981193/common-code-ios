@@ -24,16 +24,13 @@
 }
 
 // multi-select action
-@property (nonatomic, copy) NSString *selectActionTitle;
-@property (nonatomic, assign) BOOL selectActionEnabled;
+@property (nonatomic, copy) NSString *actionTitle;
+@property (nonatomic, assign) BOOL actionEnabled;
+@property (nonatomic, copy) ALAssetsLibraryAssetForURLResultBlock actionBlock;
 
 // media types
 @property (nonatomic, copy) NSArray *mediaTypes;
 
-
-
-
-@property (nonatomic, copy) ALAssetsLibraryAssetForURLResultBlock actionBlock;
 
 
 

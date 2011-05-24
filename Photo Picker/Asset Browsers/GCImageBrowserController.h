@@ -7,16 +7,15 @@
 //
 
 #import <UIKit/UIKit.h>
-
-@class ALAssetsLibrary;
-@class ALAssetsFilter;
+#import <AssetsLibrary/AssetsLibrary.h>
 
 // image browser data source
 @protocol GCImageBrowserDelegate <NSObject>
 @required
 - (ALAssetsFilter *)assetsFilter;
-- (NSString *)selectActionTitle;
-- (BOOL)selectActionEnabled;
+- (NSString *)actionTitle;
+- (BOOL)actionEnabled;
+- (ALAssetsLibraryAssetForURLResultBlock)actionBlock;
 @end
 
 // image browser controller

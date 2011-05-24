@@ -40,7 +40,7 @@
 - (void)updateActionButtonItem {
     [self willChangeValueForKey:@"cancelButtonItem"];
     [_actionButtonItem release];
-    NSString *title = [self.browserDelegate selectActionTitle];
+    NSString *title = [self.browserDelegate actionTitle];
     if (title == nil) {
         _actionButtonItem = nil;
     }
@@ -217,18 +217,18 @@
     self.editing = NO;
 }
 - (void)actionAction {
-//    ALAssetsLibraryAssetForURLResultBlock block;// = [nil copy];
-    for (NSURL *URL in selectedAssetURLs) {
+    NSSet *URLs = [selectedAssetURLs copy];
+    ALAssetsLibraryAssetForURLResultBlock block = [[self.browserDelegate actionBlock] copy];
+    for (NSURL *URL in URLs) {
         [self.assetsLibrary
          assetForURL:URL
-         resultBlock:^(ALAsset *asset){
-             // TODO: success case
-         }
+         resultBlock:block
          failureBlock:^(NSError *error) {
              // TODO: error case
          }];
     }
-//    [block release];
+    [block release];
+    [URLs release];
     self.editing = NO;
 }
 
@@ -237,12 +237,8 @@
 	return 1;
 }
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
-    if (indexPath.row == 0) {
-        return kRowHeight + self.assetViewPadding;
-    }
-    else {
-        return kRowHeight;
-    }
+    if (indexPath.row == 0) { return kRowHeight + self.assetViewPadding; }
+    else { return kRowHeight; }
 }
 - (NSInteger)tableView:(UITableView *)aTableView numberOfRowsInSection:(NSInteger)section {
     NSInteger count = [allAssets count];

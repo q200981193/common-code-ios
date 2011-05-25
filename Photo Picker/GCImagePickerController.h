@@ -31,13 +31,6 @@
 // media types
 @property (nonatomic, copy) NSArray *mediaTypes;
 
-
-
-
-
-// internal
-@property (nonatomic, readonly) ALAssetsLibraryAccessFailureBlock failureBlock;
-
 // make a picker
 - (id)init;
 

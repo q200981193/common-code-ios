@@ -16,6 +16,7 @@
 - (NSString *)actionTitle;
 - (BOOL)actionEnabled;
 - (ALAssetsLibraryAssetForURLResultBlock)actionBlock;
+- (ALAssetsLibraryAccessFailureBlock)failureBlock;
 @end
 
 // image browser controller

@@ -164,7 +164,7 @@
      }
      failureBlock:^(NSError *error){
          allAssets = [[NSArray alloc] init];
-         // TODO: failure action
+         [self.browserDelegate failureBlock](error);
      }];
     
     // wait for it to finish

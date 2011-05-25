@@ -107,14 +107,7 @@
 @synthesize actionTitle=_actionTitle;
 @synthesize actionEnabled=_actionEnabled;
 @synthesize actionBlock=_actionBlock;
-
-
 @synthesize mediaTypes=_mediaTypes;
-
-
-
-@synthesize failureBlock=_failureBlock;
-
 
 #pragma mark - object lifecycle
 - (id)init {
@@ -158,32 +151,6 @@
             [controller release];
             
         }
-        
-//        [self willChangeValueForKey:@"failureBlock"];
-//        _failureBlock = Block_copy(^(NSError *error){
-//            GC_LOG_ERROR(@"%@", error);
-//            if ([error code] == ALAssetsLibraryAccessUserDeniedError || [error code] == ALAssetsLibraryAccessGloballyDeniedError) {
-//                UIAlertView *alert = [[UIAlertView alloc]
-//                                      initWithTitle:GCImagePickerControllerLocalizedString(@"ERROR")
-//                                      message:GCImagePickerControllerLocalizedString(@"PHOTO_ROLL_LOCATION_ERROR")
-//                                      delegate:nil
-//                                      cancelButtonTitle:GCImagePickerControllerLocalizedString(@"OK")
-//                                      otherButtonTitles:nil];
-//                [alert show];
-//                [alert release];
-//            }
-//            else {
-//                UIAlertView *alert = [[UIAlertView alloc]
-//                                      initWithTitle:GCImagePickerControllerLocalizedString(@"ERROR")
-//                                      message:GCImagePickerControllerLocalizedString(@"UNKNOWN_LIBRARY_ERROR")
-//                                      delegate:nil
-//                                      cancelButtonTitle:GCImagePickerControllerLocalizedString(@"OK")
-//                                      otherButtonTitles:nil];
-//                [alert show];
-//                [alert release];
-//            }
-//        });
-//        [self didChangeValueForKey:@"failureBlock"];
     }
     return self;
 }
@@ -191,11 +158,6 @@
     self.mediaTypes = nil;
     self.actionTitle = nil;
     self.actionBlock = nil;
-    
-//    [self willChangeValueForKey:@"failureBlock"];
-//    Block_release(_failureBlock);_failureBlock = nil;
-//    [self didChangeValueForKey:@"failureBlock"];
-//    
     [super dealloc];
 }
 
@@ -211,6 +173,32 @@
     if (images && videos) { return [ALAssetsFilter allAssets]; }
     else if (videos) { return [ALAssetsFilter allVideos]; }
     else { return [ALAssetsFilter allPhotos]; }
+}
+- (ALAssetsLibraryAccessFailureBlock)failureBlock {
+    return ^(NSError *error){
+        GC_LOG_ERROR(@"%@", error);
+        NSInteger code = [error code];
+        if (code == ALAssetsLibraryAccessUserDeniedError || code == ALAssetsLibraryAccessGloballyDeniedError) {
+            UIAlertView *alert = [[UIAlertView alloc]
+                                  initWithTitle:GCImagePickerControllerLocalizedString(@"ERROR")
+                                  message:GCImagePickerControllerLocalizedString(@"PHOTO_ROLL_LOCATION_ERROR")
+                                  delegate:nil
+                                  cancelButtonTitle:GCImagePickerControllerLocalizedString(@"OK")
+                                  otherButtonTitles:nil];
+            [alert show];
+            [alert release];
+        }
+        else {
+            UIAlertView *alert = [[UIAlertView alloc]
+                                  initWithTitle:GCImagePickerControllerLocalizedString(@"ERROR")
+                                  message:GCImagePickerControllerLocalizedString(@"UNKNOWN_LIBRARY_ERROR")
+                                  delegate:nil
+                                  cancelButtonTitle:GCImagePickerControllerLocalizedString(@"OK")
+                                  otherButtonTitles:nil];
+            [alert show];
+            [alert release];
+        }
+    };
 }
 
 #pragma mark - list browser delegate

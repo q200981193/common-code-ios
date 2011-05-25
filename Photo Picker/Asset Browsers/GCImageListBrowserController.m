@@ -91,7 +91,7 @@
 	 }
 	 failureBlock:^(NSError *error){
          _assetsGroups = [[NSArray alloc] init];
-         // TODO: failure case
+         [self.browserDelegate failureBlock](error);
      }];
     
     // wait

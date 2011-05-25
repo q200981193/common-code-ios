@@ -23,31 +23,12 @@
  */
 
 #import <Foundation/Foundation.h>
+#import <CoreLocation/CoreLocation.h>
 
-@interface NSUserDefaults (ByHost)
+@interface CLLocationManager (GCExtensions)
 
-// remove values
-- (void)removeByHostObjectForKey:(NSString *)key;
-
-// set values
-- (void)setByHostBool:(BOOL)value forKey:(NSString *)key;
-- (void)setByHostFloat:(float)value forKey:(NSString *)key;
-- (void)setByHostInteger:(NSInteger)value forKey:(NSString *)key;
-- (void)setByHostObject:(id)value forKey:(NSString *)key;
-- (void)setByHostDouble:(double)value forKey:(NSString *)key;
-- (void)setByHostURL:(NSURL *)value forKey:(NSString *)key;
-
-// get values
-- (NSArray *)byHostArrayForKey:(NSString *)key;
-- (BOOL)byHostBoolForKey:(NSString *)key;
-- (NSData *)byHostDataForKey:(NSString *)key;
-- (NSDictionary *)byHostDictionaryForKey:(NSString *)key;
-- (float)byHostFloatForKey:(NSString *)key;
-- (NSInteger)byHostIntegerForKey:(NSString *)key;
-- (id)byHostObjectForKey:(NSString *)key;
-//- (NSString *)byHostStringArrayForKey:(NSString *)key;
-- (NSString *)byHostStringForKey:(NSString *)key;
-- (double)byHostDoubleForKey:(NSString *)key;
-- (NSURL *)byHostURLForKey:(NSString *)key;
++ (void)gc_setSharedManager:(CLLocationManager *)manager;
++ (CLLocationManager *)gc_sharedManager;
++ (BOOL)gc_areLocationServicesAvailable;
 
 @end

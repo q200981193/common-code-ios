@@ -9,13 +9,12 @@
 #import <Foundation/Foundation.h>
 #import <CoreLocation/CoreLocation.h>
 
-@interface GCLocationManager : NSObject {
+@interface GCLocationManager : CLLocationManager {
     
 }
 
-@property (nonatomic, retain) CLLocationManager *locationManager;
-
-+ (GCLocationManager *)sharedManager;
-+ (BOOL)areLocationServicesAvailable;
++ (void)gc_setSharedManager:(CLLocationManager *)manager;
++ (CLLocationManager *)gc_sharedManager;
++ (BOOL)gc_areLocationServicesAvailable;
 
 @end

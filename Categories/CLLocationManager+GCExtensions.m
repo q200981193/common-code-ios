@@ -22,32 +22,31 @@
  
  */
 
-#import <Foundation/Foundation.h>
+#import "CLLocationManager+GCExtensions.h"
 
-@interface NSUserDefaults (ByHost)
+static CLLocationManager *gc_sharedManager;
 
-// remove values
-- (void)removeByHostObjectForKey:(NSString *)key;
+@implementation CLLocationManager (GCExtensions)
 
-// set values
-- (void)setByHostBool:(BOOL)value forKey:(NSString *)key;
-- (void)setByHostFloat:(float)value forKey:(NSString *)key;
-- (void)setByHostInteger:(NSInteger)value forKey:(NSString *)key;
-- (void)setByHostObject:(id)value forKey:(NSString *)key;
-- (void)setByHostDouble:(double)value forKey:(NSString *)key;
-- (void)setByHostURL:(NSURL *)value forKey:(NSString *)key;
-
-// get values
-- (NSArray *)byHostArrayForKey:(NSString *)key;
-- (BOOL)byHostBoolForKey:(NSString *)key;
-- (NSData *)byHostDataForKey:(NSString *)key;
-- (NSDictionary *)byHostDictionaryForKey:(NSString *)key;
-- (float)byHostFloatForKey:(NSString *)key;
-- (NSInteger)byHostIntegerForKey:(NSString *)key;
-- (id)byHostObjectForKey:(NSString *)key;
-//- (NSString *)byHostStringArrayForKey:(NSString *)key;
-- (NSString *)byHostStringForKey:(NSString *)key;
-- (double)byHostDoubleForKey:(NSString *)key;
-- (NSURL *)byHostURLForKey:(NSString *)key;
++ (void)gc_setSharedManager:(CLLocationManager *)manager {
+    [gc_sharedManager release];
+    gc_sharedManager = manager;
+    [gc_sharedManager retain];
+}
++ (CLLocationManager *)gc_sharedManager {
+    return gc_sharedManager;
+}
++ (BOOL)gc_areLocationServicesAvailable {
+    BOOL available = [CLLocationManager locationServicesEnabled];
+	if (NSFoundationVersionNumber >= NSFoundationVersionNumber_iOS_4_2) {
+		CLAuthorizationStatus status = [CLLocationManager authorizationStatus];
+		CLAuthorizationStatus unknown = kCLAuthorizationStatusNotDetermined;
+		CLAuthorizationStatus authorized = kCLAuthorizationStatusAuthorized;
+		return (available && (status == unknown || status == authorized));
+	}
+	else {
+		return available;
+	}
+}
 
 @end

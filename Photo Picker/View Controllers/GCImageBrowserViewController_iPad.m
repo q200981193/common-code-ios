@@ -9,6 +9,7 @@
 #import <AssetsLibrary/AssetsLibrary.h>
 
 #import "GCImageBrowserViewController_iPad.h"
+#import "GCImagePickerController.h"
 
 #define kGreyOutViewTag 100
 
@@ -33,55 +34,42 @@
 
 @implementation GCImageBrowserViewController_iPad (private)
 - (void)updateToolbarItemsForOrientation:(UIInterfaceOrientation)orientation {
-    NSMutableArray *array = [NSMutableArray array];
     if (gridController.editing) {
-        if (gridController.actionButtonItem) {
-            [array addObject:gridController.actionButtonItem];
-        }
-        [array addObject:[self flexibleSpaceButtonItem]];
-        [array addObject:gridController.cancelButtonItem];
+        self.navigationItem.leftBarButtonItem = gridController.cancelButtonItem;
+        self.navigationItem.rightBarButtonItem = gridController.actionButtonItem;
     }
     else {
-        
-        // popover button
         if (UIInterfaceOrientationIsPortrait(orientation)) {
             UIBarButtonItem *item = [[UIBarButtonItem alloc]
                                      initWithTitle:listController.title
                                      style:UIBarButtonItemStyleBordered
                                      target:self
                                      action:@selector(popoverAction:)];
-            [array addObject:item];
+            self.navigationItem.leftBarButtonItem = item;
             [item release];
         }
-        
-        // space
-        [array addObject:[self flexibleSpaceButtonItem]];
-        
-        // done button
-        {
-            UIBarButtonItem *item = [[UIBarButtonItem alloc]
-                                     initWithBarButtonSystemItem:UIBarButtonSystemItemDone
-                                     target:self
-                                     action:@selector(doneAction)];
-            [array addObject:item];
-            [item release];
+        else {
+            self.navigationItem.leftBarButtonItem = nil;
         }
-        
+        UIBarButtonItem *item = [[UIBarButtonItem alloc]
+                                 initWithBarButtonSystemItem:UIBarButtonSystemItemDone
+                                 target:self
+                                 action:@selector(doneAction)];
+        self.navigationItem.rightBarButtonItem = item;
+        [item release];
     }
-    self.toolbar.items = array;
 }
 - (void)updateToolbarItems {
     [self updateToolbarItemsForOrientation:self.interfaceOrientation];
 }
 - (void)updateViewLayoutForOrientation:(UIInterfaceOrientation)orientation {
-    CGFloat originY = self.toolbar.bounds.size.height;
     if (UIInterfaceOrientationIsLandscape(orientation)) {
-        self.leftView.frame = CGRectMake(0, originY, self.leftView.bounds.size.width, self.view.bounds.size.height - originY);
-        self.rightView.frame = CGRectMake(320.0, originY, self.view.bounds.size.width - 320.0, self.view.bounds.size.height - originY);
+        self.leftView.frame = CGRectMake(0, 0, self.leftView.bounds.size.width, self.view.bounds.size.height);
+        self.rightView.frame = CGRectMake(320.0, 0, self.view.bounds.size.width - 320.0, self.view.bounds.size.height);
     }
     else {
-        self.leftView.frame = CGRectMake(-320.0, originY, self.leftView.bounds.size.width, self.view.bounds.size.height - originY);
-        self.rightView.frame = CGRectMake(0, originY, self.view.bounds.size.width, self.view.bounds.size.height - originY);
+        self.leftView.frame = CGRectMake(-320.0, 0, self.leftView.bounds.size.width, self.view.bounds.size.height);
+        self.rightView.frame = CGRectMake(0, 0, self.view.bounds.size.width, self.view.bounds.size.height);
     }
 }
 - (void)updateViewLayout {
@@ -123,26 +111,13 @@
 @synthesize browserDelegate=_browserDelegate;
 @synthesize leftView=_leftView;
 @synthesize rightView=_rightView;
-@synthesize toolbar=_toolbar;
-@synthesize titleLabel=_titleLabel;
 
 #pragma mark - object lifecycle
 - (id)init {
     self = [super initWithNibName:@"GCImageBrowserViewController_iPad" bundle:nil];
-    if (self) {
-        [self
-         addObserver:self
-         forKeyPath:@"title"
-         options:0
-         context:nil];
-        assetsLibrary = [[ALAssetsLibrary alloc] init];
-    }
     return self;
 }
 - (void)dealloc {
-    [assetsLibrary release];
-    assetsLibrary = nil;
-    [self removeObserver:self forKeyPath:@"title"];
     [self cleanup];
     [super dealloc];
 }
@@ -154,7 +129,8 @@
     [super viewDidLoad];
         
     // make list view
-    listController = [[GCImageListBrowserController alloc] initWithAssetsLibrary:assetsLibrary];
+    ALAssetsLibrary *library = [[ALAssetsLibrary alloc] init];
+    listController = [[GCImageListBrowserController alloc] initWithAssetsLibrary:library];
     listController.view.frame = self.leftView.bounds;
     listController.view.autoresizingMask = (UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth);
     listController.browserDelegate = self.browserDelegate;
@@ -162,12 +138,25 @@
     listController.showDisclosureIndicators = NO;
     [listController reloadData];
     [self.leftView addSubview:listController.view];
+    [library release];
     
     // set asset group view
     NSArray *groups = listController.assetsGroups;
     if ([groups count]) {
         ALAssetsGroup *group = [listController.assetsGroups objectAtIndex:0];
         [self listBrowser:listController didSelectAssetGroup:group];
+    }
+    else {
+        self.leftView.hidden = YES;
+        self.rightView.hidden = YES;
+        self.view.backgroundColor = [UIColor whiteColor];
+        UIBarButtonItem *item = [[UIBarButtonItem alloc]
+                                 initWithBarButtonSystemItem:UIBarButtonSystemItemDone
+                                 target:self
+                                 action:@selector(doneAction)];
+        self.navigationItem.rightBarButtonItem = item;
+        [item release];
+        self.title = GCImagePickerControllerLocalizedString(@"PHOTO_LIBRARY");
     }
     
 }
@@ -177,12 +166,10 @@
 }
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
-    [self.navigationController setNavigationBarHidden:YES animated:animated];
     [self updateViewLayout];
 }
 - (void)viewDidAppear:(BOOL)animated {
     [super viewDidAppear:animated];
-    [self.toolbar setNeedsLayout];
     [gridController.tableView flashScrollIndicators];
     [listController.tableView flashScrollIndicators];
 }
@@ -206,7 +193,7 @@
     [gridController release];
     
     // make new view
-    gridController = [[GCImageGridBrowserController alloc] initWithAssetsLibrary:assetsLibrary groupIdentifier:groupID];
+    gridController = [[GCImageGridBrowserController alloc] initWithAssetsLibrary:controller.assetsLibrary groupIdentifier:groupID];
     [gridController addObserver:self forKeyPath:@"editing" options:0 context:nil];
     [gridController addObserver:self forKeyPath:@"title" options:0 context:nil];
     [gridController addObserver:self forKeyPath:@"actionButtonItem" options:0 context:nil];
@@ -264,10 +251,7 @@
     }
     
     // self
-    if (object == self && [keyPath isEqualToString:@"title"]) {
-        self.titleLabel.text = self.title;
-    }
-    else if (object == gridController && [keyPath isEqualToString:@"editing"]) {
+    if (object == gridController && [keyPath isEqualToString:@"editing"]) {
         [self updateToolbarItems];
         [popoverController dismissPopoverAnimated:YES];
         [popoverController release];

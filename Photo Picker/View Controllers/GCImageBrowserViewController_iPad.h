@@ -19,7 +19,6 @@
     GCImageListBrowserController *listController;
     GCImageGridBrowserController *gridController;
     UIPopoverController *popoverController;
-    ALAssetsLibrary *assetsLibrary;
 }
 
 // data source
@@ -28,7 +27,5 @@
 // interface builder properties
 @property (nonatomic, retain) IBOutlet UIView *leftView;
 @property (nonatomic, retain) IBOutlet UIView *rightView;
-@property (nonatomic, retain) IBOutlet UIToolbar *toolbar;
-@property (nonatomic, retain) IBOutlet UILabel *titleLabel;
 
 @end

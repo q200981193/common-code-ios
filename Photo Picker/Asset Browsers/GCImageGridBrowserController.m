@@ -316,9 +316,6 @@
 }
 - (void)tableDidReceiveTap:(UITapGestureRecognizer *)gesture {
     
-    // log
-    GC_LOG_INFO(@"");
-    
     // do stuff
     CGPoint location = [gesture locationInView:gesture.view];
     NSUInteger column = MIN(location.x / (self.assetViewPadding + kTileSize), self.numberOfAssetsPerRow - 1);

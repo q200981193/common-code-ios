@@ -26,14 +26,34 @@
 
 #import "NSUserDefaults+ByHost.h"
 
+@interface NSUserDefaults (ByHost_Private)
+- (NSString *)byHostIdentifierForKey:(NSString *)key;
+@end
+
+@implementation NSUserDefaults (ByHost_Private)
+- (NSString *)byHostIdentifierForKey:(NSString *)key {
+    return [NSString stringWithFormat:@"%@-%@",
+            [[UIDevice currentDevice] uniqueIdentifier],
+            key];
+}
+@end
+
 @implementation NSUserDefaults (ByHost)
+
+#pragma mark - register
+- (void)registerByHostDefaults:(NSDictionary *)defaults {
+    NSMutableDictionary *toRegister = [NSMutableDictionary dictionaryWithCapacity:[defaults count]];
+    for (NSString *key in [defaults allKeys]) {
+        [toRegister setObject:[defaults objectForKey:key]
+                       forKey:[self byHostIdentifierForKey:key]];
+    }
+    [self registerDefaults:toRegister];
+}
 
 #pragma mark - remove values
 - (void)removeByHostObjectForKey:(NSString *)key {
-    NSString *identifier = [[UIDevice currentDevice] uniqueIdentifier];
-    NSMutableDictionary *dictionary = [[self dictionaryForKey:identifier] mutableCopy];
-    [dictionary removeObjectForKey:key];
-    [dictionary release];
+    NSString *identifier = [self byHostIdentifierForKey:key];
+    [self removeObjectForKey:identifier];
 }
 
 #pragma mark - set values
@@ -47,11 +67,8 @@
     [self setByHostObject:[NSNumber numberWithInteger:value] forKey:key];
 }
 - (void)setByHostObject:(id)value forKey:(NSString *)key {
-    NSString *identifier = [[UIDevice currentDevice] uniqueIdentifier];
-    NSMutableDictionary *dictionary = [[self dictionaryForKey:identifier] mutableCopy];
-    [dictionary setObject:value forKey:key];
-    [self setObject:dictionary forKey:identifier];
-    [dictionary release];
+    NSString *identifier = [self byHostIdentifierForKey:key];
+    [self setObject:value forKey:identifier];
 }
 - (void)setByHostDouble:(double)value forKey:(NSString *)key {
     [self setByHostObject:[NSNumber numberWithDouble:value] forKey:key];
@@ -80,9 +97,8 @@
     return [[self byHostObjectForKey:key] integerValue];
 }
 - (id)byHostObjectForKey:(NSString *)key {
-    NSString *identifier = [[UIDevice currentDevice] uniqueIdentifier];
-    NSDictionary *dictionary = [self dictionaryForKey:identifier];
-    return [dictionary objectForKey:key];
+    NSString *identifier = [self byHostIdentifierForKey:key];
+    return [self objectForKey:identifier];
 }
 - (NSString *)byHostStringForKey:(NSString *)key {
     return [self byHostObjectForKey:key];

@@ -6,7 +6,6 @@
 //  Copyright 2011 GUI Cocoa, LLC. All rights reserved.
 //
 
-#import "UIViewController+GCExtensions.h"
 #import "NSUserDefaults+ByHost.h"
 
 #import "GCTextFieldCell.h"

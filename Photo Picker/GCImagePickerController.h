@@ -42,7 +42,7 @@
 // multi-select action
 @property (nonatomic, copy) NSString *actionTitle;
 @property (nonatomic, assign) BOOL actionEnabled;
-@property (nonatomic, copy) ALAssetsLibraryAssetForURLResultBlock actionBlock;
+@property (nonatomic, copy) GCImagePickerControllerActionBlock actionBlock;
 
 // media types
 @property (nonatomic, copy) NSArray *mediaTypes;

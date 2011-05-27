@@ -33,7 +33,7 @@
 - (id)initWithAssetsLibrary:(ALAssetsLibrary *)library {
     self = [super initWithAssetsLibrary:library];
     if (self) {
-        [[NSBundle mainBundle] loadNibNamed:@"GCImageBrowserController" owner:self options:nil];
+        [[NSBundle mainBundle] loadNibNamed:@"GCImageBrowserTableController" owner:self options:nil];
     }
     return self;
 }

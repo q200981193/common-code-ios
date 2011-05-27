@@ -71,7 +71,6 @@
     if ([self.browser respondsToSelector:@selector(tableView)]) {
         GCImageBrowserTableController *tableController = (GCImageBrowserTableController *)self.browser;
         [tableController.tableView flashScrollIndicators];
-        NSLog(@"%@", NSStringFromCGRect(tableController.tableView.frame));
     }
 }
 

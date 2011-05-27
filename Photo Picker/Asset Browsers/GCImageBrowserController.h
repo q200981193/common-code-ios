@@ -25,13 +25,15 @@
 #import <UIKit/UIKit.h>
 #import <AssetsLibrary/AssetsLibrary.h>
 
+typedef void (^GCImagePickerControllerActionBlock)(ALAssetsLibrary *library, NSURL *URL);
+
 // image browser data source
 @protocol GCImageBrowserDelegate <NSObject>
 @required
 - (ALAssetsFilter *)assetsFilter;
 - (NSString *)actionTitle;
 - (BOOL)actionEnabled;
-- (ALAssetsLibraryAssetForURLResultBlock)actionBlock;
+- (GCImagePickerControllerActionBlock)actionBlock;
 - (ALAssetsLibraryAccessFailureBlock)failureBlock;
 @end
 

@@ -234,14 +234,9 @@
 }
 - (void)actionAction {
     NSSet *URLs = [selectedAssetURLs copy];
-    ALAssetsLibraryAssetForURLResultBlock block = [[self.browserDelegate actionBlock] copy];
+    GCImagePickerControllerActionBlock block = [[self.browserDelegate actionBlock] copy];
     for (NSURL *URL in URLs) {
-        [self.assetsLibrary
-         assetForURL:URL
-         resultBlock:block
-         failureBlock:^(NSError *error) {
-             // TODO: error case
-         }];
+        block(self.assetsLibrary, URL);
     }
     [block release];
     [URLs release];

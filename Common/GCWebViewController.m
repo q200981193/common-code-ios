@@ -34,7 +34,9 @@
 #pragma mark - view lifecycle
 - (void)viewDidLoad {
     [super viewDidLoad];
-    NSURLRequest *request = [NSURLRequest requestWithURL:URL];
+    NSURLRequest *request = [NSURLRequest requestWithURL:URL
+                                             cachePolicy:NSURLCacheStorageNotAllowed
+                                         timeoutInterval:10];
     [self.webView loadRequest:request];
 }
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)orientation {

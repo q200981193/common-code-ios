@@ -7,6 +7,7 @@
 //
 
 #import "NSUserDefaults+ByHost.h"
+#import "UIApplication+Activity.h"
 
 #import "GCTextFieldCell.h"
 #import "GCSwitchCell.h"
@@ -35,9 +36,12 @@ typedef void (^GCNotificationBlock)(NSNotification *);
 // utility macros
 #define GC_REVIEW_URL(id) [NSURL URLWithString:[NSString stringWithFormat:@"http://itunes.apple.com/WebObjects/MZStore.woa/wa/viewContentsUserReviews?id=%@&pageNumber=0&sortOrdering=4&type=Purple+Software&mt=8", id]]
 #define GC_APP_URL(name) [NSURL URLWithString:[NSString stringWithFormat:@"http://guicocoa.com/%@", name]]
-#define GC_CONTACT_URL(name) [NSURL URLWithString:[NSString stringWithFormat:@"http://guicocoa.com/contact?app=%@", name]]
+#define GC_CONTACT_URL [NSURL URLWithString: \
+    [NSString stringWithFormat:@"http://guicocoa.com/contact?app=%@", \
+    [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleDisplayName"]]]
 #define GC_RELEASE_NOTES_URL [NSURL URLWithString: \
-    [NSString stringWithFormat:@"http://guicocoa.com/release_notes/quickshot_%@.html", \
+    [NSString stringWithFormat:@"http://blog.guicocoa.com/%@_%@", \
+    [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleDisplayName"], \
     [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleVersion"]]]
 
 // custom logging

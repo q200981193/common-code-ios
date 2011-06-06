@@ -27,13 +27,21 @@
 }
 
 #pragma mark - web view delegate
+- (void)webViewDidStartLoad:(UIWebView *)webView {
+    [[UIApplication sharedApplication] gc_pushActivity];
+}
+- (void)webView:(UIWebView *)webView didFailLoadWithError:(NSError *)error {
+    [[UIApplication sharedApplication] gc_popActivity];
+}
 - (void)webViewDidFinishLoad:(UIWebView *)webView {
+    [[UIApplication sharedApplication] gc_popActivity];
     self.title = [webView stringByEvaluatingJavaScriptFromString:@"document.title"];
 }
 
 #pragma mark - view lifecycle
 - (void)viewDidLoad {
     [super viewDidLoad];
+    GC_LOG_INFO(@"%@", URL);
     NSURLRequest *request = [NSURLRequest requestWithURL:URL
                                              cachePolicy:NSURLCacheStorageNotAllowed
                                          timeoutInterval:10];

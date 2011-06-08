@@ -37,7 +37,7 @@ typedef void (^GCNotificationBlock)(NSNotification *);
 #define GC_REVIEW_URL(id) [NSURL URLWithString:[NSString stringWithFormat:@"http://itunes.apple.com/WebObjects/MZStore.woa/wa/viewContentsUserReviews?id=%@&pageNumber=0&sortOrdering=4&type=Purple+Software&mt=8", id]]
 #define GC_APP_URL(name) [NSURL URLWithString:[NSString stringWithFormat:@"http://guicocoa.com/%@", name]]
 #define GC_CONTACT_URL [NSURL URLWithString: \
-    [NSString stringWithFormat:@"http://guicocoa.com/contact?app=%@", \
+    [NSString stringWithFormat:@"http://guicocoa.com/contact?app=%@&min=yes", \
     [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleDisplayName"]]]
 #define GC_RELEASE_NOTES_URL [NSURL URLWithString: \
     [NSString stringWithFormat:@"http://blog.guicocoa.com/%@_%@", \

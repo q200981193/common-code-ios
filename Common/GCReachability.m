@@ -8,8 +8,11 @@
 
 #import "GCReachability.h"
 
+#pragma mark - class resources
 NSString * const GCReachabilityDidChangeNotification = @"GCReachabilityDidChange";
+static NSMutableDictionary * reachabilityObjects = nil;
 
+#pragma mark - callback
 void GCReachabilityDidChangeCallback(SCNetworkReachabilityRef target, SCNetworkReachabilityFlags flags, void *info) {
     GCReachability *reachability = (GCReachability *)info;
     [[NSNotificationCenter defaultCenter]
@@ -17,22 +20,20 @@ void GCReachabilityDidChangeCallback(SCNetworkReachabilityRef target, SCNetworkR
      object:reachability];
 }
 
-@implementation GCReachability
-
-- (id)initWithHostName:(NSString *)host {
+#pragma mark - private methods
+@interface GCReachability (private)
+- (id)initWithHost:(NSString *)host;
+- (BOOL)startUpdatingReachability;
+- (void)stopUpdatingReachability;
+@end
+@implementation GCReachability (private)
+- (id)initWithHost:(NSString *)host {
     self = [super init];
     if (self) {
         reachability = SCNetworkReachabilityCreateWithName(kCFAllocatorDefault, [host UTF8String]);
+        [self startUpdatingReachability];
     }
     return self;
-}
-- (void)dealloc {
-    [self stopUpdatingReachability];
-    if (reachability != NULL) {
-        CFRelease(reachability);
-    }
-    reachability = NULL;
-    [super dealloc];
 }
 - (BOOL)startUpdatingReachability {
     BOOL retVal = NO;
@@ -47,6 +48,31 @@ void GCReachabilityDidChangeCallback(SCNetworkReachabilityRef target, SCNetworkR
 - (void)stopUpdatingReachability {
     SCNetworkReachabilityUnscheduleFromRunLoop(reachability, CFRunLoopGetMain(), kCFRunLoopDefaultMode);
 }
+@end
+
+#pragma mark - public methods
+@implementation GCReachability
+
++ (GCReachability *)reachabilityForHost:(NSString *)host {
+    if (reachabilityObjects == nil) {
+        reachabilityObjects = [[NSMutableDictionary alloc] initWithCapacity:1];
+    }
+    GCReachability *reachability = [reachabilityObjects objectForKey:host];
+    if (reachability == nil) {
+        reachability = [[GCReachability alloc] initWithHost:host];
+        [reachabilityObjects setObject:reachability forKey:host];
+    }
+    return reachability;
+}
+- (void)dealloc {
+    [self stopUpdatingReachability];
+    if (reachability != NULL) {
+        CFRelease(reachability);
+    }
+    reachability = NULL;
+    [super dealloc];
+}
+
 
 
 #pragma mark - check reachability

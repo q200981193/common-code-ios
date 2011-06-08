@@ -9,6 +9,7 @@
 #import <Foundation/Foundation.h>
 #import <SystemConfiguration/SystemConfiguration.h>
 
+// reachability status
 enum {
     GCNotReachable,
     GCReachableViaWiFi,
@@ -16,6 +17,7 @@ enum {
 };
 typedef NSUInteger GCReachabilityStatus;
 
+// change notification name
 extern NSString * const GCReachabilityDidChangeNotification;
 
 @interface GCReachability : NSObject {
@@ -23,12 +25,8 @@ extern NSString * const GCReachabilityDidChangeNotification;
     SCNetworkReachabilityRef reachability;
 }
 
-// create
-- (id)initWithHostName:(NSString *)host;
-
-// change state
-- (BOOL)startUpdatingReachability;
-- (void)stopUpdatingReachability;
+// use key value store
++ (GCReachability *)reachabilityForHost:(NSString *)host;
 
 // check reachability
 - (BOOL)isReachable;

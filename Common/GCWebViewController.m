@@ -20,6 +20,10 @@
     return self;
 }
 - (void)dealloc {
+    self.webView.delegate = nil;
+    if ([self.webView isLoading]) {
+        [[UIApplication sharedApplication] gc_popActivity];
+    }
     self.webView = nil;
     [URL release];
     URL = nil;

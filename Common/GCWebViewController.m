@@ -45,7 +45,6 @@
 #pragma mark - view lifecycle
 - (void)viewDidLoad {
     [super viewDidLoad];
-    GC_LOG_INFO(@"%@", URL);
     NSURLRequest *request = [NSURLRequest requestWithURL:URL
                                              cachePolicy:NSURLCacheStorageNotAllowed
                                          timeoutInterval:10];

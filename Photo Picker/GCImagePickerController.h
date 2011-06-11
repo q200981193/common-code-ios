@@ -30,10 +30,7 @@
 
 #define GCImagePickerControllerLocalizedString(key) NSLocalizedStringFromTable(key, @"GCImagePickerController", @"")
 
-/*
- provides a common interface for creating and interacting with
- an image picker controller
- */
+// a better image picker
 @interface GCImagePickerController : UINavigationController
 <GCImageBrowserDelegate, GCImageListBrowserDelegate> {
     
@@ -50,10 +47,12 @@
 // make a picker
 - (id)init;
 
+@end
+
 // utility methods
+@interface GCImagePickerController (UtilityMethods)
 + (NSData *)dataForAssetRepresentation:(ALAssetRepresentation *)rep;
 + (void)writeDataForAssetRepresentation:(ALAssetRepresentation *)rep toFile:(NSString *)path atomically:(BOOL)atomically;
 + (NSString *)extensionForAssetRepresentation:(ALAssetRepresentation *)rep;
 + (NSString *)extensionForUTI:(CFStringRef)UTI;
-
 @end

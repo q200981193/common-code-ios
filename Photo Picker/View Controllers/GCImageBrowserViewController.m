@@ -29,7 +29,7 @@
 
 @synthesize browser=_browser;
 
-#pragma mark - object lifecycle
+#pragma mark - object methods
 - (id)initWithBrowser:(GCImageBrowserController *)browser {
     self = [super initWithNibName:nil bundle:nil];
     if (self) {
@@ -48,6 +48,9 @@
     [_browser release];
     _browser = nil;
     [super dealloc];
+}
+- (void)reloadData {
+    [self.browser reloadData];
 }
 
 #pragma mark - view lifecycle

@@ -28,9 +28,168 @@
 #import "GCImageBrowserViewController_iPad.h"
 #import "GCImageBrowserViewController_iPhone.h"
 
+#pragma mark - private methods
+@interface GCImagePickerController (private)
+- (void)reloadData;
+@end
+@implementation GCImagePickerController (private)
+- (void)reloadData {
+    for (UIViewController *controller in self.viewControllers) {
+        if ([controller isKindOfClass:[GCImageBrowserViewController class]]) {
+            GCImageBrowserViewController *browser = (GCImageBrowserViewController *)controller;
+            [browser reloadData];
+        }
+    }
+}
+@end
+
+#pragma mark - public implementation
 @implementation GCImagePickerController
 
-#pragma mark - class methods
+@synthesize actionTitle=_actionTitle;
+@synthesize actionEnabled=_actionEnabled;
+@synthesize actionBlock=_actionBlock;
+@synthesize mediaTypes=_mediaTypes;
+
+#pragma mark - object lifecycle
+- (id)init {
+    self = [super init];
+    if (self) {
+        
+        // base media types
+        self.mediaTypes = [NSArray arrayWithObject:(NSString *)kUTTypeImage];
+        
+        // push root view
+        if (GC_IS_IPAD) {
+            GCImageBrowserViewController_iPad *controller = [[GCImageBrowserViewController_iPad alloc] init];
+            controller.browserDelegate = self;
+            [self pushViewController:controller animated:NO];
+            [controller release];
+        }
+        else {
+            
+            // browser
+            ALAssetsLibrary *library = [[ALAssetsLibrary alloc] init];
+            GCImageListBrowserController *browser = [[GCImageListBrowserController alloc] initWithAssetsLibrary:library];
+            browser.browserDelegate = self;
+            browser.listBrowserDelegate = self;
+            browser.showDisclosureIndicators = YES;
+            [library release];
+            
+            // view
+            GCImageBrowserViewController_iPhone *controller = [[GCImageBrowserViewController_iPhone alloc] initWithBrowser:browser];
+            UIBarButtonItem *button = [[UIBarButtonItem alloc]
+                                       initWithBarButtonSystemItem:UIBarButtonSystemItemDone
+                                       target:self
+                                       action:@selector(doneAction)];
+            controller.navigationItem.rightBarButtonItem = button;
+            [button release];
+            
+            // push
+            [self pushViewController:controller animated:NO];
+            
+            // release
+            [browser release];
+            [controller release];
+            
+        }
+    }
+    return self;
+}
+- (void)dealloc {
+    self.mediaTypes = nil;
+    self.actionTitle = nil;
+    self.actionBlock = nil;
+    [super dealloc];
+}
+
+#pragma mark - button actions
+- (void)doneAction {
+    [self dismissModalViewControllerAnimated:YES];
+}
+
+#pragma mark - custom setters
+- (void)setActionEnabled:(BOOL)enabled {
+    _actionEnabled = enabled;
+    [self reloadData];
+}
+- (void)setActionTitle:(NSString *)title {
+    [_actionTitle release];
+    _actionTitle = [title copy];
+    [self reloadData];
+}
+- (void)setMediaTypes:(NSArray *)types {
+    [_mediaTypes release];
+    _mediaTypes = [types copy];
+    [self reloadData];
+}
+
+#pragma mark - browser delegate
+- (ALAssetsFilter *)assetsFilter {
+    BOOL images = [self.mediaTypes containsObject:(NSString *)kUTTypeImage];
+    BOOL videos = [self.mediaTypes containsObject:(NSString *)kUTTypeVideo];
+    if (images && videos) { return [ALAssetsFilter allAssets]; }
+    else if (videos) { return [ALAssetsFilter allVideos]; }
+    else { return [ALAssetsFilter allPhotos]; }
+}
+- (ALAssetsLibraryAccessFailureBlock)failureBlock {
+    return ^(NSError *error){
+        GC_LOG_ERROR(@"%@", error);
+        NSInteger code = [error code];
+        if (code == ALAssetsLibraryAccessUserDeniedError || code == ALAssetsLibraryAccessGloballyDeniedError) {
+            UIAlertView *alert = [[UIAlertView alloc]
+                                  initWithTitle:GCImagePickerControllerLocalizedString(@"ERROR")
+                                  message:GCImagePickerControllerLocalizedString(@"PHOTO_ROLL_LOCATION_ERROR")
+                                  delegate:nil
+                                  cancelButtonTitle:GCImagePickerControllerLocalizedString(@"OK")
+                                  otherButtonTitles:nil];
+            [alert show];
+            [alert release];
+        }
+        else {
+            UIAlertView *alert = [[UIAlertView alloc]
+                                  initWithTitle:GCImagePickerControllerLocalizedString(@"ERROR")
+                                  message:GCImagePickerControllerLocalizedString(@"UNKNOWN_LIBRARY_ERROR")
+                                  delegate:nil
+                                  cancelButtonTitle:GCImagePickerControllerLocalizedString(@"OK")
+                                  otherButtonTitles:nil];
+            [alert show];
+            [alert release];
+        }
+    };
+}
+
+#pragma mark - list browser delegate
+- (void)listBrowser:(GCImageListBrowserController *)listBrowser didSelectAssetGroup:(ALAssetsGroup *)group {
+    
+    // get broup
+    NSString *groupID = [group valueForProperty:ALAssetsGroupPropertyPersistentID];
+    
+    // make new browser
+    GCImageGridBrowserController *browser = [[GCImageGridBrowserController alloc]
+                                             initWithAssetsLibrary:listBrowser.assetsLibrary
+                                             groupIdentifier:groupID];
+    browser.browserDelegate = self;
+    browser.assetViewPadding = 4.0;
+    browser.numberOfAssetsPerRow = 4;
+    
+    // view controller
+    GCImageBrowserViewController_iPhone *controller = [[GCImageBrowserViewController_iPhone alloc]
+                                                       initWithBrowser:browser];
+    
+    // push
+    [self pushViewController:controller animated:YES];
+    
+    // release
+    [controller release];
+    [browser release];
+    
+}
+
+@end
+
+#pragma mark - utility methods
+@implementation GCImagePickerController (UtilityMethods)
 + (NSData *)dataForAssetRepresentation:(ALAssetRepresentation *)rep {
     [rep retain];
     long long size = [rep size], offset = 0;
@@ -118,130 +277,4 @@
         }
     }
 }
-
-#pragma mark - properties
-@synthesize actionTitle=_actionTitle;
-@synthesize actionEnabled=_actionEnabled;
-@synthesize actionBlock=_actionBlock;
-@synthesize mediaTypes=_mediaTypes;
-
-#pragma mark - object lifecycle
-- (id)init {
-    self = [super init];
-    if (self) {
-        
-        // base media types
-        self.mediaTypes = [NSArray arrayWithObject:(NSString *)kUTTypeImage];
-        
-        // push root view
-        if (GC_IS_IPAD) {
-            GCImageBrowserViewController_iPad *controller = [[GCImageBrowserViewController_iPad alloc] init];
-            controller.browserDelegate = self;
-            [self pushViewController:controller animated:NO];
-            [controller release];
-        }
-        else {
-            
-            // browser
-            ALAssetsLibrary *library = [[ALAssetsLibrary alloc] init];
-            GCImageListBrowserController *browser = [[GCImageListBrowserController alloc] initWithAssetsLibrary:library];
-            browser.browserDelegate = self;
-            browser.listBrowserDelegate = self;
-            browser.showDisclosureIndicators = YES;
-            [library release];
-            
-            // view
-            GCImageBrowserViewController_iPhone *controller = [[GCImageBrowserViewController_iPhone alloc] initWithBrowser:browser];
-            UIBarButtonItem *button = [[UIBarButtonItem alloc]
-                                       initWithBarButtonSystemItem:UIBarButtonSystemItemDone
-                                       target:self
-                                       action:@selector(doneAction)];
-            controller.navigationItem.rightBarButtonItem = button;
-            [button release];
-            
-            // push
-            [self pushViewController:controller animated:NO];
-            
-            // release
-            [browser release];
-            [controller release];
-            
-        }
-    }
-    return self;
-}
-- (void)dealloc {
-    self.mediaTypes = nil;
-    self.actionTitle = nil;
-    self.actionBlock = nil;
-    [super dealloc];
-}
-
-#pragma mark - object methods
-- (void)doneAction {
-    [self dismissModalViewControllerAnimated:YES];
-}
-
-#pragma mark - browser delegate
-- (ALAssetsFilter *)assetsFilter {
-    BOOL images = [self.mediaTypes containsObject:(NSString *)kUTTypeImage];
-    BOOL videos = [self.mediaTypes containsObject:(NSString *)kUTTypeVideo];
-    if (images && videos) { return [ALAssetsFilter allAssets]; }
-    else if (videos) { return [ALAssetsFilter allVideos]; }
-    else { return [ALAssetsFilter allPhotos]; }
-}
-- (ALAssetsLibraryAccessFailureBlock)failureBlock {
-    return ^(NSError *error){
-        GC_LOG_ERROR(@"%@", error);
-        NSInteger code = [error code];
-        if (code == ALAssetsLibraryAccessUserDeniedError || code == ALAssetsLibraryAccessGloballyDeniedError) {
-            UIAlertView *alert = [[UIAlertView alloc]
-                                  initWithTitle:GCImagePickerControllerLocalizedString(@"ERROR")
-                                  message:GCImagePickerControllerLocalizedString(@"PHOTO_ROLL_LOCATION_ERROR")
-                                  delegate:nil
-                                  cancelButtonTitle:GCImagePickerControllerLocalizedString(@"OK")
-                                  otherButtonTitles:nil];
-            [alert show];
-            [alert release];
-        }
-        else {
-            UIAlertView *alert = [[UIAlertView alloc]
-                                  initWithTitle:GCImagePickerControllerLocalizedString(@"ERROR")
-                                  message:GCImagePickerControllerLocalizedString(@"UNKNOWN_LIBRARY_ERROR")
-                                  delegate:nil
-                                  cancelButtonTitle:GCImagePickerControllerLocalizedString(@"OK")
-                                  otherButtonTitles:nil];
-            [alert show];
-            [alert release];
-        }
-    };
-}
-
-#pragma mark - list browser delegate
-- (void)listBrowser:(GCImageListBrowserController *)listBrowser didSelectAssetGroup:(ALAssetsGroup *)group {
-    
-    // get broup
-    NSString *groupID = [group valueForProperty:ALAssetsGroupPropertyPersistentID];
-    
-    // make new browser
-    GCImageGridBrowserController *browser = [[GCImageGridBrowserController alloc]
-                                             initWithAssetsLibrary:listBrowser.assetsLibrary
-                                             groupIdentifier:groupID];
-    browser.browserDelegate = self;
-    browser.assetViewPadding = 4.0;
-    browser.numberOfAssetsPerRow = 4;
-    
-    // view controller
-    GCImageBrowserViewController_iPhone *controller = [[GCImageBrowserViewController_iPhone alloc]
-                                                       initWithBrowser:browser];
-    
-    // push
-    [self pushViewController:controller animated:YES];
-    
-    // release
-    [controller release];
-    [browser release];
-    
-}
-
 @end

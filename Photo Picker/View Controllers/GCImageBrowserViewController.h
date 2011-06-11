@@ -34,4 +34,7 @@
 // init
 - (id)initWithBrowser:(GCImageBrowserController *)browser;
 
+// reload
+- (void)reloadData;
+
 @end

@@ -62,8 +62,6 @@ typedef void (^GCImagePickerControllerActionBlock)(ALAssetsLibrary *library, NSU
 
 /*
  reload data
- the default implementation of this method does nothing
- you do not need to call super
  */
 - (void)reloadData;
 

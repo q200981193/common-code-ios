@@ -22,40 +22,26 @@
  
  */
 
-#import <UIKit/UIKit.h>
-#import <AssetsLibrary/AssetsLibrary.h>
+#import "GCAssetTableBrowser.h"
 
-#import "GCImagePickerControllerDefines.h"
+@class GCAssetListBrowser;
 
-@protocol GCAssetBrowserDelegate <NSObject>
+@protocol GCAssetListBrowserDelegate <NSObject>
 @required
-- (ALAssetsFilter *)assetsFilter;
-- (NSString *)actionTitle;
-- (BOOL)actionEnabled;
-- (GCImagePickerControllerActionBlock)actionBlock;
-- (ALAssetsLibraryAccessFailureBlock)failureBlock;
+- (void)listBrowser:(GCAssetListBrowser *)controller didSelectAssetGroup:(ALAssetsGroup *)group;
 @end
 
-@interface GCAssetBrowser : NSObject {
+@interface GCAssetListBrowser : GCAssetTableBrowser {
     
 }
 
-// browser delegate
-@property (nonatomic, assign) id<GCAssetBrowserDelegate> browserDelegate;
+// all groups shown by the table
+@property (nonatomic, readonly) NSArray *groups;
 
-// library to read data from
-@property (nonatomic, readonly) ALAssetsLibrary *assetsLibrary;
+// enable or disable disclosure indicators in table
+@property (nonatomic, assign) BOOL showDisclosureIndicators;
 
-// title that a view controller can display
-@property (nonatomic, copy) NSString *title;
-
-// view that a view controller can display
-@property (nonatomic, retain) IBOutlet UIView *view;
-
-// designated initializer
-- (id)initWithAssetsLibrary:(ALAssetsLibrary *)library;
-
-// reload assets
-- (void)reloadData;
+// get callback for group selection
+@property (nonatomic, assign) id<GCAssetListBrowserDelegate> listBrowserDelegate;
 
 @end

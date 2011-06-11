@@ -23,39 +23,14 @@
  */
 
 #import <UIKit/UIKit.h>
-#import <AssetsLibrary/AssetsLibrary.h>
 
-#import "GCImagePickerControllerDefines.h"
+@class ALAsset;
 
-@protocol GCAssetBrowserDelegate <NSObject>
-@required
-- (ALAssetsFilter *)assetsFilter;
-- (NSString *)actionTitle;
-- (BOOL)actionEnabled;
-- (GCImagePickerControllerActionBlock)actionBlock;
-- (ALAssetsLibraryAccessFailureBlock)failureBlock;
-@end
-
-@interface GCAssetBrowser : NSObject {
+@interface GCImageGridAssetView : UIView {
     
 }
 
-// browser delegate
-@property (nonatomic, assign) id<GCAssetBrowserDelegate> browserDelegate;
-
-// library to read data from
-@property (nonatomic, readonly) ALAssetsLibrary *assetsLibrary;
-
-// title that a view controller can display
-@property (nonatomic, copy) NSString *title;
-
-// view that a view controller can display
-@property (nonatomic, retain) IBOutlet UIView *view;
-
-// designated initializer
-- (id)initWithAssetsLibrary:(ALAssetsLibrary *)library;
-
-// reload assets
-- (void)reloadData;
+@property (nonatomic, retain) ALAsset *asset;
+@property (nonatomic, assign) BOOL selected;
 
 @end

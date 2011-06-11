@@ -28,7 +28,10 @@
     
 }
 
+// table view
 @property (nonatomic, retain) IBOutlet UITableView *tableView;
+
+// image to show when table is empty
 @property (nonatomic, retain) IBOutlet UIImageView *imageView;
 
 @end

@@ -22,40 +22,19 @@
  
  */
 
-#import <UIKit/UIKit.h>
-#import <AssetsLibrary/AssetsLibrary.h>
+#import "GCImageGridCell.h"
 
-#import "GCImagePickerControllerDefines.h"
+@implementation GCImageGridCell
 
-@protocol GCAssetBrowserDelegate <NSObject>
-@required
-- (ALAssetsFilter *)assetsFilter;
-- (NSString *)actionTitle;
-- (BOOL)actionEnabled;
-- (GCImagePickerControllerActionBlock)actionBlock;
-- (ALAssetsLibraryAccessFailureBlock)failureBlock;
-@end
+@synthesize delegate=_delegate;
 
-@interface GCAssetBrowser : NSObject {
-    
+- (void)layoutSubviews {
+    [super layoutSubviews];
+    NSArray *subviews = self.contentView.subviews;
+    for (NSUInteger i = 0; i < [subviews count]; i++) {
+        UIView *view = [subviews objectAtIndex:i];
+        [self.delegate positionView:view forIndex:i];
+    }
 }
-
-// browser delegate
-@property (nonatomic, assign) id<GCAssetBrowserDelegate> browserDelegate;
-
-// library to read data from
-@property (nonatomic, readonly) ALAssetsLibrary *assetsLibrary;
-
-// title that a view controller can display
-@property (nonatomic, copy) NSString *title;
-
-// view that a view controller can display
-@property (nonatomic, retain) IBOutlet UIView *view;
-
-// designated initializer
-- (id)initWithAssetsLibrary:(ALAssetsLibrary *)library;
-
-// reload assets
-- (void)reloadData;
 
 @end

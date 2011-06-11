@@ -128,7 +128,7 @@
 @synthesize leftView=_leftView;
 @synthesize rightView=_rightView;
 
-#pragma mark - object lifecycle
+#pragma mark - object methods
 - (id)init {
     self = [super initWithNibName:@"GCImageBrowserViewController_iPad" bundle:nil];
     return self;
@@ -136,6 +136,13 @@
 - (void)dealloc {
     [self cleanup];
     [super dealloc];
+}
+- (void)reloadData {
+    [super reloadData];
+    if ([self isViewLoaded]) {
+        [listController reloadData];
+        [gridController reloadData];
+    }
 }
 
 #pragma mark - view lifecycle

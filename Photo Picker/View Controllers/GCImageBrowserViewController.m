@@ -50,7 +50,9 @@
     [super dealloc];
 }
 - (void)reloadData {
-    [self.browser reloadData];
+    if ([self isViewLoaded]) {
+        [self.browser reloadData];
+    }
 }
 
 #pragma mark - view lifecycle

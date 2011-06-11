@@ -34,10 +34,12 @@
 @end
 @implementation GCImagePickerController (private)
 - (void)reloadData {
-    for (UIViewController *controller in self.viewControllers) {
-        if ([controller isKindOfClass:[GCImageBrowserViewController class]]) {
-            GCImageBrowserViewController *browser = (GCImageBrowserViewController *)controller;
-            [browser reloadData];
+    if ([self isViewLoaded]) {
+        for (UIViewController *controller in self.viewControllers) {
+            if ([controller isKindOfClass:[GCImageBrowserViewController class]]) {
+                GCImageBrowserViewController *browser = (GCImageBrowserViewController *)controller;
+                [browser reloadData];
+            }
         }
     }
 }

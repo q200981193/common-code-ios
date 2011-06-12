@@ -25,13 +25,15 @@
 #import "GCAssetListBrowser.h"
 #import "GCImagePickerControllerDefines.h"
 
+#import "ALAssetsLibrary+CustomAccessors.h"
+
 @implementation GCAssetListBrowser
 
 @synthesize groups=_groups;
 @synthesize showDisclosureIndicators=_showDisclosureIndicators;
 @synthesize listBrowserDelegate=_listBrowserDelegate;
 
-#pragma mark - object lifecycle
+#pragma mark - object methods
 - (id)initWithAssetsLibrary:(ALAssetsLibrary *)library {
 	self = [super initWithAssetsLibrary:library];
 	if (self) {
@@ -47,72 +49,19 @@
     [self didChangeValueForKey:@"groups"];
     [super dealloc];
 }
-
-#pragma mark - object methods
 - (void)reloadData {
     
     // kvo
     [self willChangeValueForKey:@"groups"];
     
-    // release old groups
+    // get new gruops
+    NSError *error;
     [_groups release];
-    _groups = nil;
-    
-    // setup containers for new groups
-    __block NSUInteger count = 0;
-    __block ALAssetsGroup *savedPhotos = nil;
-    ALAssetsFilter *filter = [self.browserDelegate assetsFilter];
-    NSMutableArray *albums = [NSMutableArray array];
-    NSMutableArray *faces = [NSMutableArray array];
-    NSMutableArray *events = [NSMutableArray array];
-    
-    // load gruops
-	[self.assetsLibrary
-	 enumerateGroupsWithTypes:ALAssetsGroupAll
-	 usingBlock:^(ALAssetsGroup *group, BOOL *stop) {
-		 if (group == nil) {
-			 *stop = YES;
-             NSMutableArray *array = [[NSMutableArray alloc] initWithCapacity:count];
-             if (savedPhotos != nil) {
-                 [array addObject:savedPhotos];
-                 [savedPhotos release];
-                 savedPhotos = nil;
-             }
-             [array addObjectsFromArray:albums];
-             [array addObjectsFromArray:events];
-             [array addObjectsFromArray:faces];
-             _groups = array;
-		 }
-		 else {
-             [group setAssetsFilter:filter];
-             if ([group numberOfAssets] > 0) {
-                 count++;
-                 NSNumber *type = [group valueForProperty:ALAssetsGroupPropertyType];
-                 ALAssetsGroupType groupType = [type unsignedIntegerValue];
-                 if (groupType == ALAssetsGroupSavedPhotos) {
-                     savedPhotos = [group retain];
-                 }
-                 else if (groupType == ALAssetsGroupAlbum) {
-                     [albums addObject:group];
-                 }
-                 else if (groupType == ALAssetsGroupFaces) {
-                     [faces addObject:group];
-                 }
-                 else if (groupType == ALAssetsGroupEvent) {
-                     [events addObject:group];
-                 }
-             }
-		 }
-	 }
-	 failureBlock:^(NSError *error){
-         _groups = [[NSArray alloc] init];
-         [self.browserDelegate failureBlock](error);
-     }];
-    
-    // wait
-    while (_groups == nil) {
-        CFRunLoopRunInMode(kCFRunLoopDefaultMode, 0.1, NO);
-    }
+    _groups = [self.assetsLibrary
+               assetGroupsWithTypes:ALAssetsGroupAll
+               assetsFilter:[self.browserDelegate assetsFilter]
+               error:&error];
+    [_groups retain];
     
     // kvo
     [self didChangeValueForKey:@"groups"];

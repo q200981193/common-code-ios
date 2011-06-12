@@ -22,10 +22,11 @@
  
  */
 
-#import <AssetsLibrary/AssetsLibrary.h>
-
 #import "GCAssetGridBrowser.h"
 #import "GCImageGridAssetView.h"
+#import "GCImagePickerController.h"
+
+#import "ALAssetsLibrary+CustomAccessors.h"
 
 #define kNumberOfSpaces (self.numberOfAssetsPerRow + 1)
 #define kHorizontalSpaceSize (self.assetViewPadding * kNumberOfSpaces)
@@ -33,17 +34,15 @@
     floorf((self.tableView.bounds.size.width - kHorizontalSpaceSize) / self.numberOfAssetsPerRow)
 #define kRowHeight (kTileSize + self.assetViewPadding)
 
+#pragma mark - private methods
 @interface GCAssetGridBrowser (private)
 - (void)updateTitle;
-- (void)updateActionButtonItem;
 @end
-
 @implementation GCAssetGridBrowser (private)
 - (void)updateTitle {
     NSUInteger count = [selectedAssetURLs count];
     if (count == 0) {
-        NSString *groupTitle = [assetsGroup valueForProperty:ALAssetsGroupPropertyName];
-        self.title = groupTitle;
+        self.title = assetsGroupTitle;
     }
     else if (count == 1) {
         self.title = GCImagePickerControllerLocalizedString(@"PHOTO_COUNT_SINGLE");
@@ -51,23 +50,6 @@
     else {
         self.title = [NSString localizedStringWithFormat:GCImagePickerControllerLocalizedString(@"PHOTO_COUNT_MULTIPLE"), count];
     }
-}
-- (void)updateActionButtonItem {
-    [self willChangeValueForKey:@"cancelButtonItem"];
-    [_actionButtonItem release];
-    NSString *title = [self.browserDelegate actionTitle];
-    if (title == nil) {
-        _actionButtonItem = nil;
-    }
-    else {
-        _actionButtonItem = [[UIBarButtonItem alloc]
-                             initWithTitle:title
-                             style:UIBarButtonItemStyleDone
-                             target:self
-                             action:@selector(actionAction)];
-        _actionButtonItem.enabled = ([selectedAssetURLs count] > 0);
-    }
-    [self didChangeValueForKey:@"cancelButtonItem"];
 }
 @end
 
@@ -81,24 +63,29 @@
 @synthesize cancelButtonItem=_cancelButtonItem;
 
 #pragma mark - object lifecycle
-- (id)initWithAssetsLibrary:(ALAssetsLibrary *)library groupIdentifier:(NSString *)identifier {
-    self = [super initWithAssetsLibrary:library];
+- (id)initWithImagePickerController:(GCImagePickerController *)picker groupIdentifier:(NSString *)identifier {
+    self = [super initWithImagePickerController:picker];
 	if (self) {
         
         // cancel button
         _cancelButtonItem = [[UIBarButtonItem alloc]
                              initWithBarButtonSystemItem:UIBarButtonSystemItemCancel
                              target:self
-                             action:@selector(cancelAction)];
+                             action:@selector(cancel)];
         
         // action button
-        [self updateActionButtonItem];
+        _actionButtonItem = [[UIBarButtonItem alloc]
+                             initWithBarButtonSystemItem:UIBarButtonSystemItemAction
+                             target:self
+                             action:@selector(action)];
         
         // save group
         assetsGroupIdentifier = [identifier copy];
         
         // table view
         self.tableView.separatorStyle = UITableViewCellSeparatorStyleNone;
+        
+        // tap recognizer
         UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc]
                                        initWithTarget:self
                                        action:@selector(tableDidReceiveTap:)];
@@ -106,13 +93,6 @@
         tap.numberOfTouchesRequired = 1;
         [self.tableView addGestureRecognizer:tap];
         [tap release];
-//        UILongPressGestureRecognizer *press = [[UILongPressGestureRecognizer alloc]
-//                                               initWithTarget:self
-//                                               action:@selector(tableDidReceiveLongPress:)];
-//        press.minimumPressDuration = 0.7;
-//        press.numberOfTouchesRequired = 1;
-//        [self.tableView addGestureRecognizer:press];
-//        [press release];
         
 	}
 	return self;
@@ -124,10 +104,8 @@
     _cancelButtonItem = nil;
     
     // action button
-    [self willChangeValueForKey:@"actionButtonItem"];
     [_actionButtonItem release];
     _actionButtonItem = nil;
-    [self didChangeValueForKey:@"actionButtonItem"];
     
     // other crap
     [allAssets release];
@@ -136,9 +114,10 @@
     selectedAssetURLs = nil;
     [assetsGroupIdentifier release];
     assetsGroupIdentifier = nil;
-    [assetsGroup release];
-    assetsGroup = nil;
+    [assetsGroupTitle release];
+    assetsGroupTitle = nil;
     
+    // super
     [super dealloc];
     
 }
@@ -149,62 +128,26 @@
     // release old assets
     [allAssets release];
     allAssets = nil;
-    [assetsGroup release];
-    assetsGroup = nil;
+    [assetsGroupTitle release];
+    assetsGroupTitle = nil;
     
-    // prepare to get assets
-    ALAssetsFilter *filter = [self.browserDelegate assetsFilter];
-    NSMutableArray *array = [[NSMutableArray alloc] init];
-    ALAssetsGroupEnumerationResultsBlock block = ^(ALAsset *result, NSUInteger index, BOOL *stop) {
-		if (result != nil) { [array addObject:result]; }
-	};
+    // get assets
+    ALAssetsGroup *group = nil;
+    NSError *error = nil;
+    allAssets = [self.picker.assetsLibrary
+                 assetsInGroupWithIdentifier:assetsGroupIdentifier
+                 filter:self.picker.assetsFilter
+                 group:&group
+                 error:&error];
     
-    // get new assets
-    [self.assetsLibrary
-     enumerateGroupsWithTypes:ALAssetsGroupAll
-     usingBlock:^(ALAssetsGroup *group, BOOL *stop) {
-         if (group == nil) {
-             *stop = YES;
-             allAssets = array;
-         }
-         else {
-             NSString *groupID = [group valueForProperty:ALAssetsGroupPropertyPersistentID];
-             if ([groupID isEqualToString:assetsGroupIdentifier]) {
-                 [group setAssetsFilter:filter];
-                 [group enumerateAssetsUsingBlock:block];
-                 assetsGroup = [group retain];
-                 *stop = YES;
-             }
-         }
-     }
-     failureBlock:^(NSError *error){
-         allAssets = [[NSArray alloc] init];
-         [self.browserDelegate failureBlock](error);
-     }];
-    
-    // wait for it to finish
-    while (allAssets == nil) {
-        CFRunLoopRunInMode(kCFRunLoopDefaultMode, 0.1, NO);
-    }
+    // retain new stuff
+    assetsGroupTitle = [[group valueForProperty:ALAssetsGroupPropertyName] copy];
+    [allAssets retain];
     
     // reload view
     [self.tableView reloadData];
     self.tableView.hidden = ([allAssets count] == 0);
     [self updateTitle];
-    [self updateActionButtonItem];
-//    if (assetsGroup) {
-//        NSNumber *groupTypeNumber = [assetsGroup valueForProperty:ALAssetsGroupPropertyType];
-//        ALAssetsGroupType groupType = [groupTypeNumber unsignedIntegerValue];
-//        if (groupType == ALAssetsGroupSavedPhotos) {
-//            NSUInteger row = MAX(0, [self.tableView numberOfRowsInSection:0] - 1);
-//            NSIndexPath *path = [NSIndexPath indexPathForRow:row inSection:0];
-//            [self.tableView
-//             scrollToRowAtIndexPath:path
-//             atScrollPosition:UITableViewScrollPositionBottom
-//             animated:NO];
-//            NSLog(@"%@", NSStringFromCGRect(self.tableView.frame));
-//        }
-//    }
     
 }
 
@@ -228,18 +171,18 @@
 }
 
 #pragma mark - button actions
-- (void)cancelAction {
+- (void)cancel {
     self.editing = NO;
 }
-- (void)actionAction {
-    NSSet *URLs = [selectedAssetURLs copy];
-    GCImagePickerControllerActionBlock block = [[self.browserDelegate actionBlock] copy];
-    for (NSURL *URL in URLs) {
-        block(self.assetsLibrary, URL);
-    }
-    [block release];
-    [URLs release];
-    self.editing = NO;
+- (void)action {
+//    NSSet *URLs = [selectedAssetURLs copy];
+//    GCImagePickerControllerActionBlock block = [[self.browserDelegate actionBlock] copy];
+//    for (NSURL *URL in URLs) {
+//        block(self.assetsLibrary, URL);
+//    }
+//    [block release];
+//    [URLs release];
+//    self.editing = NO;
 }
 
 #pragma mark - table view
@@ -299,31 +242,6 @@
 }
 
 #pragma mark - gestures
-- (void)tableDidReceiveLongPress:(UILongPressGestureRecognizer *)gesture {
-    
-//    // log
-//    GC_LOG_INFO(@"");
-//    
-//    // do stuff
-//    CGPoint location = [gesture locationInView:gesture.view];
-//    NSUInteger column = MIN(location.x / (self.assetViewPadding + kTileSize), self.numberOfAssetsPerRow - 1);
-//    NSUInteger row = location.y / kRowHeight;
-//    NSUInteger index = row * self.numberOfAssetsPerRow + column;
-//    if (index < [allAssets count]) {
-//        CGRect cellRect = [self.tableView rectForRowAtIndexPath:[NSIndexPath indexPathForRow:row inSection:0]];
-//        CGFloat tileSize = kTileSize;
-//        CGPoint origin = CGPointZero;
-//        origin.x = (self.assetViewPadding * (index + 1)) + (tileSize * index);
-//        origin.y = (cellRect.size.height - self.assetViewPadding - tileSize);
-//        CGRect tileRect = CGRectMake(origin.x, origin.y + cellRect.origin.y, tileSize, tileSize);
-//        [[UIMenuController sharedMenuController] setTargetRect:tileRect inView:self.view];
-//        [[UIMenuController sharedMenuController] setTargetRect:CGRectZero inView:self.view];
-//        UIMenuItem *item = [[UIMenuItem alloc] initWithTitle:@"Copy" action:@selector(copyAsset)];
-//        [[UIMenuController sharedMenuController] setMenuItems:<#(NSArray *)#>];
-//        [[UIMenuController sharedMenuController] setMenuVisible:YES animated:YES];
-//    }
-    
-}
 - (void)tableDidReceiveTap:(UITapGestureRecognizer *)gesture {
     
     // do stuff

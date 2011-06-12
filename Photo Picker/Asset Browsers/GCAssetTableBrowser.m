@@ -29,8 +29,8 @@
 @synthesize tableView=_tableView;
 @synthesize imageView=_imageView;
 
-- (id)initWithAssetsLibrary:(ALAssetsLibrary *)library {
-    self = [super initWithAssetsLibrary:library];
+- (id)initWithImagePickerController:(GCImagePickerController *)picker {
+    self = [super initWithImagePickerController:picker];
     if (self) {
         [[NSBundle mainBundle] loadNibNamed:@"GCAssetTableBrowser" owner:self options:nil];
     }

@@ -23,7 +23,7 @@
  */
 
 #import "GCAssetListBrowser.h"
-#import "GCImagePickerControllerDefines.h"
+#import "GCImagePickerController.h"
 
 #import "ALAssetsLibrary+CustomAccessors.h"
 
@@ -34,13 +34,13 @@
 @synthesize listBrowserDelegate=_listBrowserDelegate;
 
 #pragma mark - object methods
-- (id)initWithAssetsLibrary:(ALAssetsLibrary *)library {
-	self = [super initWithAssetsLibrary:library];
-	if (self) {
+- (id)initWithImagePickerController:(GCImagePickerController *)picker {
+    self = [super initWithImagePickerController:picker];
+    if (self) {
 		self.title = GCImagePickerControllerLocalizedString(@"PHOTO_LIBRARY");
         self.showDisclosureIndicators = NO;
 	}
-	return self;
+    return self;
 }
 - (void)dealloc {
     [self willChangeValueForKey:@"groups"];
@@ -57,13 +57,13 @@
     // get new gruops
     NSError *error = nil;
     [_groups release];
-    _groups = [self.assetsLibrary
+    _groups = [self.picker.assetsLibrary
                assetGroupsWithTypes:ALAssetsGroupAll
-               assetsFilter:[self.browserDelegate assetsFilter]
+               assetsFilter:self.picker.assetsFilter
                error:&error];
     [_groups retain];
     if (error) {
-        [self.browserDelegate failureBlock](error);
+        self.picker.failureBlock(error);
     }
     
     // kvo

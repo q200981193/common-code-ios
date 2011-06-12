@@ -25,10 +25,8 @@
 #import "GCAssetTableBrowser.h"
 #import "GCImageGridCell.h"
 
-@class ALAssetsGroup;
-@class GCAssetGridBrowser;
-
 // grid browser delegate
+@class GCAssetGridBrowser;
 @protocol GCAssetGridBrowserDelegate <NSObject>
 @required
 - (void)gridBrowser:(GCAssetGridBrowser *)controller didSelectAssets:(NSSet *)assetURLs;
@@ -40,7 +38,7 @@
     
     // assets
     NSString *assetsGroupIdentifier;
-    ALAssetsGroup *assetsGroup;
+    NSString *assetsGroupTitle;
     NSMutableSet *selectedAssetURLs;
     NSArray *allAssets;
     
@@ -61,6 +59,6 @@
 @property (nonatomic, readonly) UIBarButtonItem *cancelButtonItem;
 
 // initializer
-- (id)initWithAssetsLibrary:(ALAssetsLibrary *)library groupIdentifier:(NSString *)identifier;
+- (id)initWithImagePickerController:(GCImagePickerController *)picker groupIdentifier:(NSString *)identifier;
 
 @end

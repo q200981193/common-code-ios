@@ -23,42 +23,65 @@
  */
 
 #import "GCAssetBrowser.h"
+#import "GCImagePickerController.h"
+
+static int GCAssetBrowserMediaTypesContext;
 
 @implementation GCAssetBrowser
 
-@synthesize title=_title;
-@synthesize browserDelegate=_browserDelegate;
-@synthesize assetsLibrary=_assetsLibrary;
-@synthesize view=_view;
+@synthesize title;
+@synthesize view;
+@synthesize picker=_picker;
 
-- (id)initWithAssetsLibrary:(ALAssetsLibrary *)library {
+- (id)initWithImagePickerController:(GCImagePickerController *)picker {
     self = [super init];
     if (self) {
-        if (library == nil) { _assetsLibrary = [[ALAssetsLibrary alloc] init]; }
-        else { _assetsLibrary = [library retain]; }
-        [[NSNotificationCenter defaultCenter]
-         addObserver:self
-         selector:@selector(libraryDidChange:)
-         name:ALAssetsLibraryChangedNotification
-         object:_assetsLibrary];
+        if (!picker && !picker.assetsLibrary) {
+            [NSException
+             raise:NSInvalidArgumentException
+             format:@"%@ the provided picker and its must not be nil",
+             NSStringFromSelector(_cmd)];
+            [self release];
+            return nil;
+        }
+        else {
+            _picker = [picker retain];
+            [[NSNotificationCenter defaultCenter]
+             addObserver:self
+             selector:@selector(libraryDidChange:)
+             name:ALAssetsLibraryChangedNotification
+             object:self.picker.assetsLibrary];
+            [self.picker
+             addObserver:self
+             forKeyPath:@"mediaTypes"
+             options:0
+             context:&GCAssetBrowserMediaTypesContext];
+        }
     }
     return self;
 }
 - (void)dealloc {
+    [self.picker
+     removeObserver:self
+     forKeyPath:@"mediaTypes"];
     [[NSNotificationCenter defaultCenter]
      removeObserver:self
      name:ALAssetsLibraryChangedNotification
-     object:_assetsLibrary];
-    [_assetsLibrary release];
-    _assetsLibrary = nil;
+     object:self.picker.assetsLibrary];
     self.view = nil;
+    self.title = nil;
     [super dealloc];
 }
 - (void)reloadData {
-    
+    // subclasses should override this
 }
 - (void)libraryDidChange:(NSNotification *)notif {
     [self reloadData];
+}
+- (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context {
+    if (context == &GCAssetBrowserMediaTypesContext) {
+        [self reloadData];
+    }
 }
 
 @end

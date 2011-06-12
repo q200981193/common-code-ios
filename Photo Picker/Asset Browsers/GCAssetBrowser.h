@@ -25,26 +25,11 @@
 #import <UIKit/UIKit.h>
 #import <AssetsLibrary/AssetsLibrary.h>
 
-#import "GCImagePickerControllerDefines.h"
-
-@protocol GCAssetBrowserDelegate <NSObject>
-@required
-- (ALAssetsFilter *)assetsFilter;
-- (NSString *)actionTitle;
-- (BOOL)actionEnabled;
-- (GCImagePickerControllerActionBlock)actionBlock;
-- (ALAssetsLibraryAccessFailureBlock)failureBlock;
-@end
+@class GCImagePickerController;
 
 @interface GCAssetBrowser : NSObject {
     
 }
-
-// browser delegate
-@property (nonatomic, assign) id<GCAssetBrowserDelegate> browserDelegate;
-
-// library to read data from
-@property (nonatomic, readonly) ALAssetsLibrary *assetsLibrary;
 
 // title that a view controller can display
 @property (nonatomic, copy) NSString *title;
@@ -52,8 +37,11 @@
 // view that a view controller can display
 @property (nonatomic, retain) IBOutlet UIView *view;
 
+// pointer back to image picker controller
+@property (nonatomic, readonly) GCImagePickerController *picker;
+
 // designated initializer
-- (id)initWithAssetsLibrary:(ALAssetsLibrary *)library;
+- (id)initWithImagePickerController:(GCImagePickerController *)picker;
 
 // reload assets
 - (void)reloadData;

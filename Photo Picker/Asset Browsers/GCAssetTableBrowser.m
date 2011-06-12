@@ -32,7 +32,7 @@
 - (id)initWithAssetsLibrary:(ALAssetsLibrary *)library {
     self = [super initWithAssetsLibrary:library];
     if (self) {
-        [[NSBundle mainBundle] loadNibNamed:NSStringFromClass([self class]) owner:self options:nil];
+        [[NSBundle mainBundle] loadNibNamed:@"GCAssetTableBrowser" owner:self options:nil];
     }
     return self;
 }

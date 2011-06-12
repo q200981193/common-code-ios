@@ -25,14 +25,13 @@
 #import <UIKit/UIKit.h>
 #import <AssetsLibrary/AssetsLibrary.h>
 
-#import "GCImageListBrowserController.h"
-#import "GCImageGridBrowserController.h"
-
-#define GCImagePickerControllerLocalizedString(key) NSLocalizedStringFromTable(key, @"GCImagePickerController", @"")
+#import "GCImagePickerControllerDefines.h"
+#import "GCAssetListBrowser.h"
+#import "GCAssetGridBrowser.h"
 
 // a better image picker
 @interface GCImagePickerController : UINavigationController
-<GCImageBrowserDelegate, GCImageListBrowserDelegate> {
+<GCAssetBrowserDelegate, GCAssetListBrowserDelegate> {
     
 }
 

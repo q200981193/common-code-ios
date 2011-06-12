@@ -25,8 +25,8 @@
 #import <MobileCoreServices/MobileCoreServices.h>
 
 #import "GCImagePickerController.h"
-#import "GCImageBrowserViewController_iPad.h"
-#import "GCImageBrowserViewController_iPhone.h"
+#import "GCAssetBrowserViewController_iPad.h"
+#import "GCAssetBrowserViewController_iPhone.h"
 
 #pragma mark - private methods
 @interface GCImagePickerController (private)
@@ -34,14 +34,14 @@
 @end
 @implementation GCImagePickerController (private)
 - (void)reloadData {
-    if ([self isViewLoaded]) {
-        for (UIViewController *controller in self.viewControllers) {
-            if ([controller isKindOfClass:[GCImageBrowserViewController class]]) {
-                GCImageBrowserViewController *browser = (GCImageBrowserViewController *)controller;
-                [browser reloadData];
-            }
-        }
-    }
+//    if ([self isViewLoaded]) {
+//        for (UIViewController *controller in self.viewControllers) {
+//            if ([controller isKindOfClass:[GCImageBrowserViewController class]]) {
+//                GCImageBrowserViewController *browser = (GCImageBrowserViewController *)controller;
+//                [browser reloadData];
+//            }
+//        }
+//    }
 }
 @end
 
@@ -63,7 +63,7 @@
         
         // push root view
         if (GC_IS_IPAD) {
-            GCImageBrowserViewController_iPad *controller = [[GCImageBrowserViewController_iPad alloc] init];
+            GCAssetBrowserViewController_iPad *controller = [[GCAssetBrowserViewController_iPad alloc] init];
             controller.browserDelegate = self;
             [self pushViewController:controller animated:NO];
             [controller release];
@@ -72,14 +72,14 @@
             
             // browser
             ALAssetsLibrary *library = [[ALAssetsLibrary alloc] init];
-            GCImageListBrowserController *browser = [[GCImageListBrowserController alloc] initWithAssetsLibrary:library];
+            GCAssetListBrowser *browser = [[GCAssetListBrowser alloc] initWithAssetsLibrary:library];
             browser.browserDelegate = self;
             browser.listBrowserDelegate = self;
             browser.showDisclosureIndicators = YES;
             [library release];
             
             // view
-            GCImageBrowserViewController_iPhone *controller = [[GCImageBrowserViewController_iPhone alloc] initWithBrowser:browser];
+            GCAssetBrowserViewController_iPhone *controller = [[GCAssetBrowserViewController_iPhone alloc] initWithBrowser:browser];
             UIBarButtonItem *button = [[UIBarButtonItem alloc]
                                        initWithBarButtonSystemItem:UIBarButtonSystemItemDone
                                        target:self
@@ -162,29 +162,29 @@
 }
 
 #pragma mark - list browser delegate
-- (void)listBrowser:(GCImageListBrowserController *)listBrowser didSelectAssetGroup:(ALAssetsGroup *)group {
-    
-    // get broup
-    NSString *groupID = [group valueForProperty:ALAssetsGroupPropertyPersistentID];
+- (void)listBrowser:(GCAssetListBrowser *)listBrowser didSelectAssetGroup:(ALAssetsGroup *)group {
+
+    // group identifier
+    NSString *groupIdentifier = [group valueForProperty:ALAssetsGroupPropertyPersistentID];
     
     // make new browser
-    GCImageGridBrowserController *browser = [[GCImageGridBrowserController alloc]
-                                             initWithAssetsLibrary:listBrowser.assetsLibrary
-                                             groupIdentifier:groupID];
-    browser.browserDelegate = self;
-    browser.assetViewPadding = 4.0;
-    browser.numberOfAssetsPerRow = 4;
+    GCAssetGridBrowser *gridBrowser = [[GCAssetGridBrowser alloc]
+                                       initWithAssetsLibrary:listBrowser.assetsLibrary
+                                       groupIdentifier:groupIdentifier];
+    gridBrowser.browserDelegate = self;
+    gridBrowser.assetViewPadding = 4.0;
+    gridBrowser.numberOfAssetsPerRow = 4;
     
     // view controller
-    GCImageBrowserViewController_iPhone *controller = [[GCImageBrowserViewController_iPhone alloc]
-                                                       initWithBrowser:browser];
+    GCAssetBrowserViewController_iPhone *controller = [[GCAssetBrowserViewController_iPhone alloc]
+                                                       initWithBrowser:gridBrowser];
     
     // push
     [self pushViewController:controller animated:YES];
     
     // release
     [controller release];
-    [browser release];
+    [gridBrowser release];
     
 }
 

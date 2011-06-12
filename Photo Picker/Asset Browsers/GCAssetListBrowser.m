@@ -55,13 +55,16 @@
     [self willChangeValueForKey:@"groups"];
     
     // get new gruops
-    NSError *error;
+    NSError *error = nil;
     [_groups release];
     _groups = [self.assetsLibrary
                assetGroupsWithTypes:ALAssetsGroupAll
                assetsFilter:[self.browserDelegate assetsFilter]
                error:&error];
     [_groups retain];
+    if (error) {
+        [self.browserDelegate failureBlock](error);
+    }
     
     // kvo
     [self didChangeValueForKey:@"groups"];

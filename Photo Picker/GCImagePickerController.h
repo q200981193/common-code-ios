@@ -25,13 +25,17 @@
 #import <UIKit/UIKit.h>
 #import <AssetsLibrary/AssetsLibrary.h>
 
-#import "GCImagePickerControllerDefines.h"
 #import "GCAssetListBrowser.h"
-#import "GCAssetGridBrowser.h"
+
+// shortcut for loading localized resources
+#define GCImagePickerControllerLocalizedString(key) \
+NSLocalizedStringFromTable(key, @"GCImagePickerController", @"")
+
+// block called for each selected asset
+typedef void (^GCImagePickerControllerActionBlock)(ALAssetsLibrary *library, NSURL *URL);
 
 // a better image picker
-@interface GCImagePickerController : UINavigationController
-<GCAssetBrowserDelegate, GCAssetListBrowserDelegate> {
+@interface GCImagePickerController : UINavigationController <GCAssetListBrowserDelegate> {
     
 }
 
@@ -42,6 +46,11 @@
 
 // media types
 @property (nonatomic, copy) NSArray *mediaTypes;
+
+// properties for internal classes
+@property (nonatomic, readonly) ALAssetsLibrary *assetsLibrary;
+@property (nonatomic, readonly) ALAssetsFilter *assetsFilter;
+@property (nonatomic, readonly) ALAssetsLibraryAccessFailureBlock failureBlock;
 
 // make a picker
 - (id)init;

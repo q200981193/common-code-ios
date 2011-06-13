@@ -22,36 +22,10 @@
  
  */
 
-#import "GCImageBrowserTableController.h"
+#import "GCAssetBrowserViewController.h"
 
-@implementation GCImageBrowserTableController
-
-@synthesize tableView=_tableView;
-@synthesize imageView=_imageView;
-
-#pragma mark - object lifecycle
-- (id)initWithAssetsLibrary:(ALAssetsLibrary *)library {
-    self = [super initWithAssetsLibrary:library];
-    if (self) {
-        [[NSBundle mainBundle] loadNibNamed:@"GCImageBrowserTableController" owner:self options:nil];
-    }
-    return self;
-}
-- (void)dealloc {
-    self.tableView = nil;
-    self.imageView = nil;
-    [super dealloc];
-}
-
-#pragma mark - table view
-- (NSInteger)numberOfSectionsInTableView:(UITableView *)aTableView {
-    return 0;
-}
-- (NSInteger)tableView:(UITableView *)aTableView numberOfRowsInSection:(NSInteger)section {
-    return 0;
-}
-- (UITableViewCell *)tableView:(UITableView *)aTableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
-    return nil;
+@interface GCAssetBrowserViewController_iPhone : GCAssetBrowserViewController {
+    
 }
 
 @end

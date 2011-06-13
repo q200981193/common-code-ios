@@ -22,15 +22,15 @@
  
  */
 
-#import "GCImageBrowserViewController.h"
-#import "GCImageBrowserTableController.h"
+#import "GCAssetBrowserViewController.h"
+#import "GCAssetTableBrowser.h"
 
-@implementation GCImageBrowserViewController
+@implementation GCAssetBrowserViewController
 
 @synthesize browser=_browser;
 
 #pragma mark - object methods
-- (id)initWithBrowser:(GCImageBrowserController *)browser {
+- (id)initWithBrowser:(GCAssetBrowser *)browser {
     self = [super initWithNibName:nil bundle:nil];
     if (self) {
         _browser = [browser retain];
@@ -39,7 +39,7 @@
          addObserver:self
          forKeyPath:@"title"
          options:0
-         context:nil];
+         context:0];
     }
     return self;
 }
@@ -65,16 +65,16 @@
 }
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
-    if ([self.browser isKindOfClass:[GCImageBrowserTableController class]]) {
-        GCImageBrowserTableController *tableController = (GCImageBrowserTableController *)self.browser;
+    if ([self.browser isKindOfClass:[GCAssetTableBrowser class]]) {
+        GCAssetTableBrowser *tableController = (GCAssetTableBrowser *)self.browser;
         NSIndexPath *path = [tableController.tableView indexPathForSelectedRow];
         [tableController.tableView deselectRowAtIndexPath:path animated:animated];
     }
 }
 - (void)viewDidAppear:(BOOL)animated {
     [super viewDidAppear:animated];
-    if ([self.browser respondsToSelector:@selector(tableView)]) {
-        GCImageBrowserTableController *tableController = (GCImageBrowserTableController *)self.browser;
+    if ([self.browser isKindOfClass:[GCAssetTableBrowser class]]) {
+        GCAssetTableBrowser *tableController = (GCAssetTableBrowser *)self.browser;
         [tableController.tableView flashScrollIndicators];
     }
 }

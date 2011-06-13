@@ -22,19 +22,28 @@
  
  */
 
-#import "GCImageGridCell.h"
+#import "GCAssetBrowserViewController.h"
+#import "GCAssetListBrowser.h"
 
-@implementation GCImageGridCell
+@class GCImagePickerController;
+@class GCAssetGridBrowser;
 
-@synthesize delegate=_delegate;
-
-- (void)layoutSubviews {
-    [super layoutSubviews];
-    NSArray *subviews = self.contentView.subviews;
-    for (NSUInteger i = 0; i < [subviews count]; i++) {
-        UIView *view = [subviews objectAtIndex:i];
-        [self.delegate positionView:view forIndex:i];
-    }
+// ipad image browser
+@interface GCAssetBrowserViewController_iPad : GCAssetBrowserViewController
+<UIPopoverControllerDelegate, GCAssetListBrowserDelegate> {
+@private
+    GCAssetListBrowser *_listBrowser;
+    GCAssetGridBrowser *_gridBrowser;
+    UIPopoverController *popoverController;
 }
+
+// data source
+@property (nonatomic, readonly) GCImagePickerController *picker;
+
+// interface builder properties
+@property (nonatomic, retain) IBOutlet UIView *leftView;
+@property (nonatomic, retain) IBOutlet UIView *rightView;
+
+- (id)initWithImagePickerController:(GCImagePickerController *)picker;
 
 @end

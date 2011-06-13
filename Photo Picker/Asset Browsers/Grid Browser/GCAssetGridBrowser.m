@@ -23,7 +23,7 @@
  */
 
 #import "GCAssetGridBrowser.h"
-#import "GCImageGridAssetView.h"
+#import "GCAssetGridAssetView.h"
 #import "GCImagePickerController.h"
 
 #import "ALAssetsLibrary+CustomAccessors.h"

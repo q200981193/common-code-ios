@@ -22,14 +22,13 @@
  
  */
 
-#import <AssetsLibrary/AssetsLibrary.h>
-
-#import "GCImageBrowserViewController_iPad.h"
+#import "GCAssetBrowserViewController_iPad.h"
 #import "GCImagePickerController.h"
+#import "GCAssetGridBrowser.h"
 
 #define kGreyOutViewTag 100
 
-@interface GCImageBrowserViewController_iPad (private)
+@interface GCAssetBrowserViewController_iPad (private)
 
 // update toolbar items
 - (void)updateToolbarItemsForOrientation:(UIInterfaceOrientation)orientation;
@@ -48,16 +47,16 @@
 
 @end
 
-@implementation GCImageBrowserViewController_iPad (private)
+@implementation GCAssetBrowserViewController_iPad (private)
 - (void)updateToolbarItemsForOrientation:(UIInterfaceOrientation)orientation {
-    if (gridController.editing) {
-        self.navigationItem.leftBarButtonItem = gridController.cancelButtonItem;
-        self.navigationItem.rightBarButtonItem = gridController.actionButtonItem;
+    if (_gridBrowser.editing) {
+        self.navigationItem.leftBarButtonItem = _gridBrowser.cancelButtonItem;
+        self.navigationItem.rightBarButtonItem = _gridBrowser.actionButtonItem;
     }
     else {
         if (UIInterfaceOrientationIsPortrait(orientation)) {
             UIBarButtonItem *item = [[UIBarButtonItem alloc]
-                                     initWithTitle:listController.title
+                                     initWithTitle:_listBrowser.title
                                      style:UIBarButtonItemStyleBordered
                                      target:self
                                      action:@selector(popoverAction:)];
@@ -95,19 +94,18 @@
     [popoverController dismissPopoverAnimated:NO];
     [popoverController release];
     popoverController = nil;
-    [gridController removeObserver:self forKeyPath:@"editing"];
-    [gridController removeObserver:self forKeyPath:@"title"];
-    [gridController removeObserver:self forKeyPath:@"actionButtonItem"];
-    [gridController release];
-    gridController = nil;
-    [listController release];
-    listController = nil;
+    [_gridBrowser removeObserver:self forKeyPath:@"editing"];
+    [_gridBrowser removeObserver:self forKeyPath:@"title"];
+    [_gridBrowser release];
+    _gridBrowser = nil;
+    [_listBrowser release];
+    _listBrowser = nil;
     self.leftView = nil;
     self.rightView = nil;
 }
 - (UIBarButtonItem *)popoverButtonItem {
     return [[[UIBarButtonItem alloc]
-             initWithTitle:listController.title
+             initWithTitle:_listBrowser.title
              style:UIBarButtonItemStyleBordered
              target:self
              action:@selector(popoverAction:)]
@@ -122,15 +120,18 @@
 }
 @end
 
-@implementation GCImageBrowserViewController_iPad
+@implementation GCAssetBrowserViewController_iPad
 
-@synthesize browserDelegate=_browserDelegate;
-@synthesize leftView=_leftView;
-@synthesize rightView=_rightView;
+@synthesize picker=_picker;
+@synthesize leftView;
+@synthesize rightView;
 
 #pragma mark - object methods
-- (id)init {
+- (id)initWithImagePickerController:(GCImagePickerController *)picker {
     self = [super initWithNibName:@"GCImageBrowserViewController_iPad" bundle:nil];
+    if (self) {
+        _picker = [picker retain];
+    }
     return self;
 }
 - (void)dealloc {
@@ -140,8 +141,8 @@
 - (void)reloadData {
     [super reloadData];
     if ([self isViewLoaded]) {
-        [listController reloadData];
-        [gridController reloadData];
+        [_listBrowser reloadData];
+        [_gridBrowser reloadData];
     }
 }
 
@@ -150,24 +151,21 @@
     
     // super
     [super viewDidLoad];
-        
-    // make list view
-    ALAssetsLibrary *library = [[ALAssetsLibrary alloc] init];
-    listController = [[GCImageListBrowserController alloc] initWithAssetsLibrary:library];
-    listController.view.frame = self.leftView.bounds;
-    listController.view.autoresizingMask = (UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth);
-    listController.browserDelegate = self.browserDelegate;
-    listController.listBrowserDelegate = self;
-    listController.showDisclosureIndicators = NO;
-    [listController reloadData];
-    [self.leftView addSubview:listController.view];
-    [library release];
+    
+    // list view
+    _listBrowser = [[GCAssetListBrowser alloc] initWithImagePickerController:self.picker];
+    _listBrowser.view.frame = self.leftView.bounds;
+    _listBrowser.view.autoresizingMask = (UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth);
+    _listBrowser.listBrowserDelegate = self;
+    _listBrowser.showDisclosureIndicators = NO;
+    [_listBrowser reloadData];
+    [self.leftView addSubview:_listBrowser.view];
     
     // set asset group view
-    NSArray *groups = listController.assetsGroups;
+    NSArray *groups = _listBrowser.groups;
     if ([groups count]) {
-        ALAssetsGroup *group = [listController.assetsGroups objectAtIndex:0];
-        [self listBrowser:listController didSelectAssetGroup:group];
+        ALAssetsGroup *group = [groups objectAtIndex:0];
+        [self listBrowser:_listBrowser didSelectAssetGroup:group];
     }
     else {
         self.leftView.hidden = YES;
@@ -193,12 +191,12 @@
 }
 - (void)viewDidAppear:(BOOL)animated {
     [super viewDidAppear:animated];
-    [gridController.tableView flashScrollIndicators];
-    [listController.tableView flashScrollIndicators];
+    [_gridBrowser.tableView flashScrollIndicators];
+    [_listBrowser.tableView flashScrollIndicators];
 }
 
 #pragma mark - list browser delegate
-- (void)listBrowser:(GCImageListBrowserController *)controller didSelectAssetGroup:(ALAssetsGroup *)group {
+- (void)listBrowser:(GCAssetListBrowser *)browser didSelectAssetGroup:(ALAssetsGroup *)group {
     
     // dsimiss popover
     [popoverController dismissPopoverAnimated:YES];
@@ -206,39 +204,36 @@
     popoverController = nil;
     
     // get group stuff
-    NSString *groupID = [group valueForProperty:ALAssetsGroupPropertyPersistentID];
+    NSString *groupIdentifier = [group valueForProperty:ALAssetsGroupPropertyPersistentID];
     
     // unload old view
-    [gridController.view removeFromSuperview];
-    [gridController removeObserver:self forKeyPath:@"editing"];
-    [gridController removeObserver:self forKeyPath:@"title"];
-    [gridController removeObserver:self forKeyPath:@"actionButtonItem"];
-    [gridController release];
+    [_gridBrowser.view removeFromSuperview];
+    [_gridBrowser removeObserver:self forKeyPath:@"editing"];
+    [_gridBrowser removeObserver:self forKeyPath:@"title"];
+    [_gridBrowser release];
     
     // make new view
-    gridController = [[GCImageGridBrowserController alloc] initWithAssetsLibrary:controller.assetsLibrary groupIdentifier:groupID];
-    [gridController addObserver:self forKeyPath:@"editing" options:0 context:nil];
-    [gridController addObserver:self forKeyPath:@"title" options:0 context:nil];
-    [gridController addObserver:self forKeyPath:@"actionButtonItem" options:0 context:nil];
-    gridController.view.frame = self.rightView.bounds;
-    gridController.view.autoresizingMask = (UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight);
-    gridController.browserDelegate = self.browserDelegate;
-    gridController.numberOfAssetsPerRow = 6;
-    gridController.assetViewPadding = 10.0;
-    [gridController reloadData];
-    [self.rightView addSubview:gridController.view];
+    _gridBrowser = [[GCAssetGridBrowser alloc] initWithImagePickerController:browser.picker groupIdentifier:groupIdentifier];
+    [_gridBrowser addObserver:self forKeyPath:@"editing" options:0 context:0];
+    [_gridBrowser addObserver:self forKeyPath:@"title" options:0 context:0];
+    _gridBrowser.view.frame = self.rightView.bounds;
+    _gridBrowser.view.autoresizingMask = (UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight);
+    _gridBrowser.numberOfAssetsPerRow = 6;
+    _gridBrowser.assetViewPadding = 10.0;
+    [_gridBrowser reloadData];
+    [self.rightView addSubview:_gridBrowser.view];
     
     // update interface
     [self updateToolbarItems];
     [self updateViewLayout];
-    NSIndexPath *indexPath = [controller.tableView indexPathForSelectedRow];
-    [controller.tableView deselectRowAtIndexPath:indexPath animated:YES];
+    NSIndexPath *indexPath = [browser.tableView indexPathForSelectedRow];
+    [browser.tableView deselectRowAtIndexPath:indexPath animated:YES];
     
 }
 
 #pragma mark - view roration
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)orientation {
-    return YES;
+    GC_SHOULD_ALLOW_ORIENTATION(orientation);
 }
 - (void)willRotateToInterfaceOrientation:(UIInterfaceOrientation)orientation duration:(NSTimeInterval)duration {
     
@@ -255,9 +250,9 @@
         [popoverController dismissPopoverAnimated:NO];
         [popoverController release];
         popoverController = nil;
-        listController.view.frame = self.leftView.bounds;
-        [self.leftView addSubview:listController.view];
-        [self.leftView sendSubviewToBack:listController.view];
+        _listBrowser.view.frame = self.leftView.bounds;
+        [self.leftView addSubview:_listBrowser.view];
+        [self.leftView sendSubviewToBack:_listBrowser.view];
     }
         
 }
@@ -274,12 +269,12 @@
     }
     
     // self
-    if (object == gridController && [keyPath isEqualToString:@"editing"]) {
+    if (object == _gridBrowser && [keyPath isEqualToString:@"editing"]) {
         [self updateToolbarItems];
         [popoverController dismissPopoverAnimated:YES];
         [popoverController release];
         popoverController = nil;
-        if (gridController.editing) {
+        if (_gridBrowser.editing) {
             UIView *greyOut = [[UIView alloc] initWithFrame:self.leftView.bounds];
             greyOut.backgroundColor = [UIColor blackColor];
             greyOut.alpha = 0.0;
@@ -305,10 +300,10 @@
              }];
         }
     }
-    else if (object == gridController && [keyPath isEqualToString:@"title"]) {
-        self.title = gridController.title;
+    else if (object == _gridBrowser && [keyPath isEqualToString:@"title"]) {
+        self.title = _gridBrowser.title;
     }
-    else if (object == gridController && [keyPath isEqualToString:@"actionButtonItem"]) {
+    else if (object == _gridBrowser && [keyPath isEqualToString:@"actionButtonItem"]) {
         [self updateToolbarItems];
     }
 }
@@ -319,7 +314,7 @@
 }
 - (void)popoverAction:(UIBarButtonItem *)sender {
     if (popoverController == nil) {
-        GCImageBrowserViewController *controller = [[GCImageBrowserViewController alloc] initWithBrowser:listController];
+        GCAssetBrowserViewController *controller = [[GCAssetBrowserViewController alloc] initWithBrowser:_listBrowser];
         UINavigationController *navController = [[UINavigationController alloc] initWithRootViewController:controller];
         popoverController = [[UIPopoverController alloc] initWithContentViewController:navController];
         popoverController.delegate = self;

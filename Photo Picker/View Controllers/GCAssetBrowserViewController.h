@@ -22,26 +22,19 @@
  
  */
 
-#import "GCImageBrowserViewController.h"
-#import "GCImageListBrowserController.h"
-#import "GCImageGridBrowserController.h"
+#import "GCAssetBrowser.h"
 
-@class ALAssetsLibrary;
-
-// ipad image browser
-@interface GCImageBrowserViewController_iPad : GCImageBrowserViewController
-<UIPopoverControllerDelegate, GCImageListBrowserDelegate> {
-@private
-    GCImageListBrowserController *listController;
-    GCImageGridBrowserController *gridController;
-    UIPopoverController *popoverController;
+@interface GCAssetBrowserViewController : UIViewController {
+    
 }
 
-// data source
- @property (nonatomic, assign) id<GCImageBrowserDelegate> browserDelegate;
+// image browser
+@property (nonatomic, readonly) GCAssetBrowser *browser;
 
-// interface builder properties
-@property (nonatomic, retain) IBOutlet UIView *leftView;
-@property (nonatomic, retain) IBOutlet UIView *rightView;
+// designated initializer
+- (id)initWithBrowser:(GCAssetBrowser *)browser;
+
+// reload data
+- (void)reloadData;
 
 @end

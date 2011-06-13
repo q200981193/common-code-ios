@@ -22,16 +22,14 @@
  
  */
 
-#import "GCImageBrowserViewController_iPhone.h"
-#import "GCImageGridBrowserController.h"
+#import "GCAssetBrowserViewController_iPhone.h"
+#import "GCAssetGridBrowser.h"
 
-@implementation GCImageBrowserViewController_iPhone
+@implementation GCAssetBrowserViewController_iPhone
 
-#pragma mark - object lifecycle
-- (id)initWithBrowser:(GCImageBrowserController *)browser {
+- (id)initWithBrowser:(GCAssetBrowser *)browser {
     self = [super initWithBrowser:browser];
     if (self) {
-        self.wantsFullScreenLayout = YES;
         [self.browser
          addObserver:self
          forKeyPath:@"editing"
@@ -50,20 +48,26 @@
     [self.browser removeObserver:self forKeyPath:@"actionButtonItem"];
     [super dealloc];
 }
-
-#pragma mark - kvo
+- (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)orientation {
+    if (GC_IS_IPAD) { return YES; }
+    else {
+        return UIInterfaceOrientationIsLandscape(orientation) || orientation == UIInterfaceOrientationPortrait;
+    }
+}
+- (void)viewWillAppear:(BOOL)animated {
+    [super viewWillAppear:animated];
+    [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleDefault animated:animated];
+}
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context {
     
     // super
-    if ([super respondsToSelector:_cmd]) {
-        [super observeValueForKeyPath:keyPath ofObject:object change:change context:context];
-    }
+    [super observeValueForKeyPath:keyPath ofObject:object change:change context:context];
     
     // self
     NSArray *keys = [NSArray arrayWithObjects:@"editing", @"actionButtonItem", nil];
     if (object == self.browser && [keys containsObject:keyPath]) {
-        if ([self.browser isKindOfClass:[GCImageGridBrowserController class]]) {
-            GCImageGridBrowserController *gridBrowser = (GCImageGridBrowserController *)self.browser;
+        if ([self.browser isKindOfClass:[GCAssetGridBrowser class]]) {
+            GCAssetGridBrowser *gridBrowser = (GCAssetGridBrowser *)self.browser;
             if (gridBrowser.editing) {
                 self.navigationItem.leftBarButtonItem = gridBrowser.cancelButtonItem;
                 self.navigationItem.rightBarButtonItem = gridBrowser.actionButtonItem;
@@ -75,15 +79,6 @@
         }
     }
     
-}
-
-#pragma mark - view lifecycle
-- (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation {
-    return (interfaceOrientation == UIInterfaceOrientationPortrait);
-}
-- (void)viewWillAppear:(BOOL)animated {
-    [super viewWillAppear:animated];
-    [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleDefault animated:animated];
 }
 
 @end

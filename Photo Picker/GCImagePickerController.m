@@ -27,6 +27,7 @@
 #import "GCImagePickerController.h"
 #import "GCAssetBrowserViewController_iPad.h"
 #import "GCAssetBrowserViewController_iPhone.h"
+#import "GCAssetGridBrowser.h"
 
 #pragma mark - private methods
 @interface GCImagePickerController (private)
@@ -48,37 +49,38 @@
 #pragma mark - public implementation
 @implementation GCImagePickerController
 
-@synthesize actionTitle=_actionTitle;
-@synthesize actionEnabled=_actionEnabled;
-@synthesize actionBlock=_actionBlock;
-@synthesize mediaTypes=_mediaTypes;
+@synthesize actionTitle;
+@synthesize actionEnabled;
+@synthesize actionBlock;
+@synthesize mediaTypes;
+@synthesize assetsLibrary=_assetsLibrary;
 
 #pragma mark - object lifecycle
 - (id)init {
     self = [super init];
     if (self) {
         
+        // assets library
+        _assetsLibrary = [[ALAssetsLibrary alloc] init];
+        
         // base media types
         self.mediaTypes = [NSArray arrayWithObject:(NSString *)kUTTypeImage];
         
         // push root view
         if (GC_IS_IPAD) {
-            GCAssetBrowserViewController_iPad *controller = [[GCAssetBrowserViewController_iPad alloc] init];
-            controller.browserDelegate = self;
-            [self pushViewController:controller animated:NO];
-            [controller release];
+//            GCAssetBrowserViewController_iPad *controller = [[GCAssetBrowserViewController_iPad alloc] init];
+//            controller.browserDelegate = self;
+//            [self pushViewController:controller animated:NO];
+//            [controller release];
         }
         else {
             
             // browser
-            ALAssetsLibrary *library = [[ALAssetsLibrary alloc] init];
-            GCAssetListBrowser *browser = [[GCAssetListBrowser alloc] initWithAssetsLibrary:library];
-            browser.browserDelegate = self;
+            GCAssetListBrowser *browser = [[GCAssetListBrowser alloc] initWithImagePickerController:self];
             browser.listBrowserDelegate = self;
             browser.showDisclosureIndicators = YES;
-            [library release];
             
-            // view
+            // view controller
             GCAssetBrowserViewController_iPhone *controller = [[GCAssetBrowserViewController_iPhone alloc] initWithBrowser:browser];
             UIBarButtonItem *button = [[UIBarButtonItem alloc]
                                        initWithBarButtonSystemItem:UIBarButtonSystemItemDone
@@ -102,6 +104,8 @@
     self.mediaTypes = nil;
     self.actionTitle = nil;
     self.actionBlock = nil;
+    [_assetsLibrary release];
+    _assetsLibrary = nil;
     [super dealloc];
 }
 
@@ -111,20 +115,20 @@
 }
 
 #pragma mark - custom setters
-- (void)setActionEnabled:(BOOL)enabled {
-    _actionEnabled = enabled;
-    [self reloadData];
-}
-- (void)setActionTitle:(NSString *)title {
-    [_actionTitle release];
-    _actionTitle = [title copy];
-    [self reloadData];
-}
-- (void)setMediaTypes:(NSArray *)types {
-    [_mediaTypes release];
-    _mediaTypes = [types copy];
-    [self reloadData];
-}
+//- (void)setActionEnabled:(BOOL)enabled {
+//    _actionEnabled = enabled;
+//    [self reloadData];
+//}
+//- (void)setActionTitle:(NSString *)title {
+//    [_actionTitle release];
+//    _actionTitle = [title copy];
+//    [self reloadData];
+//}
+//- (void)setMediaTypes:(NSArray *)types {
+//    [_mediaTypes release];
+//    _mediaTypes = [types copy];
+//    [self reloadData];
+//}
 
 #pragma mark - browser delegate
 - (ALAssetsFilter *)assetsFilter {
@@ -169,9 +173,8 @@
     
     // make new browser
     GCAssetGridBrowser *gridBrowser = [[GCAssetGridBrowser alloc]
-                                       initWithAssetsLibrary:listBrowser.assetsLibrary
+                                       initWithImagePickerController:listBrowser.picker
                                        groupIdentifier:groupIdentifier];
-    gridBrowser.browserDelegate = self;
     gridBrowser.assetViewPadding = 4.0;
     gridBrowser.numberOfAssetsPerRow = 4;
     

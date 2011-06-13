@@ -25,8 +25,6 @@
 #import "GCAssetBrowser.h"
 #import "GCImagePickerController.h"
 
-static int GCAssetBrowserMediaTypesContext;
-
 @implementation GCAssetBrowser
 
 @synthesize title;
@@ -55,7 +53,7 @@ static int GCAssetBrowserMediaTypesContext;
              addObserver:self
              forKeyPath:@"mediaTypes"
              options:0
-             context:&GCAssetBrowserMediaTypesContext];
+             context:0];
         }
     }
     return self;
@@ -68,6 +66,8 @@ static int GCAssetBrowserMediaTypesContext;
      removeObserver:self
      name:ALAssetsLibraryChangedNotification
      object:self.picker.assetsLibrary];
+    [_picker release];
+    _picker = nil;
     self.view = nil;
     self.title = nil;
     [super dealloc];
@@ -79,7 +79,7 @@ static int GCAssetBrowserMediaTypesContext;
     [self reloadData];
 }
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context {
-    if (context == &GCAssetBrowserMediaTypesContext) {
+    if (object == self.picker && [keyPath isEqualToString:@"mediaTypes"]) {
         [self reloadData];
     }
 }

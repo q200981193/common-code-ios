@@ -30,8 +30,8 @@
 @implementation GCAssetListBrowser
 
 @synthesize groups=_groups;
-@synthesize showDisclosureIndicators=_showDisclosureIndicators;
-@synthesize listBrowserDelegate=_listBrowserDelegate;
+@synthesize showDisclosureIndicators;
+@synthesize listBrowserDelegate;
 
 #pragma mark - object methods
 - (id)initWithImagePickerController:(GCImagePickerController *)picker {

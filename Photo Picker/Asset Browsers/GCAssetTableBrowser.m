@@ -26,8 +26,8 @@
 
 @implementation GCAssetTableBrowser
 
-@synthesize tableView=_tableView;
-@synthesize imageView=_imageView;
+@synthesize tableView;
+@synthesize imageView;
 
 - (id)initWithImagePickerController:(GCImagePickerController *)picker {
     self = [super initWithImagePickerController:picker];

@@ -22,45 +22,27 @@
  
  */
 
-#import <UIKit/UIKit.h>
-#import <AssetsLibrary/AssetsLibrary.h>
+#import <Foundation/Foundation.h>
 
-#import "GCAssetListBrowser.h"
+@class ALAssetRepresentation;
+@class ALAssetsLibrary;
+@class UIViewController;
 
-// shortcut for loading localized resources
-#define GCImagePickerControllerLocalizedString(key) \
-NSLocalizedStringFromTable(key, @"GCImagePickerController", @"")
+@protocol GCImagePickerController <NSObject>
+@required
+@property (nonatomic, readonly) ALAssetsLibrary *assetsLibrary;
+@end
 
-// block called for each selected asset
-typedef void (^GCImagePickerControllerActionBlock)(ALAssetsLibrary *library, NSURL *URL);
-
-// a better image picker
-@interface GCImagePickerController : UINavigationController <GCAssetListBrowserDelegate> {
+@interface GCImagePickerController : NSObject {
     
 }
 
-// multi-select action
-@property (nonatomic, copy) NSString *actionTitle;
-@property (nonatomic, assign) BOOL actionEnabled;
-@property (nonatomic, copy) GCImagePickerControllerActionBlock actionBlock;
-
-// media types
-@property (nonatomic, copy) NSArray *mediaTypes;
-
-// properties for internal classes
-@property (nonatomic, readonly) ALAssetsLibrary *assetsLibrary;
-@property (nonatomic, readonly) ALAssetsFilter *assetsFilter;
-@property (nonatomic, readonly) ALAssetsLibraryAccessFailureBlock failureBlock;
-
-// make a picker
-- (id)init;
++ (UIViewController<GCImagePickerController> *)picker;
++ (NSString *)localizedString:(NSString *)key;
 
 @end
 
-// utility methods
-@interface GCImagePickerController (UtilityMethods)
-+ (NSData *)dataForAssetRepresentation:(ALAssetRepresentation *)rep;
-+ (void)writeDataForAssetRepresentation:(ALAssetRepresentation *)rep toFile:(NSString *)path atomically:(BOOL)atomically;
+@interface GCImagePickerController (UTIAdditions)
 + (NSString *)extensionForAssetRepresentation:(ALAssetRepresentation *)rep;
 + (NSString *)extensionForUTI:(CFStringRef)UTI;
 @end

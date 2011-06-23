@@ -22,9 +22,11 @@
  
  */
 
+#import <MessageUI/MessageUI.h>
+
 #import "GCIPTableViewController.h"
 
-@interface GCIPAssetPickerController : GCIPTableViewController <UIActionSheetDelegate> {
+@interface GCIPAssetPickerController : GCIPTableViewController <UIActionSheetDelegate, MFMailComposeViewControllerDelegate> {
 @private
     
     // asset containers

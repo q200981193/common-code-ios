@@ -22,7 +22,6 @@
  
  */
 
-#import <MessageUI/MessageUI.h>
 #import <MobileCoreServices/MobileCoreServices.h>
 
 #import "GCIPAssetPickerController.h"
@@ -40,7 +39,18 @@
 
 @implementation GCIPAssetPickerController (private)
 - (void)reloadTitle {
-    self.title = groupName;
+    NSUInteger count = [selectedAssetURLs count];
+    if (count == 1) {
+        self.title = [GCImagePickerController localizedString:@"PHOTO_COUNT_SINGLE"];
+    }
+    else if (count > 1) {
+        self.title = [NSString stringWithFormat:
+                      [GCImagePickerController localizedString:@"PHOTO_COUNT_MULTIPLE"],
+                      count];
+    }
+    else {
+        self.title = groupName;
+    }
 }
 - (void)reloadAssets {
     [self reloadAssetsWithGroupIdentifier:self.groupIdentifier];
@@ -226,6 +236,11 @@
     }
 }
 
+#pragma mark - mail compose
+- (void)mailComposeController:(MFMailComposeViewController *)controller didFinishWithResult:(MFMailComposeResult)result error:(NSError *)error {
+    [controller dismissModalViewControllerAnimated:YES];
+}
+
 #pragma mark - action sheet
 - (void)actionSheet:(UIActionSheet *)actionSheet clickedButtonAtIndex:(NSInteger)buttonIndex {
     NSString *title = [actionSheet buttonTitleAtIndex:buttonIndex];
@@ -249,6 +264,7 @@
     }
     else if ([title isEqualToString:[GCImagePickerController localizedString:@"EMAIL"]]) {
         MFMailComposeViewController *mail = [[MFMailComposeViewController alloc] init];
+        mail.mailComposeDelegate = self;
         NSUInteger index = 0;
         for (NSURL *URL in selectedAssetURLs) {
             [self.imagePickerController.assetsLibrary

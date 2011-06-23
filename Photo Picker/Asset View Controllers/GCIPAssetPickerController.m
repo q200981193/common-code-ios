@@ -238,6 +238,9 @@
 
 #pragma mark - mail compose
 - (void)mailComposeController:(MFMailComposeViewController *)controller didFinishWithResult:(MFMailComposeResult)result error:(NSError *)error {
+    if (result != MFMailComposeResultFailed && result != MFMailComposeResultCancelled) {
+        [self cancel];
+    }
     [controller dismissModalViewControllerAnimated:YES];
 }
 
@@ -271,12 +274,11 @@
              assetForURL:URL
              resultBlock:^(ALAsset *asset) {
                  ALAssetRepresentation *rep = [asset defaultRepresentation];
-                 UIImage *image = [[UIImage alloc] initWithCGImage:[rep fullScreenImage]];
+                 NSData *data = [GCImagePickerController dataForAssetRepresentation:rep];
                  [mail
-                  addAttachmentData:UIImagePNGRepresentation(image)
-                  mimeType:[GCImagePickerController MIMETypeForUTI:kUTTypePNG]
+                  addAttachmentData:data
+                  mimeType:[GCImagePickerController MIMETypeForAssetRepresentation:rep]
                   fileName:[NSString stringWithFormat:@"Item %lu", index]];
-                 [image release];
              }
              failureBlock:^(NSError *error) {
                  NSLog(@"%@", error);

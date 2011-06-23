@@ -44,9 +44,10 @@ typedef void (^GCImagePickerControllerActionBlock) (NSURL *assetURL, BOOL *stop)
 
 @end
 
-@interface GCImagePickerController (UTIAdditions)
+@interface GCImagePickerController (utilities)
 + (NSString *)extensionForAssetRepresentation:(ALAssetRepresentation *)rep;
 + (NSString *)MIMETypeForAssetRepresentation:(ALAssetRepresentation *)rep;
 + (NSString *)extensionForUTI:(CFStringRef)UTI;
 + (NSString *)MIMETypeForUTI:(CFStringRef)UTI;
++ (NSData *)dataForAssetRepresentation:(ALAssetRepresentation *)rep;
 @end

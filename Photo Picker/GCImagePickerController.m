@@ -47,7 +47,7 @@
 
 @end
 
-@implementation GCImagePickerController (UTIAdditions)
+@implementation GCImagePickerController (utilities)
 + (NSString *)extensionForAssetRepresentation:(ALAssetRepresentation *)rep {
     NSString *UTI = [rep UTI];
     if (UTI == nil) {
@@ -102,5 +102,25 @@
             return [(NSString *)MIME autorelease];
         }
     }
+}
++ (NSData *)dataForAssetRepresentation:(ALAssetRepresentation *)rep {
+    [rep retain];
+    long long size = [rep size];
+    long long offset = 0;
+    NSMutableData *data = [NSMutableData dataWithCapacity:size];
+    while (offset < size) {
+        uint8_t bytes[1024];
+        NSError *error = nil;
+        NSUInteger written = [rep getBytes:bytes fromOffset:offset length:1024 error:&error];
+        if (error != nil) {
+			GC_LOG_ERROR(@"%@", error);
+			data = nil;
+			break;
+		}
+        [data appendBytes:bytes length:written];
+        offset += written;
+    }
+    [rep release];
+    return data;
 }
 @end

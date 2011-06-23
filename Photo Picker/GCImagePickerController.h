@@ -33,6 +33,8 @@ typedef void (^GCImagePickerControllerActionBlock) (NSURL *assetURL, BOOL *stop)
 @required
 @property (nonatomic, readonly) ALAssetsLibrary *assetsLibrary;
 @property (nonatomic, copy) GCImagePickerControllerActionBlock actionBlock;
+@property (nonatomic, copy) NSString *actionTitle;
+@property (nonatomic, assign) BOOL actionEnabled;
 @end
 
 @interface GCImagePickerController : NSObject {

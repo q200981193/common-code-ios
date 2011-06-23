@@ -29,20 +29,22 @@
 
 @implementation GCIPViewController_Phone
 
-@synthesize assetsLibrary=library;
-@synthesize actionBlock=_block;
+@synthesize assetsLibrary=_library;
+@synthesize actionBlock=_actionBlock;
+@synthesize actionTitle=_actionTitle;
+@synthesize actionEnabled=_actionEnabled;
 
 - (id)initWithRootViewController:(UIViewController *)controller {
     GCIPGroupPickerController *picker = [[GCIPGroupPickerController alloc] init];
     picker.pickerDelegate = self;
     self = [super initWithRootViewController:picker];
-    if (self) { library = [[ALAssetsLibrary alloc] init]; }
+    if (self) { _library = [[ALAssetsLibrary alloc] init]; }
     [picker release];
     return self;
 }
 - (void)dealloc {
-    [library release];
-    library = nil;
+    [_library release];
+    _library = nil;
     self.actionBlock = nil;
     [super dealloc];
 }

@@ -22,16 +22,14 @@
  
  */
 
-#import "GCAssetBrowser.h"
+#import <UIKit/UIKit.h>
 
-@interface GCAssetTableBrowser : GCAssetBrowser <UITableViewDelegate, UITableViewDataSource> {
-    
+#import "GCImagePickerController.h"
+#import "GCIPGroupPickerController.h"
+
+@interface GCIPViewController_Pad : UISplitViewController <GCImagePickerController, GCIPGroupPickerControllerDelegate> {
+@private
+    ALAssetsLibrary *library;
 }
-
-// table view
-@property (nonatomic, retain) IBOutlet UITableView *tableView;
-
-// image to show when table is empty
-@property (nonatomic, retain) IBOutlet UIImageView *imageView;
 
 @end

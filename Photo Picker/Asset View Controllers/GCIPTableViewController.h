@@ -22,22 +22,13 @@
  
  */
 
-#import <UIKit/UIKit.h>
+#import "GCIPViewController.h"
 
-@class ALAsset;
-
-// show an asset and optionally select it
-@interface GCAssetGridAssetView : UIView {
+@interface GCIPTableViewController : GCIPViewController <UITableViewDelegate, UITableViewDataSource> {
     
 }
 
-// asset to show
-@property (nonatomic, retain) ALAsset *asset;
-
-// set to show green checkmark
-@property (nonatomic, assign) BOOL selected;
-
-// designated initializer
-- (id)initWithFrame:(CGRect)frame;
+@property (nonatomic, retain) IBOutlet UITableView *tableView;
+@property (nonatomic, retain) IBOutlet UIImageView *imageView;
 
 @end

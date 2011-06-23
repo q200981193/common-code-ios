@@ -24,18 +24,17 @@
 
 #import <UIKit/UIKit.h>
 
-// protocol
-@class GCImageGridCell;
-@protocol GCImageGridCellDelegate <NSObject>
-@required
-- (void)positionView:(UIView *)view forIndex:(NSUInteger)index;
-@end
+@class ALAsset;
 
-// class
-@interface GCImageGridCell : UITableViewCell {
-    
+// show an asset and optionally select it
+@interface GCIPAssetPickerAssetView : UIView {
+@private
+    UIImageView *thumbnailView;
+    UIImageView *videoIconView;
+    UIImageView *selectedIconView;
 }
 
-@property (nonatomic, assign) id<GCImageGridCellDelegate> delegate;
+@property (nonatomic, assign) BOOL selected;
+@property (nonatomic, retain) ALAsset *asset;
 
 @end

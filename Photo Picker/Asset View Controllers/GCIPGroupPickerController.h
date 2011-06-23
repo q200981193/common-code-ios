@@ -22,26 +22,24 @@
  
  */
 
-#import "GCAssetTableBrowser.h"
+#import "GCIPTableViewController.h"
 
-@class GCAssetListBrowser;
-
-@protocol GCAssetListBrowserDelegate <NSObject>
+// group picker delegate
+@class ALAssetsGroup;
+@class GCIPGroupPickerController;
+@protocol GCIPGroupPickerControllerDelegate <NSObject>
 @required
-- (void)listBrowser:(GCAssetListBrowser *)controller didSelectAssetGroup:(ALAssetsGroup *)group;
+- (void)groupPicker:(GCIPGroupPickerController *)picker didPickGroup:(ALAssetsGroup *)group;
 @end
 
-@interface GCAssetListBrowser : GCAssetTableBrowser {
-    
+// assets group picker
+@protocol GCImagePickerController;
+@interface GCIPGroupPickerController : GCIPTableViewController {
+@private
+    NSArray *groups;
 }
 
-// all groups shown by the table
-@property (nonatomic, readonly) NSArray *groups;
-
-// enable or disable disclosure indicators in table
-@property (nonatomic, assign) BOOL showDisclosureIndicators;
-
-// get callback for group selection
-@property (nonatomic, assign) id<GCAssetListBrowserDelegate> listBrowserDelegate;
+// group picker delegate
+@property (nonatomic, assign) id<GCIPGroupPickerControllerDelegate> pickerDelegate;
 
 @end

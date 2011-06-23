@@ -22,85 +22,102 @@
  
  */
 
-#import "GCAssetListBrowser.h"
+#import "GCIPGroupPickerController.h"
+
 #import "GCImagePickerController.h"
 
-#import "ALAssetsLibrary+CustomAccessors.h"
+#import "ALAssetsLibrary+GCImagePickerControllerAdditions.h"
 
-@implementation GCAssetListBrowser
+@implementation GCIPGroupPickerController
 
-@synthesize groups=_groups;
-@synthesize showDisclosureIndicators;
-@synthesize listBrowserDelegate;
+@synthesize pickerDelegate=_pickerDelegate;
 
 #pragma mark - object methods
-- (id)initWithImagePickerController:(GCImagePickerController *)picker {
-    self = [super initWithImagePickerController:picker];
+
+- (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil {
+    self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
     if (self) {
-		self.title = GCImagePickerControllerLocalizedString(@"PHOTO_LIBRARY");
-        self.showDisclosureIndicators = NO;
-	}
+        self.title = [GCImagePickerController localizedString:@"PHOTO_LIBRARY"];
+    }
     return self;
 }
 - (void)dealloc {
-    [self willChangeValueForKey:@"groups"];
-	[_groups release];
-	_groups = nil;
-    [self didChangeValueForKey:@"groups"];
+    [groups release];
+    groups = nil;
     [super dealloc];
 }
-- (void)reloadData {
-    
-    // kvo
-    [self willChangeValueForKey:@"groups"];
-    
-    // get new gruops
-    NSError *error = nil;
-    [_groups release];
-    _groups = [self.picker.assetsLibrary
-               assetGroupsWithTypes:ALAssetsGroupAll
-               assetsFilter:self.picker.assetsFilter
-               error:&error];
-    [_groups retain];
-    if (error) {
-        self.picker.failureBlock(error);
+- (UIViewController<GCImagePickerController> *)imagePickerController {
+    if ([self.parentViewController conformsToProtocol:@protocol(GCImagePickerController)]) {
+        return (UIViewController<GCImagePickerController> *)self.parentViewController;
     }
+    else {
+        return nil;
+    }
+}
+
+#pragma mark - view lifecycle
+- (void)viewDidLoad {
     
-    // kvo
-    [self didChangeValueForKey:@"groups"];
+    // super
+    [super viewDidLoad];
     
-    // reload view
-    [self.tableView reloadData];
-    self.tableView.hidden = ([_groups count] == 0);
+    // done button
+    UIBarButtonItem *item = [[UIBarButtonItem alloc]
+                             initWithBarButtonSystemItem:UIBarButtonSystemItemDone
+                             target:self
+                             action:@selector(done)];
+    self.navigationItem.rightBarButtonItem = item;
+    [item release];
     
+    // table view
+    self.tableView.rowHeight = 60.0;
+    
+    // load groups
+    [groups release];
+    NSError *error = nil;
+    groups = [self.imagePickerController.assetsLibrary
+              gc_assetGroupsWithTypes:ALAssetsGroupAll
+              assetsFilter:[ALAssetsFilter allAssets]
+              error:&error];
+    if (error) {
+        
+    }
+    [groups retain];
+    
+}
+- (void)viewWillAppear:(BOOL)animated {
+    [super viewWillAppear:animated];
+    [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleDefault animated:animated];
+}
+
+#pragma mark - button actions
+- (void)done {
+    [self dismissModalViewControllerAnimated:YES];
 }
 
 #pragma mark - table view
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
 	return 60.0;
 }
-- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
-	return 1;
-}
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
-	return [self.groups count];
+	return [groups count];
 }
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
 	static NSString *CellIdentifier = @"Cell";
     UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier];
     if (cell == nil) {
         cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleValue1 reuseIdentifier:CellIdentifier] autorelease];
-        cell.accessoryType = (self.showDisclosureIndicators) ? UITableViewCellAccessoryDisclosureIndicator : UITableViewCellAccessoryNone;
+        cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
     }
-    ALAssetsGroup *group = [self.groups objectAtIndex:indexPath.row];
+    ALAssetsGroup *group = [groups objectAtIndex:indexPath.row];
 	cell.textLabel.text = [group valueForProperty:ALAssetsGroupPropertyName];
 	cell.imageView.image = [UIImage imageWithCGImage:[group posterImage]];
 	cell.detailTextLabel.text = [NSString stringWithFormat:@"%d", [group numberOfAssets]];
     return cell;
 }
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
-    ALAssetsGroup *group = [self.groups objectAtIndex:indexPath.row];
-    [self.listBrowserDelegate listBrowser:self didSelectAssetGroup:group];
+    ALAssetsGroup *group = [groups objectAtIndex:indexPath.row];
+    [self.pickerDelegate groupPicker:self didPickGroup:group];
 }
 
 @end

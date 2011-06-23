@@ -58,6 +58,16 @@
         return [GCImagePickerController extensionForUTI:(CFStringRef)UTI];
     }
 }
++ (NSString *)MIMETypeForAssetRepresentation:(ALAssetRepresentation *)rep {
+    NSString *UTI = [rep UTI];
+    if (UTI == nil) {
+        GC_LOG_ERROR(@"Missing UTI for asset representation %@", UTI);
+        return nil;
+    }
+    else {
+        return [GCImagePickerController MIMETypeForUTI:(CFStringRef)UTI];
+    }
+}
 + (NSString *)extensionForUTI:(CFStringRef)UTI {
     if (UTI == NULL) {
         GC_LOG_WARN(@"Requested extension for nil UTI");
@@ -74,6 +84,22 @@
         }
         else {
             return [(NSString *)extension autorelease];
+        }
+    }
+}
++ (NSString *)MIMETypeForUTI:(CFStringRef)UTI {
+    if (UTI == NULL) {
+        GC_LOG_WARN(@"Requested MIME for nil UTI");
+        return nil;
+    }
+    else {
+        CFStringRef MIME = UTTypeCopyPreferredTagWithClass(UTI, kUTTagClassMIMEType);
+        if (MIME == NULL) {
+            GC_LOG_ERROR(@"Missing MIME for UTI %@", (NSString *)UTI);
+            return nil;
+        }
+        else {
+            return [(NSString *)MIME autorelease];
         }
     }
 }

@@ -22,10 +22,10 @@
  
  */
 
-#import "ALAssetsLibrary+CustomAccessors.h"
+#import "ALAssetsLibrary+GCImagePickerControllerAdditions.h"
 
-@implementation ALAssetsLibrary (CustomAccessors)
-- (NSArray *)assetGroupsWithTypes:(ALAssetsGroupType)types assetsFilter:(ALAssetsFilter *)filter error:(NSError **)error {
+@implementation ALAssetsLibrary (GCImagePickerControllerAdditions)
+- (NSArray *)gc_assetGroupsWithTypes:(ALAssetsGroupType)types assetsFilter:(ALAssetsFilter *)filter error:(NSError **)error {
     
     // this will be returned
     __block NSMutableArray *groups = nil;
@@ -88,7 +88,7 @@
     return [groups autorelease];
     
 }
-- (NSArray *)assetsInGroupWithIdentifier:(NSString *)identifier filter:(ALAssetsFilter *)filter group:(ALAssetsGroup **)inGroup error:(NSError **)inError {
+- (NSArray *)gc_assetsInGroupWithIdentifier:(NSString *)identifier filter:(ALAssetsFilter *)filter group:(ALAssetsGroup **)inGroup error:(NSError **)inError {
     
     // this will be returned
     __block NSMutableArray *assets = nil;

@@ -22,19 +22,39 @@
  
  */
 
-#import "GCAssetBrowser.h"
+#import <AssetsLibrary/AssetsLibrary.h>
 
-@interface GCAssetBrowserViewController : UIViewController {
-    
+#import "GCIPViewController_Pad.h"
+#import "GCIPAssetPickerController.h"
+
+@implementation GCIPViewController_Pad
+
+@synthesize assetsLibrary=library;
+
+- (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil {
+    self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
+    if (self) {
+        
+        // load groups
+        GCIPGroupPickerController *groupPicker = [[GCIPGroupPickerController alloc] initWithNibName:nil bundle:nil];
+        [groupPicker view];
+        
+        GCIPAssetPickerController *assetPicker = [[GCIPAssetPickerController alloc] initWithNibName:nil bundle:nil];
+        
+        // make array
+        self.viewControllers = [NSArray arrayWithObjects:groupPicker, assetPicker, nil];
+        
+        // release
+        [groupPicker release];
+        [assetPicker release];
+        
+    }
+    return self;
 }
 
-// image browser
-@property (nonatomic, readonly) GCAssetBrowser *browser;
-
-// designated initializer
-- (id)initWithBrowser:(GCAssetBrowser *)browser;
-
-// reload data
-- (void)reloadData;
+#pragma mark - group picker delegate
+- (void)groupPicker:(GCIPGroupPickerController *)picker didPickGroup:(ALAssetsGroup *)group {
+    
+}
 
 @end

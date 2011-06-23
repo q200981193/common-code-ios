@@ -22,28 +22,27 @@
  
  */
 
-#import <UIKit/UIKit.h>
-#import <AssetsLibrary/AssetsLibrary.h>
+#import "GCIPViewController.h"
 
-@class GCImagePickerController;
+@interface GCIPViewController (private)
+- (UIViewController<GCImagePickerController> *)imagePickerControllerFromViewController:(UIViewController *)controller;
+@end
 
-@interface GCAssetBrowser : NSObject {
-    
+@implementation GCIPViewController (private)
+- (UIViewController<GCImagePickerController> *)imagePickerControllerFromViewController:(UIViewController *)controller {
+    if (controller == nil || [controller conformsToProtocol:@protocol(GCImagePickerController)]) {
+        return controller;
+    }
+    else {
+        return [self imagePickerControllerFromViewController:controller.parentViewController];
+    }
 }
+@end
 
-// title that a view controller can display
-@property (nonatomic, copy) NSString *title;
+@implementation GCIPViewController
 
-// view that a view controller can display
-@property (nonatomic, retain) IBOutlet UIView *view;
-
-// pointer back to image picker controller
-@property (nonatomic, readonly) GCImagePickerController *picker;
-
-// designated initializer
-- (id)initWithImagePickerController:(GCImagePickerController *)picker;
-
-// reload assets
-- (void)reloadData;
+- (UIViewController<GCImagePickerController> *)imagePickerController {
+    return [self imagePickerControllerFromViewController:self];
+}
 
 @end

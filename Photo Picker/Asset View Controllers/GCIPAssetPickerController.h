@@ -22,43 +22,24 @@
  
  */
 
-#import "GCAssetTableBrowser.h"
-#import "GCImageGridCell.h"
+#import "GCIPTableViewController.h"
 
-// grid browser delegate
-@class GCAssetGridBrowser;
-@protocol GCAssetGridBrowserDelegate <NSObject>
-@required
-- (void)gridBrowser:(GCAssetGridBrowser *)controller didSelectAssets:(NSSet *)assetURLs;
-@end
-
-// grid browser
-@interface GCAssetGridBrowser : GCAssetTableBrowser <GCImageGridCellDelegate> {
+@interface GCIPAssetPickerController : GCIPTableViewController <UIActionSheetDelegate> {
 @private
     
-    // assets
-    NSString *assetsGroupIdentifier;
-    NSString *assetsGroupTitle;
+    // asset containers
     NSMutableSet *selectedAssetURLs;
     NSArray *allAssets;
     
-    // button items
-    UIBarButtonItem *_actionButtonItem;
-    UIBarButtonItem *_cancelButtonItem;
+    // group name
+    NSString *groupName;
+    
+    // number of assets in a row
+    NSUInteger numberOfAssetsPerRow;
     
 }
 
-// view properties
-@property (nonatomic, assign) BOOL editing;
-@property (nonatomic, assign) id<GCAssetGridBrowserDelegate> gridBrowserDelegate;
-@property (nonatomic, assign) CGFloat assetViewPadding;
-@property (nonatomic, assign) NSUInteger numberOfAssetsPerRow;
-
-// button accessors
-@property (nonatomic, readonly) UIBarButtonItem *actionButtonItem;
-@property (nonatomic, readonly) UIBarButtonItem *cancelButtonItem;
-
-// initializer
-- (id)initWithImagePickerController:(GCImagePickerController *)picker groupIdentifier:(NSString *)identifier;
+// identifier of the group to browse
+@property (nonatomic, copy) NSString * groupIdentifier;
 
 @end

@@ -44,5 +44,7 @@
 
 @interface GCImagePickerController (UTIAdditions)
 + (NSString *)extensionForAssetRepresentation:(ALAssetRepresentation *)rep;
++ (NSString *)MIMETypeForAssetRepresentation:(ALAssetRepresentation *)rep;
 + (NSString *)extensionForUTI:(CFStringRef)UTI;
++ (NSString *)MIMETypeForUTI:(CFStringRef)UTI;
 @end

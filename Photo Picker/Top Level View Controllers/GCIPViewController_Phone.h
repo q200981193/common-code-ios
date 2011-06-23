@@ -22,33 +22,14 @@
  
  */
 
-#import "GCAssetTableBrowser.h"
+#import <UIKit/UIKit.h>
 
-@implementation GCAssetTableBrowser
+#import "GCImagePickerController.h"
+#import "GCIPGroupPickerController.h"
 
-@synthesize tableView;
-@synthesize imageView;
-
-- (id)initWithImagePickerController:(GCImagePickerController *)picker {
-    self = [super initWithImagePickerController:picker];
-    if (self) {
-        [[NSBundle mainBundle] loadNibNamed:@"GCAssetTableBrowser" owner:self options:nil];
-    }
-    return self;
-}
-- (void)dealloc {
-    self.tableView = nil;
-    self.imageView = nil;
-    [super dealloc];
-}
-- (NSInteger)numberOfSectionsInTableView:(UITableView *)aTableView {
-    return 0;
-}
-- (NSInteger)tableView:(UITableView *)aTableView numberOfRowsInSection:(NSInteger)section {
-    return 0;
-}
-- (UITableViewCell *)tableView:(UITableView *)aTableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
-    return nil;
+@interface GCIPViewController_Phone : UINavigationController <GCImagePickerController, GCIPGroupPickerControllerDelegate> {
+@private
+    ALAssetsLibrary *library;
 }
 
 @end

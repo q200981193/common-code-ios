@@ -22,33 +22,30 @@
  
  */
 
-#import <AssetsLibrary/AssetsLibrary.h>
+#import "GCIPTableViewController.h"
 
-@interface ALAssetsLibrary (CustomAccessors)
+@implementation GCIPTableViewController
 
+@synthesize tableView;
+@synthesize imageView;
 
-/*
- get assets groups sorted the same as seen in UIImagePickerController
- 
- types: filter group types. pass ALAssetGroupAll for all groups.
- filter: filter the types of assets shown. groups with no assets
-    matching the filter will be omitted.
- error: will be populated if no groups can be loaded.
- 
- returns: an array of groups.
- */
-- (NSArray *)assetGroupsWithTypes:(ALAssetsGroupType)types assetsFilter:(ALAssetsFilter *)filter error:(NSError **)error;
-
-/*
- get assets belonging to a certain group.
- 
- identifier: the persistent identifier of the group.
- filter: filter the types of assets returned.
- group: will be populated with the resulting group.
- error: will be populated if loading assets fails.
- 
- returns: an array of groups.
- */
-- (NSArray *)assetsInGroupWithIdentifier:(NSString *)identifier filter:(ALAssetsFilter *)filter group:(ALAssetsGroup **)inGroup error:(NSError **)inError;
+- (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil {
+    return [super initWithNibName:@"GCIPTableViewController" bundle:nil];
+}
+- (void)viewDidAppear:(BOOL)animated {
+    [super viewDidAppear:animated];
+    [self.tableView flashScrollIndicators];
+}
+- (void)viewWillAppear:(BOOL)animated {
+    [super viewWillAppear:animated];
+    NSIndexPath *indexPath = [self.tableView indexPathForSelectedRow];
+    [self.tableView deselectRowAtIndexPath:indexPath animated:animated];
+}
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
+    return 0;
+}
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
+    return 0;
+}
 
 @end

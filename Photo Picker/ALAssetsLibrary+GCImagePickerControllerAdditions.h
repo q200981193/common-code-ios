@@ -22,19 +22,33 @@
  
  */
 
-#import "GCImageGridCell.h"
+#import <AssetsLibrary/AssetsLibrary.h>
 
-@implementation GCImageGridCell
+@interface ALAssetsLibrary (GCImagePickerControllerAdditions)
 
-@synthesize delegate=_delegate;
 
-- (void)layoutSubviews {
-    [super layoutSubviews];
-    NSArray *subviews = self.contentView.subviews;
-    for (NSUInteger i = 0; i < [subviews count]; i++) {
-        UIView *view = [subviews objectAtIndex:i];
-        [self.delegate positionView:view forIndex:i];
-    }
-}
+/*
+ get assets groups sorted the same as seen in UIImagePickerController
+ 
+ types: filter group types. pass ALAssetGroupAll for all groups.
+ filter: filter the types of assets shown. groups with no assets
+    matching the filter will be omitted.
+ error: will be populated if no groups can be loaded.
+ 
+ returns: an array of groups.
+ */
+- (NSArray *)gc_assetGroupsWithTypes:(ALAssetsGroupType)types assetsFilter:(ALAssetsFilter *)filter error:(NSError **)error;
+
+/*
+ get assets belonging to a certain group.
+ 
+ identifier: the persistent identifier of the group.
+ filter: filter the types of assets returned.
+ group: will be populated with the resulting group.
+ error: will be populated if loading assets fails.
+ 
+ returns: an array of groups.
+ */
+- (NSArray *)gc_assetsInGroupWithIdentifier:(NSString *)identifier filter:(ALAssetsFilter *)filter group:(ALAssetsGroup **)inGroup error:(NSError **)inError;
 
 @end

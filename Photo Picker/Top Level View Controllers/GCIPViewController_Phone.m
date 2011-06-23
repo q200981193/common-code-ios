@@ -22,28 +22,33 @@
  
  */
 
-#import "GCAssetBrowserViewController.h"
-#import "GCAssetListBrowser.h"
+#import <AssetsLibrary/AssetsLibrary.h>
 
-@class GCImagePickerController;
-@class GCAssetGridBrowser;
+#import "GCIPViewController_Phone.h"
+#import "GCIPAssetPickerController.h"
 
-// ipad image browser
-@interface GCAssetBrowserViewController_iPad : GCAssetBrowserViewController
-<UIPopoverControllerDelegate, GCAssetListBrowserDelegate> {
-@private
-    GCAssetListBrowser *_listBrowser;
-    GCAssetGridBrowser *_gridBrowser;
-    UIPopoverController *popoverController;
+@implementation GCIPViewController_Phone
+
+@synthesize assetsLibrary=library;
+
+- (id)initWithRootViewController:(UIViewController *)controller {
+    GCIPGroupPickerController *picker = [[GCIPGroupPickerController alloc] init];
+    picker.pickerDelegate = self;
+    self = [super initWithRootViewController:picker];
+    if (self) { library = [[ALAssetsLibrary alloc] init]; }
+    [picker release];
+    return self;
 }
-
-// data source
-@property (nonatomic, readonly) GCImagePickerController *picker;
-
-// interface builder properties
-@property (nonatomic, retain) IBOutlet UIView *leftView;
-@property (nonatomic, retain) IBOutlet UIView *rightView;
-
-- (id)initWithImagePickerController:(GCImagePickerController *)picker;
+- (void)dealloc {
+    [library release];
+    library = nil;
+    [super dealloc];
+}
+- (void)groupPicker:(GCIPGroupPickerController *)picker didPickGroup:(ALAssetsGroup *)group {
+    GCIPAssetPickerController *controller = [[GCIPAssetPickerController alloc] initWithNibName:nil bundle:nil];
+    controller.groupIdentifier = [group valueForProperty:ALAssetsGroupPropertyPersistentID];
+    [self pushViewController:controller animated:YES];
+    [controller release];
+}
 
 @end

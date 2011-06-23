@@ -22,10 +22,15 @@
  
  */
 
-#import "GCAssetBrowserViewController.h"
+#import <UIKit/UIKit.h>
 
-@interface GCAssetBrowserViewController_iPhone : GCAssetBrowserViewController {
+@protocol GCImagePickerController;
+
+@interface GCIPViewController : UIViewController {
     
 }
+
+// get image picker
+@property (nonatomic, readonly) UIViewController<GCImagePickerController> *imagePickerController;
 
 @end

@@ -30,6 +30,7 @@
 @implementation GCIPViewController_Phone
 
 @synthesize assetsLibrary=library;
+@synthesize actionBlock=_block;
 
 - (id)initWithRootViewController:(UIViewController *)controller {
     GCIPGroupPickerController *picker = [[GCIPGroupPickerController alloc] init];
@@ -42,6 +43,7 @@
 - (void)dealloc {
     [library release];
     library = nil;
+    self.actionBlock = nil;
     [super dealloc];
 }
 - (void)groupPicker:(GCIPGroupPickerController *)picker didPickGroup:(ALAssetsGroup *)group {

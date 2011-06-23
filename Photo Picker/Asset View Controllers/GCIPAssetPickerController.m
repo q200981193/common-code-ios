@@ -285,7 +285,7 @@
         [self presentModalViewController:mail animated:YES];
     }
     else if ([title isEqualToString:@"UPLOAD"]) {
-        
+        [selectedAssetURLs enumerateObjectsUsingBlock:self.imagePickerController.actionBlock];
     }
 }
 

@@ -32,13 +32,15 @@
 #import "ALAssetsLibrary+GCImagePickerControllerAdditions.h"
 
 @interface GCIPAssetPickerController (private)
-- (void)reloadTitle;
-- (void)reloadAssets;
-- (void)reloadAssetsWithGroupIdentifier:(NSString *)identifier;
+- (void)updateTitle;
+- (void)loadAssets;
+- (void)loadAssetsWithGroupIdentifier:(NSString *)identifier;
+- (void)prepareForSelection;
+- (void)endSelection;
 @end
 
 @implementation GCIPAssetPickerController (private)
-- (void)reloadTitle {
+- (void)updateTitle {
     NSUInteger count = [selectedAssetURLs count];
     if (count == 1) {
         self.title = [GCImagePickerController localizedString:@"PHOTO_COUNT_SINGLE"];
@@ -52,10 +54,10 @@
         self.title = groupName;
     }
 }
-- (void)reloadAssets {
-    [self reloadAssetsWithGroupIdentifier:self.groupIdentifier];
+- (void)loadAssets {
+    [self loadAssetsWithGroupIdentifier:self.groupIdentifier];
 }
-- (void)reloadAssetsWithGroupIdentifier:(NSString *)identifier {
+- (void)loadAssetsWithGroupIdentifier:(NSString *)identifier {
     ALAssetsGroup *group = nil;
     NSError *error = nil;
     [allAssets release];
@@ -64,9 +66,39 @@
                   filter:[ALAssetsFilter allAssets]
                   group:&group
                   error:&error] copy];
+    if (group == nil || error != nil) {
+        // TODO: error checking
+    }
     [groupName release];
     groupName = [[group valueForProperty:ALAssetsGroupPropertyName] copy];
-    [self reloadTitle];
+    [self updateTitle];
+}
+- (void)prepareForSelection {
+    selecting = YES;
+    [selectedAssetURLs release];
+    selectedAssetURLs = [[NSMutableSet alloc] init];
+    [self updateTitle];
+    UIBarButtonItem *item;
+    item = [[UIBarButtonItem alloc]
+            initWithBarButtonSystemItem:UIBarButtonSystemItemAction
+            target:self
+            action:@selector(action:)];
+    self.navigationItem.rightBarButtonItem = item;
+    [item release];
+    item = [[UIBarButtonItem alloc]
+            initWithBarButtonSystemItem:UIBarButtonSystemItemCancel
+            target:self
+            action:@selector(endSelection)];
+    self.navigationItem.leftBarButtonItem = item;
+    [item release];
+}
+- (void)endSelection {
+    selecting = NO;
+    [selectedAssetURLs release];
+    selectedAssetURLs = nil;
+    [self updateTitle];
+    self.navigationItem.rightBarButtonItem = nil;
+    self.navigationItem.leftBarButtonItem = nil;
 }
 @end
 
@@ -74,11 +106,12 @@
 
 @synthesize groupIdentifier=_groupIdentifier;
 
+#pragma mark - object methods
 - (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil {
     self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
     if (self) {
-        if (GC_IS_IPAD) { numberOfAssetsPerRow = 6; }
-        else { numberOfAssetsPerRow = 4; }
+        numberOfAssetsPerRow = 4;
+        [self endSelection];
     }
     return self;
 }
@@ -96,7 +129,7 @@
 #pragma mark - view lifecycle
 - (void)viewDidLoad {
     [super viewDidLoad];
-    [self reloadAssets];
+    [self loadAssets];
     self.tableView.separatorStyle = UITableViewCellSeparatorStyleNone;
     self.tableView.contentInset = UIEdgeInsetsMake(GCIPAssetViewPadding, 0.0, 0.0, 0.0);
     UITapGestureRecognizer *gesture = [[UITapGestureRecognizer alloc]
@@ -104,6 +137,10 @@
                                        action:@selector(tableDidReceiveTap:)];
     [self.tableView addGestureRecognizer:gesture];
     [gesture release];
+}
+- (void)viewDidUnload {
+    [super viewDidUnload];
+    [self endSelection];
 }
 
 #pragma mark - accessors
@@ -125,9 +162,34 @@
     
     // reload
     if ([self isViewLoaded]) {
-        [self reloadAssetsWithGroupIdentifier:_groupIdentifier];
+        [self loadAssetsWithGroupIdentifier:_groupIdentifier];
     }
     
+}
+
+#pragma mark - button actions
+- (void)action:(UIBarButtonItem *)sender {
+    UIActionSheet *sheet = [[UIActionSheet alloc] init];
+    sheet.delegate = self;
+    id<GCImagePickerController> controller = self.imagePickerController;
+    if (controller.actionEnabled && controller.actionTitle) {
+        [sheet addButtonWithTitle:controller.actionTitle];
+    }
+    if ([selectedAssetURLs count] < 6 && [MFMailComposeViewController canSendMail]) {
+        [sheet addButtonWithTitle:[GCImagePickerController localizedString:@"EMAIL"]];
+    }
+    if ([selectedAssetURLs count] < 6) {
+        [sheet addButtonWithTitle:[GCImagePickerController localizedString:@"COPY"]];
+    }
+    if (GC_IS_IPAD) {
+        [sheet showFromBarButtonItem:sender animated:YES];
+    }
+    else {
+        [sheet addButtonWithTitle:[GCImagePickerController localizedString:@"CANCEL"]];
+        sheet.cancelButtonIndex = (sheet.numberOfButtons - 1);
+        [sheet showInView:self.view];
+    }
+    [sheet release];
 }
 
 #pragma mark - table view
@@ -153,38 +215,6 @@
     return cell;
 }
 
-#pragma mark - button actions
-- (void)action:(UIBarButtonItem *)sender {
-    UIActionSheet *sheet = [[UIActionSheet alloc] init];
-    sheet.delegate = self;
-    if (YES) {
-        [sheet addButtonWithTitle:@"UPLOAD"];
-    }
-    if ([selectedAssetURLs count] < 6 && [MFMailComposeViewController canSendMail]) {
-        [sheet addButtonWithTitle:[GCImagePickerController localizedString:@"EMAIL"]];
-    }
-    if ([selectedAssetURLs count] < 6) {
-        [sheet addButtonWithTitle:[GCImagePickerController localizedString:@"COPY"]];
-    }
-    if (GC_IS_IPAD) {
-        [sheet showFromBarButtonItem:sender animated:YES];
-    }
-    else {
-        [sheet addButtonWithTitle:@"CANCEL"];
-        sheet.cancelButtonIndex = (sheet.numberOfButtons - 1);
-        [sheet showInView:self.view.window];
-    }
-    [sheet release];
-}
-- (void)cancel {
-    [selectedAssetURLs release];
-    selectedAssetURLs = nil;
-    self.navigationItem.rightBarButtonItem = nil;
-    self.navigationItem.leftBarButtonItem = nil;
-    [self.tableView reloadData];
-    [self reloadTitle];
-}
-
 #pragma mark - gestures
 - (void)tableDidReceiveTap:(UITapGestureRecognizer *)gesture {
     CGPoint location = [gesture locationInView:gesture.view];
@@ -202,35 +232,37 @@
     }
     NSUInteger index = row * numberOfAssetsPerRow + column;
     if (index < [allAssets count]) {
+        
+        // get asset stuff
         ALAsset *asset = [allAssets objectAtIndex:index];
         ALAssetRepresentation *representation = [asset defaultRepresentation];
         NSURL *defaultURL = [representation url];
-        if (selectedAssetURLs == nil) {
-            selectedAssetURLs = [[NSMutableSet alloc] initWithCapacity:1];
-            UIBarButtonItem *item;
-            item = [[UIBarButtonItem alloc]
-                    initWithBarButtonSystemItem:UIBarButtonSystemItemAction
-                    target:self
-                    action:@selector(action:)];
-            self.navigationItem.rightBarButtonItem = item;
-            [item release];
-            item = [[UIBarButtonItem alloc]
-                    initWithBarButtonSystemItem:UIBarButtonSystemItemCancel
-                    target:self
-                    action:@selector(cancel)];
-            self.navigationItem.leftBarButtonItem = item;
-            [item release];
+        
+        // enter select mode
+        if (!selecting) {
+            [self prepareForSelection];
         }
+        
+        // modify set
         if ([selectedAssetURLs containsObject:defaultURL]) {
             [selectedAssetURLs removeObject:defaultURL];
         }
         else {
             [selectedAssetURLs addObject:defaultURL];
         }
+        
+        // check set count
         if ([selectedAssetURLs count] == 0) {
-            [self cancel];
+            [self endSelection];
         }
-        [self reloadTitle];
+        else {
+            id<GCImagePickerController> controller = self.imagePickerController;
+            BOOL action = (controller.actionTitle && controller.actionEnabled);
+            BOOL count = ([selectedAssetURLs count] < 6);
+            self.navigationItem.rightBarButtonItem.enabled = (action || count);
+        }
+        
+        [self updateTitle];
         NSArray *paths = [NSArray arrayWithObject:[NSIndexPath indexPathForRow:row inSection:0]];
         [self.tableView reloadRowsAtIndexPaths:paths withRowAnimation:UITableViewRowAnimationNone];
     }
@@ -239,7 +271,7 @@
 #pragma mark - mail compose
 - (void)mailComposeController:(MFMailComposeViewController *)controller didFinishWithResult:(MFMailComposeResult)result error:(NSError *)error {
     if (result != MFMailComposeResultFailed && result != MFMailComposeResultCancelled) {
-        [self cancel];
+        [self endSelection];
     }
     [controller dismissModalViewControllerAnimated:YES];
 }
@@ -247,6 +279,7 @@
 #pragma mark - action sheet
 - (void)actionSheet:(UIActionSheet *)actionSheet clickedButtonAtIndex:(NSInteger)buttonIndex {
     NSString *title = [actionSheet buttonTitleAtIndex:buttonIndex];
+    id<GCImagePickerController> controller = self.imagePickerController;
     if ([title isEqualToString:[GCImagePickerController localizedString:@"COPY"]]) {
         UIPasteboard *board = [UIPasteboard generalPasteboard];
         NSMutableArray *images = [NSMutableArray arrayWithCapacity:[selectedAssetURLs count]];
@@ -264,6 +297,7 @@
              }];
         }
         board.images = images;
+        [self endSelection];
     }
     else if ([title isEqualToString:[GCImagePickerController localizedString:@"EMAIL"]]) {
         MFMailComposeViewController *mail = [[MFMailComposeViewController alloc] init];
@@ -286,8 +320,9 @@
         }
         [self presentModalViewController:mail animated:YES];
     }
-    else if ([title isEqualToString:@"UPLOAD"]) {
-        [selectedAssetURLs enumerateObjectsUsingBlock:self.imagePickerController.actionBlock];
+    else if ([title isEqualToString:controller.actionTitle]) {
+        [selectedAssetURLs enumerateObjectsUsingBlock:controller.actionBlock];
+        [self endSelection];
     }
 }
 

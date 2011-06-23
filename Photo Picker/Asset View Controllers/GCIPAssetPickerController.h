@@ -29,15 +29,16 @@
 @interface GCIPAssetPickerController : GCIPTableViewController <UIActionSheetDelegate, MFMailComposeViewControllerDelegate> {
 @private
     
-    // asset containers
-    NSMutableSet *selectedAssetURLs;
+    // asset resources
     NSArray *allAssets;
+    NSUInteger numberOfAssetsPerRow;
+    
+    // selection resources
+    NSMutableSet *selectedAssetURLs;
+    BOOL selecting;
     
     // group name
     NSString *groupName;
-    
-    // number of assets in a row
-    NSUInteger numberOfAssetsPerRow;
     
 }
 

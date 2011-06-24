@@ -171,6 +171,7 @@
 - (void)viewDidUnload {
     [super viewDidUnload];
     [self endSelection];
+    hasSheet = NO;
 }
 
 #pragma mark - accessors
@@ -199,27 +200,30 @@
 
 #pragma mark - button actions
 - (void)action:(UIBarButtonItem *)sender {
-    UIActionSheet *sheet = [[UIActionSheet alloc] init];
-    sheet.delegate = self;
-    id<GCImagePickerController> controller = self.imagePickerController;
-    if (controller.actionEnabled && controller.actionTitle) {
-        [sheet addButtonWithTitle:controller.actionTitle];
+    if (!hasSheet) {
+        hasSheet = YES;
+        UIActionSheet *sheet = [[UIActionSheet alloc] init];
+        sheet.delegate = self;
+        id<GCImagePickerController> controller = self.imagePickerController;
+        if (controller.actionEnabled && controller.actionTitle) {
+            [sheet addButtonWithTitle:controller.actionTitle];
+        }
+        if ([selectedAssetURLs count] < 6 && [MFMailComposeViewController canSendMail]) {
+            [sheet addButtonWithTitle:[GCImagePickerController localizedString:@"EMAIL"]];
+        }
+        if ([selectedAssetURLs count] < 6) {
+            [sheet addButtonWithTitle:[GCImagePickerController localizedString:@"COPY"]];
+        }
+        if (GC_IS_IPAD) {
+            [sheet showFromBarButtonItem:sender animated:YES];
+        }
+        else {
+            [sheet addButtonWithTitle:[GCImagePickerController localizedString:@"CANCEL"]];
+            sheet.cancelButtonIndex = (sheet.numberOfButtons - 1);
+            [sheet showInView:self.view];
+        }
+        [sheet release];
     }
-    if ([selectedAssetURLs count] < 6 && [MFMailComposeViewController canSendMail]) {
-        [sheet addButtonWithTitle:[GCImagePickerController localizedString:@"EMAIL"]];
-    }
-    if ([selectedAssetURLs count] < 6) {
-        [sheet addButtonWithTitle:[GCImagePickerController localizedString:@"COPY"]];
-    }
-    if (GC_IS_IPAD) {
-        [sheet showFromBarButtonItem:sender animated:YES];
-    }
-    else {
-        [sheet addButtonWithTitle:[GCImagePickerController localizedString:@"CANCEL"]];
-        sheet.cancelButtonIndex = (sheet.numberOfButtons - 1);
-        [sheet showInView:self.view];
-    }
-    [sheet release];
 }
 
 #pragma mark - table view
@@ -308,6 +312,9 @@
 
 #pragma mark - action sheet
 - (void)actionSheet:(UIActionSheet *)actionSheet clickedButtonAtIndex:(NSInteger)buttonIndex {
+    
+    // flag
+    hasSheet = NO;
     
     // cancel
     if (buttonIndex == actionSheet.cancelButtonIndex) {

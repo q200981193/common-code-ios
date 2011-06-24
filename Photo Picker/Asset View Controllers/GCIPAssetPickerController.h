@@ -36,6 +36,7 @@
     // selection resources
     NSMutableSet *selectedAssetURLs;
     BOOL selecting;
+    BOOL hasSheet;
     
     // group name
     NSString *groupName;

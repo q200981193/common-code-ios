@@ -42,8 +42,13 @@ CGFloat const GCIPAssetViewPadding = 4.0;
     self = [super initWithStyle:UITableViewCellStyleDefault reuseIdentifier:identifier];
     if (self) {
         numberOfAssets = count;
+        self.selectionStyle = UITableViewCellSelectionStyleNone;
     }
     return self;
+}
+- (void)dealloc {
+    self.assets = nil;
+    [super dealloc];
 }
 - (void)setAssets:(NSArray *)assets {
     [self setAssets:assets selected:nil];

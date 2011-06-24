@@ -228,6 +228,7 @@
     // setup asset view
     NSString *identifier = [group valueForProperty:ALAssetsGroupPropertyPersistentID];
     assetPicker.groupIdentifier = identifier;
+    [assetPicker.tableView scrollRectToVisible:CGRectZero animated:NO];
     [assetPicker.tableView flashScrollIndicators];
     
     // setup group view

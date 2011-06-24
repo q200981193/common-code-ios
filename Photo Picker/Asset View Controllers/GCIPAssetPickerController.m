@@ -161,6 +161,7 @@
     [self loadAssets];
     self.tableView.separatorStyle = UITableViewCellSeparatorStyleNone;
     self.tableView.contentInset = UIEdgeInsetsMake(GCIPAssetViewPadding, 0.0, 0.0, 0.0);
+    self.tableView.contentOffset = CGPointMake(0.0, -GCIPAssetViewPadding);
     UITapGestureRecognizer *gesture = [[UITapGestureRecognizer alloc]
                                        initWithTarget:self
                                        action:@selector(tableDidReceiveTap:)];

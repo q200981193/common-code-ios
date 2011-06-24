@@ -32,6 +32,11 @@
 - (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil {
     return [super initWithNibName:@"GCIPTableViewController" bundle:nil];
 }
+- (void)dealloc {
+    self.tableView = nil;
+    self.imageView = nil;
+    [super dealloc];
+}
 - (void)viewDidAppear:(BOOL)animated {
     [super viewDidAppear:animated];
     [self.tableView flashScrollIndicators];

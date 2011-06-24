@@ -61,6 +61,7 @@ void GCReachabilityDidChangeCallback(SCNetworkReachabilityRef target, SCNetworkR
     if (reachability == nil) {
         reachability = [[GCReachability alloc] initWithHost:host];
         [reachabilityObjects setObject:reachability forKey:host];
+        [reachability release];
     }
     return reachability;
 }

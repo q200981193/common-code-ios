@@ -43,6 +43,7 @@
     [library release];
     library = nil;
     self.actionBlock = nil;
+    self.actionTitle = nil;
     [super dealloc];
 }
 - (void)groupPicker:(GCIPGroupPickerController *)picker didPickGroup:(ALAssetsGroup *)group {

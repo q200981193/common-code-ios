@@ -117,6 +117,8 @@
     assetPicker = nil;
     [library release];
     library = nil;
+    self.actionBlock = nil;
+    self.actionTitle = nil;
     [popover dismissPopoverAnimated:NO];
     [self popoverControllerDidDismissPopover:popover];
     [super dealloc];

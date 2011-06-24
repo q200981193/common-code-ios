@@ -25,11 +25,9 @@
 #import <AssetsLibrary/AssetsLibrary.h>
 
 #import "GCIPViewController_Phone.h"
-#import "GCIPAssetPickerController.h"
 
 @implementation GCIPViewController_Phone
 
-@synthesize assetsLibrary=_library;
 @synthesize actionBlock=_actionBlock;
 @synthesize actionTitle=_actionTitle;
 @synthesize actionEnabled=_actionEnabled;
@@ -38,7 +36,6 @@
     GCIPGroupPickerController *picker = [[GCIPGroupPickerController alloc] init];
     picker.pickerDelegate = self;
     self = [super initWithRootViewController:picker];
-    if (self) { _library = [[ALAssetsLibrary alloc] init]; }
     [picker release];
     return self;
 }
@@ -53,6 +50,13 @@
     controller.groupIdentifier = [group valueForProperty:ALAssetsGroupPropertyPersistentID];
     [self pushViewController:controller animated:YES];
     [controller release];
+}
+#pragma mark - accessors
+- (ALAssetsLibrary *)assetsLibrary {
+    if (_library == nil) {
+        _library = [[ALAssetsLibrary alloc] init];
+    }
+    return _library;
 }
 
 @end

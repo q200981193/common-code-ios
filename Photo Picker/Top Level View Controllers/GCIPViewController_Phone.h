@@ -22,10 +22,9 @@
  
  */
 
-#import <UIKit/UIKit.h>
-
 #import "GCImagePickerController.h"
 #import "GCIPGroupPickerController.h"
+#import "GCIPAssetPickerController.h"
 
 @interface GCIPViewController_Phone : UINavigationController <GCImagePickerController, GCIPGroupPickerControllerDelegate> {
 @private

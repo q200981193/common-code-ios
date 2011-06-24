@@ -22,14 +22,31 @@
  
  */
 
-#import <UIKit/UIKit.h>
-
 #import "GCImagePickerController.h"
 #import "GCIPGroupPickerController.h"
+#import "GCIPAssetPickerController.h"
 
-@interface GCIPViewController_Pad : UISplitViewController <GCImagePickerController, GCIPGroupPickerControllerDelegate> {
+@interface GCIPViewController_Pad : UIViewController
+<GCImagePickerController, GCIPGroupPickerControllerDelegate, UIPopoverControllerDelegate> {
 @private
+    
+    // assets library
     ALAssetsLibrary *library;
+    
+    // master / detail controllers
+    UIViewController *masterViewController;
+    UIViewController *detailViewController;
+    
+    // handles to pickers
+    GCIPGroupPickerController *groupPicker;
+    GCIPAssetPickerController *assetPicker;
+    
+    // popover
+    UIPopoverController *popover;
+    
+    // buttons
+    UIBarButtonItem *popoverButton;
+    
 }
 
 @end

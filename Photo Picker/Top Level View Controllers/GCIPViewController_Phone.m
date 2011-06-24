@@ -40,8 +40,8 @@
     return self;
 }
 - (void)dealloc {
-    [_library release];
-    _library = nil;
+    [library release];
+    library = nil;
     self.actionBlock = nil;
     [super dealloc];
 }
@@ -53,10 +53,10 @@
 }
 #pragma mark - accessors
 - (ALAssetsLibrary *)assetsLibrary {
-    if (_library == nil) {
-        _library = [[ALAssetsLibrary alloc] init];
+    if (library == nil) {
+        library = [[ALAssetsLibrary alloc] init];
     }
-    return _library;
+    return library;
 }
 
 @end

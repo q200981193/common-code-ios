@@ -58,26 +58,42 @@
     [self loadAssetsWithGroupIdentifier:self.groupIdentifier];
 }
 - (void)loadAssetsWithGroupIdentifier:(NSString *)identifier {
+    
+    // end selection
+    [self endSelection];
+    
+    // load assets
     ALAssetsGroup *group = nil;
     NSError *error = nil;
     [allAssets release];
-    allAssets = [[self.imagePickerController.assetsLibrary
+    allAssets = [[[self.imagePickerController assetsLibrary]
                   gc_assetsInGroupWithIdentifier:identifier
                   filter:[ALAssetsFilter allAssets]
                   group:&group
                   error:&error] copy];
+    
+    // error check
     if (group == nil || error != nil) {
         // TODO: error checking
     }
+    
+    // get group name
     [groupName release];
     groupName = [[group valueForProperty:ALAssetsGroupPropertyName] copy];
+    
+    // reload stuff
     [self updateTitle];
+    [self.tableView reloadData];
+    
 }
 - (void)prepareForSelection {
+    
+    // change state
     selecting = YES;
+    
+    // create stuff
     [selectedAssetURLs release];
     selectedAssetURLs = [[NSMutableSet alloc] init];
-    [self updateTitle];
     UIBarButtonItem *item;
     item = [[UIBarButtonItem alloc]
             initWithBarButtonSystemItem:UIBarButtonSystemItemAction
@@ -91,14 +107,26 @@
             action:@selector(endSelection)];
     self.navigationItem.leftBarButtonItem = item;
     [item release];
+    
+    // reload stuff
+    [self updateTitle];
+    
 }
 - (void)endSelection {
+    
+    // change state
     selecting = NO;
+    
+    // release stuff
     [selectedAssetURLs release];
     selectedAssetURLs = nil;
-    [self updateTitle];
     self.navigationItem.rightBarButtonItem = nil;
     self.navigationItem.leftBarButtonItem = nil;
+    
+    // reload stuff
+    [self updateTitle];
+    [self.tableView reloadData];
+    
 }
 @end
 
@@ -110,7 +138,8 @@
 - (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil {
     self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
     if (self) {
-        numberOfAssetsPerRow = 4;
+        if (GC_IS_IPAD) { numberOfAssetsPerRow = 6; }
+        else { numberOfAssetsPerRow = 4; }
         [self endSelection];
     }
     return self;
@@ -278,13 +307,27 @@
 
 #pragma mark - action sheet
 - (void)actionSheet:(UIActionSheet *)actionSheet clickedButtonAtIndex:(NSInteger)buttonIndex {
+    
+    // cancel
+    if (buttonIndex == actionSheet.cancelButtonIndex) {
+        return;
+    }
+    
+    // bounds check
+    if (buttonIndex < 0 || buttonIndex >= actionSheet.numberOfButtons) {
+        return;
+    }
+    
+    // get resources
     NSString *title = [actionSheet buttonTitleAtIndex:buttonIndex];
     id<GCImagePickerController> controller = self.imagePickerController;
+    
+    // copy
     if ([title isEqualToString:[GCImagePickerController localizedString:@"COPY"]]) {
         UIPasteboard *board = [UIPasteboard generalPasteboard];
         NSMutableArray *images = [NSMutableArray arrayWithCapacity:[selectedAssetURLs count]];
         for (NSURL *URL in selectedAssetURLs) {
-            [self.imagePickerController.assetsLibrary
+            [[self.imagePickerController assetsLibrary]
              assetForURL:URL
              resultBlock:^(ALAsset *asset) {
                  ALAssetRepresentation *rep = [asset defaultRepresentation];
@@ -299,12 +342,14 @@
         board.images = images;
         [self endSelection];
     }
+    
+    // email
     else if ([title isEqualToString:[GCImagePickerController localizedString:@"EMAIL"]]) {
         MFMailComposeViewController *mail = [[MFMailComposeViewController alloc] init];
         mail.mailComposeDelegate = self;
         NSUInteger index = 0;
         for (NSURL *URL in selectedAssetURLs) {
-            [self.imagePickerController.assetsLibrary
+            [[self.imagePickerController assetsLibrary]
              assetForURL:URL
              resultBlock:^(ALAsset *asset) {
                  ALAssetRepresentation *rep = [asset defaultRepresentation];
@@ -320,10 +365,13 @@
         }
         [self presentModalViewController:mail animated:YES];
     }
+    
+    // action
     else if ([title isEqualToString:controller.actionTitle]) {
         [selectedAssetURLs enumerateObjectsUsingBlock:controller.actionBlock];
         [self endSelection];
     }
+    
 }
 
 @end

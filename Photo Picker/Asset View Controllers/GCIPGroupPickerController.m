@@ -31,6 +31,7 @@
 @implementation GCIPGroupPickerController
 
 @synthesize pickerDelegate=_pickerDelegate;
+@synthesize showDisclosureIndicators=_showDisclosureIndicators;
 
 #pragma mark - object methods
 
@@ -38,6 +39,7 @@
     self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
     if (self) {
         self.title = [GCImagePickerController localizedString:@"PHOTO_LIBRARY"];
+        self.showDisclosureIndicators = YES;
     }
     return self;
 }
@@ -45,14 +47,6 @@
     [groups release];
     groups = nil;
     [super dealloc];
-}
-- (UIViewController<GCImagePickerController> *)imagePickerController {
-    if ([self.parentViewController conformsToProtocol:@protocol(GCImagePickerController)]) {
-        return (UIViewController<GCImagePickerController> *)self.parentViewController;
-    }
-    else {
-        return nil;
-    }
 }
 
 #pragma mark - view lifecycle
@@ -62,12 +56,14 @@
     [super viewDidLoad];
     
     // done button
-    UIBarButtonItem *item = [[UIBarButtonItem alloc]
-                             initWithBarButtonSystemItem:UIBarButtonSystemItemDone
-                             target:self
-                             action:@selector(done)];
-    self.navigationItem.rightBarButtonItem = item;
-    [item release];
+    if (!GC_IS_IPAD) {
+        UIBarButtonItem *item = [[UIBarButtonItem alloc]
+                                 initWithBarButtonSystemItem:UIBarButtonSystemItemDone
+                                 target:self
+                                 action:@selector(done)];
+        self.navigationItem.rightBarButtonItem = item;
+        [item release];
+    }
     
     // table view
     self.tableView.rowHeight = 60.0;
@@ -75,7 +71,7 @@
     // load groups
     [groups release];
     NSError *error = nil;
-    groups = [self.imagePickerController.assetsLibrary
+    groups = [[self.imagePickerController assetsLibrary]
               gc_assetGroupsWithTypes:ALAssetsGroupAll
               assetsFilter:[ALAssetsFilter allAssets]
               error:&error];
@@ -107,7 +103,7 @@
     UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier];
     if (cell == nil) {
         cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleValue1 reuseIdentifier:CellIdentifier] autorelease];
-        cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
+        cell.accessoryType = (self.showDisclosureIndicators) ? UITableViewCellAccessoryDisclosureIndicator : UITableViewCellAccessoryNone;
     }
     ALAssetsGroup *group = [groups objectAtIndex:indexPath.row];
 	cell.textLabel.text = [group valueForProperty:ALAssetsGroupPropertyName];

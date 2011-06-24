@@ -42,4 +42,7 @@
 // group picker delegate
 @property (nonatomic, assign) id<GCIPGroupPickerControllerDelegate> pickerDelegate;
 
+// show or hide disclosure indicators
+@property (nonatomic, assign) BOOL showDisclosureIndicators;
+
 @end

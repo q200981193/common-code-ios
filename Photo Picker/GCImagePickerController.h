@@ -22,16 +22,17 @@
  
  */
 
-#import <Foundation/Foundation.h>
-#import <AssetsLibrary/AssetsLibrary.h>
+#import <UIKit/UIKit.h>
 
+@class ALAssetRepresentation;
+@class ALAssetsLibrary;
 @class UIViewController;
 
 typedef void (^GCImagePickerControllerActionBlock) (NSURL *assetURL, BOOL *stop);
 
 @protocol GCImagePickerController <NSObject>
 @required
-@property (nonatomic, readonly) ALAssetsLibrary *assetsLibrary;
+- (ALAssetsLibrary *)assetsLibrary;
 @property (nonatomic, copy) GCImagePickerControllerActionBlock actionBlock;
 @property (nonatomic, copy) NSString *actionTitle;
 @property (nonatomic, assign) BOOL actionEnabled;

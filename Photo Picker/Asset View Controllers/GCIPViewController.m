@@ -24,25 +24,6 @@
 
 #import "GCIPViewController.h"
 
-@interface GCIPViewController (private)
-- (UIViewController<GCImagePickerController> *)imagePickerControllerFromViewController:(UIViewController *)controller;
-@end
-
-@implementation GCIPViewController (private)
-- (UIViewController<GCImagePickerController> *)imagePickerControllerFromViewController:(UIViewController *)controller {
-    if (controller == nil || [controller conformsToProtocol:@protocol(GCImagePickerController)]) {
-        return controller;
-    }
-    else {
-        return [self imagePickerControllerFromViewController:controller.parentViewController];
-    }
-}
-@end
-
 @implementation GCIPViewController
-
-- (UIViewController<GCImagePickerController> *)imagePickerController {
-    return [self imagePickerControllerFromViewController:self];
-}
 
 @end

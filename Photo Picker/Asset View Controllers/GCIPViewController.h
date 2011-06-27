@@ -30,7 +30,6 @@
     
 }
 
-// get image picker
-@property (nonatomic, readonly) UIViewController<GCImagePickerController> *imagePickerController;
+@property (nonatomic, assign) id<GCImagePickerController> imagePickerController;
 
 @end

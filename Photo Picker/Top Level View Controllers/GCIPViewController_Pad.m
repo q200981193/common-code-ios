@@ -78,6 +78,7 @@
         // create group picker controller
         groupPicker = [[GCIPGroupPickerController alloc] initWithNibName:nil bundle:nil];
         groupPicker.pickerDelegate = self;
+        groupPicker.imagePickerController = self;
         groupPicker.showDisclosureIndicators = NO;
         masterViewController = [[UINavigationController alloc] initWithRootViewController:groupPicker];
         [masterViewController setValue:self forKey:@"parentViewController"];

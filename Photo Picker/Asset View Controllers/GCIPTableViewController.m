@@ -29,8 +29,8 @@
 @synthesize tableView;
 @synthesize imageView;
 
-- (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil {
-    return [super initWithNibName:@"GCIPTableViewController" bundle:nil];
+- (id)initWithNibName:(NSString *)name bundle:(NSBundle *)bundle {
+    return [super initWithNibName:@"GCIPTableViewController" bundle:bundle];
 }
 - (void)dealloc {
     self.tableView = nil;

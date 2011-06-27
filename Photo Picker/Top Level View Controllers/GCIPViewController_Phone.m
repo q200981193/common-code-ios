@@ -33,7 +33,8 @@
 @synthesize actionEnabled=_actionEnabled;
 
 - (id)initWithRootViewController:(UIViewController *)controller {
-    GCIPGroupPickerController *picker = [[GCIPGroupPickerController alloc] init];
+    GCIPGroupPickerController *picker = [[GCIPGroupPickerController alloc] initWithNibName:nil bundle:nil];
+    picker.imagePickerController = self;
     picker.pickerDelegate = self;
     self = [super initWithRootViewController:picker];
     [picker release];
@@ -47,10 +48,11 @@
     [super dealloc];
 }
 - (void)groupPicker:(GCIPGroupPickerController *)picker didPickGroup:(ALAssetsGroup *)group {
-    GCIPAssetPickerController *controller = [[GCIPAssetPickerController alloc] initWithNibName:nil bundle:nil];
-    controller.groupIdentifier = [group valueForProperty:ALAssetsGroupPropertyPersistentID];
-    [self pushViewController:controller animated:YES];
-    [controller release];
+    GCIPAssetPickerController *assetPicker = [[GCIPAssetPickerController alloc] initWithNibName:nil bundle:nil];
+    assetPicker.imagePickerController = self;
+    assetPicker.groupIdentifier = [group valueForProperty:ALAssetsGroupPropertyPersistentID];
+    [self pushViewController:assetPicker animated:YES];
+    [assetPicker release];
 }
 #pragma mark - accessors
 - (ALAssetsLibrary *)assetsLibrary {

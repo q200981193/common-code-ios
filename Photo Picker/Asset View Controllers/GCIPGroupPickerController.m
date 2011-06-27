@@ -35,8 +35,8 @@
 
 #pragma mark - object methods
 
-- (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil {
-    self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
+- (id)initWithNibName:(NSString *)name bundle:(NSBundle *)bundle {
+    self = [super initWithNibName:name bundle:bundle];
     if (self) {
         self.title = [GCImagePickerController localizedString:@"PHOTO_LIBRARY"];
         self.showDisclosureIndicators = YES;

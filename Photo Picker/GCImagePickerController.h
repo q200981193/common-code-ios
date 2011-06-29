@@ -23,16 +23,21 @@
  */
 
 #import <UIKit/UIKit.h>
+#import <AssetsLibrary/AssetsLibrary.h>
 
-@class ALAssetRepresentation;
-@class ALAssetsLibrary;
 @class UIViewController;
 
+// block to be called on each selected asset
 typedef void (^GCImagePickerControllerActionBlock) (NSURL *assetURL, BOOL *stop);
 
+// internal method to get failure block
+ALAssetsLibraryAccessFailureBlock GCImagePickerControllerLibraryFailureBlock();
+
+// common methods that top level controllers implement
 @protocol GCImagePickerController <NSObject>
 @required
 @property (nonatomic, readonly) ALAssetsLibrary *assetsLibrary;
+@property (nonatomic, copy) ALAssetsFilter *assetsFilter;
 @property (nonatomic, copy) GCImagePickerControllerActionBlock actionBlock;
 @property (nonatomic, copy) NSString *actionTitle;
 @property (nonatomic, assign) BOOL actionEnabled;
@@ -42,15 +47,28 @@ typedef void (^GCImagePickerControllerActionBlock) (NSURL *assetURL, BOOL *stop)
     
 }
 
+// get a picker view controller
 + (UIViewController<GCImagePickerController> *)picker;
+
+// get a localized string from the library
 + (NSString *)localizedString:(NSString *)key;
 
 @end
 
 @interface GCImagePickerController (utilities)
+
+// get the system extension given an asset representation
 + (NSString *)extensionForAssetRepresentation:(ALAssetRepresentation *)rep;
+
+// get the MIME type given an asset representation
 + (NSString *)MIMETypeForAssetRepresentation:(ALAssetRepresentation *)rep;
+
+// get the system extension for a given UTI
 + (NSString *)extensionForUTI:(CFStringRef)UTI;
+
+// get the MIME type for a given UTI
 + (NSString *)MIMETypeForUTI:(CFStringRef)UTI;
+
+// get data given an asset representation
 + (NSData *)dataForAssetRepresentation:(ALAssetRepresentation *)rep;
 @end

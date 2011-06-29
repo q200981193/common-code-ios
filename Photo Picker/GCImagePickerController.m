@@ -22,12 +22,38 @@
  
  */
 
-#import <AssetsLibrary/AssetsLibrary.h>
 #import <MobileCoreServices/MobileCoreServices.h>
 
 #import "GCImagePickerController.h"
 #import "GCIPViewController_Phone.h"
 #import "GCIPViewController_Pad.h"
+
+ALAssetsLibraryAccessFailureBlock GCImagePickerControllerLibraryFailureBlock() {
+    return ^(NSError *error){
+        NSLog(@"%@", error);
+        NSInteger code = [error code];
+        if (code == ALAssetsLibraryAccessUserDeniedError || code == ALAssetsLibraryAccessGloballyDeniedError) {
+            UIAlertView *alert = [[UIAlertView alloc]
+                                  initWithTitle:[GCImagePickerController localizedString:@"ERROR"]
+                                  message:[GCImagePickerController localizedString:@"PHOTO_ROLL_LOCATION_ERROR"]
+                                  delegate:nil
+                                  cancelButtonTitle:[GCImagePickerController localizedString:@"OK"]
+                                  otherButtonTitles:nil];
+            [alert show];
+            [alert release];
+        }
+        else {
+            UIAlertView *alert = [[UIAlertView alloc]
+                                  initWithTitle:[GCImagePickerController localizedString:@"ERROR"]
+                                  message:[GCImagePickerController localizedString:@"UNKNOWN_LIBRARY_ERROR"]
+                                  delegate:nil
+                                  cancelButtonTitle:[GCImagePickerController localizedString:@"OK"]
+                                  otherButtonTitles:nil];
+            [alert show];
+            [alert release];
+        }
+    };
+}
 
 @implementation GCImagePickerController
 

@@ -24,11 +24,15 @@
 
 #import "GCIPViewController.h"
 
+// defines base class for browsing assets in a table
 @interface GCIPTableViewController : GCIPViewController <UITableViewDelegate, UITableViewDataSource> {
     
 }
 
+// table view - this should be hidden when there are no assets
 @property (nonatomic, retain) IBOutlet UITableView *tableView;
+
+// icon to show when there are no assets
 @property (nonatomic, retain) IBOutlet UIImageView *imageView;
 
 @end

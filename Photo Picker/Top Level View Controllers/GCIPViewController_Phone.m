@@ -22,8 +22,6 @@
  
  */
 
-#import <AssetsLibrary/AssetsLibrary.h>
-
 #import "GCIPViewController_Phone.h"
 
 @implementation GCIPViewController_Phone
@@ -31,6 +29,7 @@
 @synthesize actionBlock=_actionBlock;
 @synthesize actionTitle=_actionTitle;
 @synthesize actionEnabled=_actionEnabled;
+@synthesize assetsFilter=_assetsFilter;
 
 - (id)initWithRootViewController:(UIViewController *)controller {
     GCIPGroupPickerController *picker = [[GCIPGroupPickerController alloc] initWithNibName:nil bundle:nil];

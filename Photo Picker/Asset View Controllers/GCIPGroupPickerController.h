@@ -24,23 +24,28 @@
 
 #import "GCIPTableViewController.h"
 
-// group picker delegate
-@class ALAssetsGroup;
 @class GCIPGroupPickerController;
+@class ALAssetsGroup;
+
+// group picker delegate
 @protocol GCIPGroupPickerControllerDelegate <NSObject>
 @required
+
+// callback for group selection
 - (void)groupPicker:(GCIPGroupPickerController *)picker didPickGroup:(ALAssetsGroup *)group;
+
 @end
 
-// assets group picker
-@protocol GCImagePickerController;
+// select a group (album, faces group, camera roll, etc)
 @interface GCIPGroupPickerController : GCIPTableViewController {
-@private
-    NSArray *groups;
+    
 }
 
 // group picker delegate
 @property (nonatomic, assign) id<GCIPGroupPickerControllerDelegate> pickerDelegate;
+
+// list of groups
+@property (nonatomic, copy) NSArray *groups;
 
 // show or hide disclosure indicators
 @property (nonatomic, assign) BOOL showDisclosureIndicators;

@@ -26,6 +26,7 @@
 
 #import "GCIPTableViewController.h"
 
+// select inidividual assets
 @interface GCIPAssetPickerController : GCIPTableViewController <UIActionSheetDelegate, MFMailComposeViewControllerDelegate> {
 @private
     
@@ -44,6 +45,6 @@
 }
 
 // identifier of the group to browse
-@property (nonatomic, copy) NSString * groupIdentifier;
+@property (nonatomic, copy) NSString *groupIdentifier;
 
 @end

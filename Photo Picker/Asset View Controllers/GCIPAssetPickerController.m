@@ -33,8 +33,7 @@
 
 @interface GCIPAssetPickerController (private)
 - (void)updateTitle;
-- (void)loadAssets;
-- (void)loadAssetsWithGroupIdentifier:(NSString *)identifier;
+- (void)reloadAssetsWithGroupIdentifier:(NSString *)identifier;
 - (void)prepareForSelection;
 - (void)endSelection;
 @end
@@ -54,37 +53,40 @@
         self.title = groupName;
     }
 }
-- (void)loadAssets {
-    [self loadAssetsWithGroupIdentifier:self.groupIdentifier];
-}
-- (void)loadAssetsWithGroupIdentifier:(NSString *)identifier {
-    
-    // end selection
-    [self endSelection];
-    
-    // load assets
-    ALAssetsGroup *group = nil;
-    NSError *error = nil;
-    [allAssets release];
-    allAssets = [[[self.imagePickerController assetsLibrary]
-                  gc_assetsInGroupWithIdentifier:identifier
-                  filter:[ALAssetsFilter allAssets]
-                  group:&group
-                  error:&error] copy];
-    
-    // error check
-    if (group == nil || error != nil) {
-        // TODO: error checking
+- (void)reloadAssetsWithGroupIdentifier:(NSString *)identifier {
+    if ([self isViewLoaded]) {
+        
+        // end selection
+        [self endSelection];
+        
+        // load assets
+        ALAssetsGroup *group = nil;
+        NSError *error = nil;
+        [allAssets release];
+        allAssets = [[[self.imagePickerController assetsLibrary]
+                      gc_assetsInGroupWithIdentifier:identifier
+                      filter:[ALAssetsFilter allAssets]
+                      group:&group
+                      error:&error] copy];
+        
+        // error check
+        if (!group) {
+            // TODO: group has gone missing
+        }
+        else if (error) {
+            ALAssetsLibraryAccessFailureBlock block = GCImagePickerControllerLibraryFailureBlock();
+            block(error);
+        }
+        
+        // get group name
+        [groupName release];
+        groupName = [[group valueForProperty:ALAssetsGroupPropertyName] copy];
+        
+        // reload stuff
+        [self updateTitle];
+        [self.tableView reloadData];
+        
     }
-    
-    // get group name
-    [groupName release];
-    groupName = [[group valueForProperty:ALAssetsGroupPropertyName] copy];
-    
-    // reload stuff
-    [self updateTitle];
-    [self.tableView reloadData];
-    
 }
 - (void)prepareForSelection {
     
@@ -154,11 +156,17 @@
     self.groupIdentifier = nil;
     [super dealloc];
 }
+- (void)reloadAssets {
+    [self reloadAssetsWithGroupIdentifier:self.groupIdentifier];
+}
 
 #pragma mark - view lifecycle
 - (void)viewDidLoad {
+    
+    // super
     [super viewDidLoad];
-    [self loadAssets];
+    
+    // table view
     self.tableView.separatorStyle = UITableViewCellSeparatorStyleNone;
     self.tableView.contentInset = UIEdgeInsetsMake(GCIPAssetViewPadding, 0.0, 0.0, 0.0);
     self.tableView.contentOffset = CGPointMake(0.0, -GCIPAssetViewPadding);
@@ -167,6 +175,10 @@
                                        action:@selector(tableDidReceiveTap:)];
     [self.tableView addGestureRecognizer:gesture];
     [gesture release];
+    
+    // reload
+    [self reloadAssets];
+    
 }
 - (void)viewDidUnload {
     [super viewDidUnload];
@@ -192,9 +204,7 @@
     }
     
     // reload
-    if ([self isViewLoaded]) {
-        [self loadAssetsWithGroupIdentifier:_groupIdentifier];
-    }
+    [self reloadAssetsWithGroupIdentifier:_groupIdentifier];
     
 }
 

@@ -45,15 +45,13 @@ typedef void (^GCNotificationBlock)(NSNotification *);
     [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleVersion"]]]
 
 // custom logging
-#define __GC_LOG(fmt, args...) NSLog(@"%s %d " fmt, __PRETTY_FUNCTION__, __LINE__, ##args)
+#define __GC_LOG(fmt, args...) NSLog(@"%s " fmt, __PRETTY_FUNCTION__, ##args)
+#define GC_LOG_ERROR(fmt, args...) __GC_LOG(fmt, ##args)
+#define GC_LOG_NSERROR(error) __GC_LOG(@"%@", error)
 #ifdef DEBUG
     #define GC_LOG_INFO(fmt, args...) __GC_LOG(fmt, ##args)
-    #define GC_LOG_WARN(fmt, args...) __GC_LOG(fmt, ##args)
-    #define GC_LOG_ERROR(fmt, args...) __GC_LOG(fmt, ##args)
 #else
     #define GC_LOG_INFO(fmt, args...)
-    #define GC_LOG_WARN(fmt, args...)
-    #define GC_LOG_ERROR(fmt, args...) __GC_LOG(fmt, ##args)
 #endif
 
 // singleton

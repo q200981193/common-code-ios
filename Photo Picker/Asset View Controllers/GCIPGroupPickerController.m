@@ -30,9 +30,9 @@
 
 @implementation GCIPGroupPickerController
 
-@synthesize pickerDelegate=_pickerDelegate;
-@synthesize showDisclosureIndicators=_showDisclosureIndicators;
-@synthesize groups=_groups;
+@synthesize pickerDelegate                  = __pickerDelegate;
+@synthesize showDisclosureIndicators        = __showDisclosureIndicators;
+@synthesize groups                          = __groups;
 
 #pragma mark - object methods
 - (id)initWithNibName:(NSString *)name bundle:(NSBundle *)bundle {

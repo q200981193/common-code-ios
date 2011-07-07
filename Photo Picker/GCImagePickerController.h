@@ -71,4 +71,8 @@ ALAssetsLibraryAccessFailureBlock GCImagePickerControllerLibraryFailureBlock();
 
 // get data given an asset representation
 + (NSData *)dataForAssetRepresentation:(ALAssetRepresentation *)rep;
+
+// write data to a given file
++ (void)writeDataForAssetRepresentation:(ALAssetRepresentation *)rep toFile:(NSString *)path atomically:(BOOL)atomically;
+
 @end

@@ -30,7 +30,7 @@
 
 ALAssetsLibraryAccessFailureBlock GCImagePickerControllerLibraryFailureBlock() {
     return ^(NSError *error){
-        NSLog(@"%@", error);
+        GC_LOG_NSERROR(error);
         NSInteger code = [error code];
         if (code == ALAssetsLibraryAccessUserDeniedError || code == ALAssetsLibraryAccessGloballyDeniedError) {
             UIAlertView *alert = [[UIAlertView alloc]
@@ -96,7 +96,7 @@ ALAssetsLibraryAccessFailureBlock GCImagePickerControllerLibraryFailureBlock() {
 }
 + (NSString *)extensionForUTI:(CFStringRef)UTI {
     if (UTI == NULL) {
-        GC_LOG_WARN(@"Requested extension for nil UTI");
+        GC_LOG_ERROR(@"Requested extension for nil UTI");
         return nil;
     }
     else if (CFStringCompare(UTI, kUTTypeJPEG, 0) == kCFCompareEqualTo) {
@@ -115,7 +115,7 @@ ALAssetsLibraryAccessFailureBlock GCImagePickerControllerLibraryFailureBlock() {
 }
 + (NSString *)MIMETypeForUTI:(CFStringRef)UTI {
     if (UTI == NULL) {
-        GC_LOG_WARN(@"Requested MIME for nil UTI");
+        GC_LOG_ERROR(@"Requested MIME for nil UTI");
         return nil;
     }
     else {
@@ -130,23 +130,54 @@ ALAssetsLibraryAccessFailureBlock GCImagePickerControllerLibraryFailureBlock() {
     }
 }
 + (NSData *)dataForAssetRepresentation:(ALAssetRepresentation *)rep {
-    [rep retain];
     long long size = [rep size];
     long long offset = 0;
-    NSMutableData *data = [NSMutableData dataWithCapacity:size];
+    NSMutableData *data = [[NSMutableData alloc] initWithCapacity:size];
     while (offset < size) {
         uint8_t bytes[1024];
         NSError *error = nil;
         NSUInteger written = [rep getBytes:bytes fromOffset:offset length:1024 error:&error];
-        if (error != nil) {
-			GC_LOG_ERROR(@"%@", error);
-			data = nil;
-			break;
-		}
+        if (error) {
+            GC_LOG_NSERROR(error);
+            [data release];
+            data = nil;
+            break;
+        }
         [data appendBytes:bytes length:written];
         offset += written;
     }
-    [rep release];
-    return data;
+    return [data autorelease];
+}
++ (void)writeDataForAssetRepresentation:(ALAssetRepresentation *)rep toFile:(NSString *)path atomically:(BOOL)atomically {
+    if ([[NSFileManager defaultManager] fileExistsAtPath:path]) {
+        return;
+    }
+	NSString *writePath = path;
+	if (atomically) {
+		writePath = [NSTemporaryDirectory() stringByAppendingPathComponent:[path lastPathComponent]];
+	}
+	[[NSFileManager defaultManager] createFileAtPath:writePath contents:nil attributes:nil];
+	NSFileHandle *handle = [NSFileHandle fileHandleForWritingAtPath:writePath];
+	long long size = [rep size];
+    long long offset = 0;
+	while (offset < size) {
+		uint8_t buffer[1024];
+        NSError *error = nil;
+        NSUInteger written = [rep getBytes:buffer fromOffset:offset length:1024 error:&error];
+        if (error) {
+            GC_LOG_NSERROR(error);
+            [handle closeFile];
+            [[NSFileManager defaultManager] removeItemAtPath:writePath error:nil];
+            return;
+        }
+        NSData *toWrite = [[NSData alloc] initWithBytes:buffer length:written];
+        [handle writeData:toWrite];
+        [toWrite release];
+        offset += written;
+	}
+	[handle closeFile];
+	if (atomically) {
+		[[NSFileManager defaultManager] moveItemAtPath:writePath toPath:path error:nil];
+	}
 }
 @end

@@ -24,6 +24,8 @@
 
 #import <UIKit/UIKit.h>
 
+#import "GCImagePickerController.h"
+
 @protocol GCImagePickerController;
 
 // defines base class for asset browsing view controllers
@@ -32,7 +34,7 @@
 }
 
 // object for which we get data and listen for changes
-@property (nonatomic, assign) NSObject<GCImagePickerController> *imagePickerController;
+@property (nonatomic, assign) GCImagePickerViewController *imagePickerController;
 
 /*
  

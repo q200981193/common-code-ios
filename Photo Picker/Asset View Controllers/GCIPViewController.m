@@ -28,10 +28,10 @@
 
 @implementation GCIPViewController
 
-@synthesize imagePickerController=_imagePickerController;
+@synthesize imagePickerController=__imagePickerController;
 
-- (void)setImagePickerController:(NSObject<GCImagePickerController> *)controller {
-    if (_imagePickerController) {
+- (void)setImagePickerController:(GCImagePickerViewController *)controller {
+    if (controller) {
         [[NSNotificationCenter defaultCenter]
          addObserver:self
          selector:@selector(asdf)
@@ -47,12 +47,12 @@
         [[NSNotificationCenter defaultCenter]
          removeObserver:self
          name:ALAssetsLibraryChangedNotification
-         object:_imagePickerController.assetsLibrary];
-        [_imagePickerController
+         object:__imagePickerController.assetsLibrary];
+        [__imagePickerController
          removeObserver:self
          forKeyPath:@"assetsFilter"];
     }
-    _imagePickerController = controller;
+    __imagePickerController = controller;
 }
 - (void)assetsLibraryChanged:(NSNotification *)notif {
     [self reloadAssets];

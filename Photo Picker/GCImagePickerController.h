@@ -30,6 +30,10 @@
 // block to be called on each selected asset
 typedef void (^GCImagePickerControllerActionBlock) (NSURL *assetURL, BOOL *stop);
 
+// view controller typedef
+@protocol GCImagePickerController;
+typedef UIViewController<GCImagePickerController> GCImagePickerViewController;
+
 // internal method to get failure block
 ALAssetsLibraryAccessFailureBlock GCImagePickerControllerLibraryFailureBlock();
 
@@ -48,7 +52,7 @@ ALAssetsLibraryAccessFailureBlock GCImagePickerControllerLibraryFailureBlock();
 }
 
 // get a picker view controller
-+ (UIViewController<GCImagePickerController> *)picker;
++ (GCImagePickerViewController *)picker;
 
 // get a localized string from the library
 + (NSString *)localizedString:(NSString *)key;

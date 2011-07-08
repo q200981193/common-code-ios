@@ -58,6 +58,7 @@
             ALAssetsLibraryAccessFailureBlock block = GCImagePickerControllerLibraryFailureBlock();
             block(error);
         }
+        self.tableView.hidden = (![self.groups count]);
     }
 }
 

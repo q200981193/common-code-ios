@@ -22,31 +22,13 @@
  
  */
 
-#import "CLLocationManager+GCExtensions.h"
+#import <Foundation/Foundation.h>
+#import <CoreLocation/CoreLocation.h>
 
-static CLLocationManager *gc_sharedManager;
+@interface CLLocationManager (Singleton)
 
-@implementation CLLocationManager (GCExtensions)
-
-+ (void)gc_setSharedManager:(CLLocationManager *)manager {
-    [gc_sharedManager release];
-    gc_sharedManager = manager;
-    [gc_sharedManager retain];
-}
-+ (CLLocationManager *)gc_sharedManager {
-    return gc_sharedManager;
-}
-+ (BOOL)gc_areLocationServicesAvailable {
-    BOOL available = [CLLocationManager locationServicesEnabled];
-	if (NSFoundationVersionNumber >= NSFoundationVersionNumber_iOS_4_2) {
-		CLAuthorizationStatus status = [CLLocationManager authorizationStatus];
-		CLAuthorizationStatus unknown = kCLAuthorizationStatusNotDetermined;
-		CLAuthorizationStatus authorized = kCLAuthorizationStatusAuthorized;
-		return (available && (status == unknown || status == authorized));
-	}
-	else {
-		return available;
-	}
-}
++ (void)gc_setSharedManager:(CLLocationManager *)manager;
++ (CLLocationManager *)gc_sharedManager;
++ (BOOL)gc_areLocationServicesAvailable;
 
 @end

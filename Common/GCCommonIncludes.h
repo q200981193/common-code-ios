@@ -7,7 +7,6 @@
 //
 
 #import "NSUserDefaults+ByHost.h"
-#import "UIApplication+Activity.h"
 
 #import "GCTextFieldCell.h"
 #import "GCSwitchCell.h"

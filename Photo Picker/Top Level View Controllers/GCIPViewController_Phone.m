@@ -30,11 +30,11 @@
 
 @implementation GCIPViewController_Phone (private)
 - (void)reloadChildren {
-    for (UIViewController *controller in self.viewControllers) {
-        if ([controller isKindOfClass:[GCIPViewController class]]) {
-            [(GCIPViewController *)controller reloadAssets];
+    [self.viewControllers enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+        if ([obj isKindOfClass:[GCIPViewController class]]) {
+            [(GCIPViewController *)obj reloadAssets];
         }
-    }
+    }];
 }
 @end
 

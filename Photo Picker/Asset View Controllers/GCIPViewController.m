@@ -30,48 +30,12 @@
 
 @synthesize imagePickerController=__imagePickerController;
 
-- (void)setImagePickerController:(GCImagePickerViewController *)controller {
-    if (controller) {
-        [[NSNotificationCenter defaultCenter]
-         addObserver:self
-         selector:@selector(asdf)
-         name:ALAssetsLibraryChangedNotification
-         object:controller.assetsLibrary];
-        [controller
-         addObserver:self
-         forKeyPath:@"assetsFilter"
-         options:0
-         context:0];
-    }
-    else {
-        [[NSNotificationCenter defaultCenter]
-         removeObserver:self
-         name:ALAssetsLibraryChangedNotification
-         object:__imagePickerController.assetsLibrary];
-        [__imagePickerController
-         removeObserver:self
-         forKeyPath:@"assetsFilter"];
-    }
-    __imagePickerController = controller;
-}
-- (void)assetsLibraryChanged:(NSNotification *)notif {
-    [self reloadAssets];
-}
 - (void)reloadAssets {
     if ([self isViewLoaded]) {
         
         // do reloading here
         
     }
-}
-- (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context {
-    if (object == self.imagePickerController && [keyPath isEqualToString:@"assetsFilter"]) {
-        [self reloadAssets];
-    }
-}
-- (void)dealloc {
-    self.imagePickerController = nil;
-    [super dealloc];
 }
 
 @end

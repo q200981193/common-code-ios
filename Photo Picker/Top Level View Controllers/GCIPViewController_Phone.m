@@ -24,6 +24,20 @@
 
 #import "GCIPViewController_Phone.h"
 
+@interface GCIPViewController_Phone (private)
+- (void)reloadChildren;
+@end
+
+@implementation GCIPViewController_Phone (private)
+- (void)reloadChildren {
+    for (UIViewController *controller in self.viewControllers) {
+        if ([controller isKindOfClass:[GCIPViewController class]]) {
+            [(GCIPViewController *)controller reloadAssets];
+        }
+    }
+}
+@end
+
 @implementation GCIPViewController_Phone
 
 @synthesize actionBlock=_actionBlock;
@@ -31,15 +45,28 @@
 @synthesize actionEnabled=_actionEnabled;
 @synthesize assetsFilter=_assetsFilter;
 
+#pragma mark - object methods
 - (id)initWithRootViewController:(UIViewController *)controller {
     GCIPGroupPickerController *picker = [[GCIPGroupPickerController alloc] initWithNibName:nil bundle:nil];
     picker.imagePickerController = self;
     picker.pickerDelegate = self;
     self = [super initWithRootViewController:picker];
+    if (self) {
+        library = [[ALAssetsLibrary alloc] init];
+        [[NSNotificationCenter defaultCenter]
+         addObserver:self
+         selector:@selector(assetsLibraryDidChange:)
+         name:ALAssetsLibraryChangedNotification
+         object:library];
+    }
     [picker release];
     return self;
 }
 - (void)dealloc {
+    [[NSNotificationCenter defaultCenter]
+     removeObserver:self
+     name:ALAssetsLibraryChangedNotification
+     object:library];
     [library release];
     library = nil;
     self.actionBlock = nil;
@@ -47,6 +74,8 @@
     self.assetsFilter = nil;
     [super dealloc];
 }
+
+#pragma mark - picker delegate
 - (void)groupPicker:(GCIPGroupPickerController *)picker didPickGroup:(ALAssetsGroup *)group {
     GCIPAssetPickerController *assetPicker = [[GCIPAssetPickerController alloc] initWithNibName:nil bundle:nil];
     assetPicker.imagePickerController = self;
@@ -54,12 +83,15 @@
     [self pushViewController:assetPicker animated:YES];
     [assetPicker release];
 }
+
+#pragma mark - notifications
+- (void)assetsLibraryDidChange:(NSNotification *)notif {
+    [self reloadChildren];
+}
+         
 #pragma mark - accessors
-- (ALAssetsLibrary *)assetsLibrary {
-    if (library == nil) {
-        library = [[ALAssetsLibrary alloc] init];
-    }
-    return library;
+- (void)setAssetsFilter:(ALAssetsFilter *)filter {
+    [self reloadChildren];
 }
 
 @end

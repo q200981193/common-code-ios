@@ -25,7 +25,7 @@
 #import "ALAssetsLibrary+GCImagePickerControllerAdditions.h"
 
 @implementation ALAssetsLibrary (GCImagePickerControllerAdditions)
-- (NSArray *)gc_assetGroupsWithTypes:(ALAssetsGroupType)types assetsFilter:(ALAssetsFilter *)filter error:(NSError **)error {
+- (NSArray *)gc_assetGroupsWithTypes:(ALAssetsGroupType)types assetsFilter:(ALAssetsFilter *)filter error:(NSError **)inError {
     
     // this will be returned
     __block NSMutableArray *groups = nil;
@@ -74,8 +74,8 @@
              
          }
      }
-     failureBlock:^(NSError *failure) {
-         if (error != nil) { *error = failure; }
+     failureBlock:^(NSError *error) {
+         if (error != nil) { *inError = [error retain]; }
          groups = [[NSArray alloc] init];
      }];
     
@@ -85,6 +85,7 @@
     }
         
     // return
+    [*inError autorelease];
     return [groups autorelease];
     
 }
@@ -115,7 +116,7 @@
          }
      }
      failureBlock:^(NSError *error) {
-         if (inError != nil) { *inError = error; }
+         if (inError != nil) { *inError = [error retain]; }
          assets = [[NSArray alloc] init];
      }];
     
@@ -125,6 +126,7 @@
     }
     
     // return
+    [*inError autorelease];
     [*inGroup autorelease];
     return [assets autorelease];
     

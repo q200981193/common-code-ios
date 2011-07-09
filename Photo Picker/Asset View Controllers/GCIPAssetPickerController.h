@@ -27,24 +27,25 @@
 #import "GCIPTableViewController.h"
 
 // select inidividual assets
-@interface GCIPAssetPickerController : GCIPTableViewController <UIActionSheetDelegate, MFMailComposeViewControllerDelegate> {
+@interface GCIPAssetPickerController : GCIPTableViewController
+<UIActionSheetDelegate, MFMailComposeViewControllerDelegate> {
 @private
     
     // asset resources
     NSArray *allAssets;
     NSUInteger numberOfAssetsPerRow;
+    NSString *groupIdentifier;
     
     // selection resources
     NSMutableSet *selectedAssetURLs;
-    BOOL selecting;
-    BOOL hasSheet;
+    UIActionSheet *sheet;
     
     // group name
     NSString *groupName;
     
 }
 
-// identifier of the group to browse
-@property (nonatomic, copy) NSString *groupIdentifier;
+// designated initializer
+- (id)initWithAssetsGroupIdentifier:(NSString *)identifier;
 
 @end

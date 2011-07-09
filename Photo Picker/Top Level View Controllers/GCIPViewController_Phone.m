@@ -40,10 +40,11 @@
 
 @implementation GCIPViewController_Phone
 
-@synthesize actionBlock=_actionBlock;
-@synthesize actionTitle=_actionTitle;
-@synthesize actionEnabled=_actionEnabled;
-@synthesize assetsFilter=_assetsFilter;
+@synthesize actionBlock         = __actionBlock;
+@synthesize actionTitle         = __actionTitle;
+@synthesize actionEnabled       = __actionEnabled;
+@synthesize assetsFilter        = __assetsFilter;
+@synthesize assetsLibrary       = __assetsLibrary;
 
 #pragma mark - object methods
 - (id)initWithRootViewController:(UIViewController *)controller {
@@ -77,9 +78,9 @@
 
 #pragma mark - picker delegate
 - (void)groupPicker:(GCIPGroupPickerController *)picker didPickGroup:(ALAssetsGroup *)group {
-    GCIPAssetPickerController *assetPicker = [[GCIPAssetPickerController alloc] initWithNibName:nil bundle:nil];
+    NSString *identifier = [group valueForProperty:ALAssetsGroupPropertyPersistentID];
+    GCIPAssetPickerController *assetPicker = [[GCIPAssetPickerController alloc] initWithAssetsGroupIdentifier:identifier];
     assetPicker.imagePickerController = self;
-    assetPicker.groupIdentifier = [group valueForProperty:ALAssetsGroupPropertyPersistentID];
     [self pushViewController:assetPicker animated:YES];
     [assetPicker release];
 }

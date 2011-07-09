@@ -26,8 +26,6 @@
 
 #import "GCImagePickerController.h"
 
-@protocol GCImagePickerController;
-
 // defines base class for asset browsing view controllers
 @interface GCIPViewController : UIViewController {
     

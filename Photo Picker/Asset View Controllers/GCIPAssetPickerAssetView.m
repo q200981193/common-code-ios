@@ -29,8 +29,8 @@
 
 @implementation GCIPAssetPickerAssetView
 
-@synthesize selected=_selected;
-@synthesize asset=_asset;
+@synthesize selected    = __selected;
+@synthesize asset       = __asset;
 
 - (id)initWithFrame:(CGRect)frame {
     self = [super initWithFrame:frame];
@@ -71,22 +71,22 @@
     [super dealloc];
 }
 - (void)setAsset:(ALAsset *)asset {
-    [_asset release];
-    _asset = [asset retain];
+    [__asset release];
+    __asset = [asset retain];
     
     // set views
-    if (_asset) {
+    if (__asset) {
         
         // self
         self.hidden = NO;
         
         // thumbnail view
-        UIImage *thumbnailImage = [[UIImage alloc] initWithCGImage:[_asset thumbnail]];
+        UIImage *thumbnailImage = [[UIImage alloc] initWithCGImage:[__asset thumbnail]];
         thumbnailView.image = thumbnailImage;
         [thumbnailImage release];
         
         // video view
-        NSString *assetType = [_asset valueForProperty:ALAssetPropertyType];
+        NSString *assetType = [__asset valueForProperty:ALAssetPropertyType];
         videoIconView.hidden = ![assetType isEqualToString:ALAssetTypeVideo];
         
     }
@@ -98,8 +98,8 @@
     
 }
 - (void)setSelected:(BOOL)selected {
-    _selected = selected;
-    selectedIconView.hidden = !_selected;
+    __selected = selected;
+    selectedIconView.hidden = !__selected;
 }
 - (void)layoutSubviews {
     [super layoutSubviews];

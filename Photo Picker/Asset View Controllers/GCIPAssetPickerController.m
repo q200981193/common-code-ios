@@ -56,9 +56,7 @@
 
 #pragma mark - object methods
 - (id)initWithAssetsGroupIdentifier:(NSString *)identifier {
-    if (!identifier || ![identifier length]) {
-        [NSException raise:NSInvalidArgumentException format:@"Group identifier cannot be left blank"];
-    }
+    NSAssert([identifier length], @"Group identifier cannot be left blank");
     self = [super initWithNibName:nil bundle:nil];
     if (self) {
         groupIdentifier = [identifier copy];

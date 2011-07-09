@@ -22,13 +22,11 @@
  
  */
 
-#import "GCImagePickerController.h"
-
 #import "GCIPViewController.h"
 
 @implementation GCIPViewController
 
-@synthesize imagePickerController=__imagePickerController;
+@synthesize imagePickerController = __imagePickerController;
 
 - (void)reloadAssets {
     if ([self isViewLoaded]) {

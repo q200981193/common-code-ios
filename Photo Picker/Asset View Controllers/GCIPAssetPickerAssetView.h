@@ -26,7 +26,6 @@
 
 @class ALAsset;
 
-// show an asset and optionally select it
 @interface GCIPAssetPickerAssetView : UIView {
 @private
     UIImageView *thumbnailView;

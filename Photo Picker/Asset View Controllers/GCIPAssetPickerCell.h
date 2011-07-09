@@ -8,7 +8,7 @@
 
 #import <UIKit/UIKit.h>
 
-extern CGFloat const GCIPAssetViewPadding;
+extern CGFloat GCIPAssetViewPadding;
 
 @interface GCIPAssetPickerCell : UITableViewCell {
 @private

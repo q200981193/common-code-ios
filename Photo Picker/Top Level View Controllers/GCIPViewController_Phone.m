@@ -53,12 +53,12 @@
     picker.pickerDelegate = self;
     self = [super initWithRootViewController:picker];
     if (self) {
-        library = [[ALAssetsLibrary alloc] init];
+        __assetsLibrary = [[ALAssetsLibrary alloc] init];
         [[NSNotificationCenter defaultCenter]
          addObserver:self
          selector:@selector(assetsLibraryDidChange:)
          name:ALAssetsLibraryChangedNotification
-         object:library];
+         object:__assetsLibrary];
     }
     [picker release];
     return self;
@@ -67,9 +67,8 @@
     [[NSNotificationCenter defaultCenter]
      removeObserver:self
      name:ALAssetsLibraryChangedNotification
-     object:library];
-    [library release];
-    library = nil;
+     object:__assetsLibrary];
+    [__assetsLibrary release]; __assetsLibrary = nil;
     self.actionBlock = nil;
     self.actionTitle = nil;
     self.assetsFilter = nil;

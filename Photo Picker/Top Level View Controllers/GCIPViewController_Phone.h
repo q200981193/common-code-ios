@@ -27,8 +27,7 @@
 #import "GCIPAssetPickerController.h"
 
 @interface GCIPViewController_Phone : UINavigationController <GCImagePickerController, GCIPGroupPickerControllerDelegate> {
-@private
-    ALAssetsLibrary *library;
+    
 }
 
 @end

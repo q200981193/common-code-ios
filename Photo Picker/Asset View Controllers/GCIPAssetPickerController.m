@@ -298,6 +298,9 @@
 #pragma mark - action sheet
 - (void)actionSheet:(UIActionSheet *)actionSheet clickedButtonAtIndex:(NSInteger)buttonIndex {
     
+    // release sheet
+    sheet = nil;
+    
     // cancel
     if (buttonIndex == actionSheet.cancelButtonIndex) {
         return;
@@ -362,9 +365,6 @@
         [selectedAssetURLs enumerateObjectsUsingBlock:controller.actionBlock];
         self.editing = NO;
     }
-    
-    // release sheet
-    sheet = nil;
     
 }
 

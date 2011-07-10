@@ -26,7 +26,8 @@
 #import "GCIPGroupPickerController.h"
 #import "GCIPAssetPickerController.h"
 
-@interface GCIPViewController_Phone : UINavigationController <GCImagePickerController, GCIPGroupPickerControllerDelegate> {
+@interface GCIPViewController_Phone : UINavigationController
+<GCImagePickerController, GCIPGroupPickerControllerDelegate> {
     
 }
 

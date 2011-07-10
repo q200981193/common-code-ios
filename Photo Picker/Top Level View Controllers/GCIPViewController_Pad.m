@@ -22,15 +22,12 @@
  
  */
 
-#import <AssetsLibrary/AssetsLibrary.h>
-
 #import "GCIPViewController_Pad.h"
 
 @interface GCIPViewController_Pad (private)
 - (void)layoutViews;
 - (void)layoutViewsForOrientation:(UIInterfaceOrientation)orientation;
 - (UIBarButtonItem *)popoverBarButtonItem;
-- (UIBarButtonItem *)doneBarButtonItem;
 @end
 
 @implementation GCIPViewController_Pad (private)
@@ -56,47 +53,39 @@
                              action:@selector(popover:)];
     return [item autorelease];
 }
-- (UIBarButtonItem *)doneBarButtonItem {
-    UIBarButtonItem *item = [[UIBarButtonItem alloc]
-                             initWithBarButtonSystemItem:UIBarButtonSystemItemDone
-                             target:self
-                             action:@selector(done)];
-    return [item autorelease];
-}
 @end
 
 @implementation GCIPViewController_Pad
 
-@synthesize actionBlock=_actionBlock;
-@synthesize actionTitle=_actionTitle;
-@synthesize actionEnabled=_actionEnabled;
+@synthesize actionBlock     = __actionBlock;
+@synthesize actionTitle     = __actionTitle;
+@synthesize actionEnabled   = __actionEnabled;
+@synthesize assetsFilter    = __assetsFilter;
 
-- (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil {
-    self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
+- (id)initWithNibName:(NSString *)name bundle:(NSBundle *)bundle {
+    self = [super initWithNibName:name bundle:bundle];
     if (self) {
         
         // create group picker controller
-        groupPicker = [[GCIPGroupPickerController alloc] initWithNibName:nil bundle:nil];
+        GCIPGroupPickerController *groupPicker = [[GCIPGroupPickerController alloc] initWithNibName:nil bundle:nil];
         groupPicker.pickerDelegate = self;
         groupPicker.imagePickerController = self;
         groupPicker.showDisclosureIndicators = NO;
         masterViewController = [[UINavigationController alloc] initWithRootViewController:groupPicker];
-        [masterViewController setValue:self forKey:@"parentViewController"];
         
         // asset picker
-        assetPicker = [[GCIPAssetPickerController alloc] initWithNibName:nil bundle:nil];
-        [assetPicker
-         addObserver:self
-         forKeyPath:@"navigationItem.leftBarButtonItem"
-         options:0
-         context:0];
-        [assetPicker
-         addObserver:self
-         forKeyPath:@"navigationItem.rightBarButtonItem"
-         options:0
-         context:0];
-        detailViewController = [[UINavigationController alloc] initWithRootViewController:assetPicker];
-        [detailViewController setValue:self forKey:@"parentViewController"];
+//        assetPicker = [[GCIPAssetPickerController alloc] initWithNibName:nil bundle:nil];
+//        [assetPicker
+//         addObserver:self
+//         forKeyPath:@"navigationItem.leftBarButtonItem"
+//         options:0
+//         context:0];
+//        [assetPicker
+//         addObserver:self
+//         forKeyPath:@"navigationItem.rightBarButtonItem"
+//         options:0
+//         context:0];
+//        detailViewController = [[UINavigationController alloc] initWithRootViewController:assetPicker];
         
     }
     return self;
@@ -104,22 +93,17 @@
 - (void)dealloc {
     [masterViewController release];
     masterViewController = nil;
-    [groupPicker release];
-    groupPicker = nil;
     [detailViewController release];
     detailViewController = nil;
-    [assetPicker
-     removeObserver:self
-     forKeyPath:@"navigationItem.rightBarButtonItem"];
-    [assetPicker
-     removeObserver:self
-     forKeyPath:@"navigationItem.leftBarButtonItem"];
+    [assetPicker removeObserver:self forKeyPath:@"navigationItem.rightBarButtonItem"];
+    [assetPicker removeObserver:self forKeyPath:@"navigationItem.leftBarButtonItem"];
     [assetPicker release];
     assetPicker = nil;
     [library release];
     library = nil;
     self.actionBlock = nil;
     self.actionTitle = nil;
+    self.assetsFilter = nil;
     [popover dismissPopoverAnimated:NO];
     [self popoverControllerDidDismissPopover:popover];
     [super dealloc];
@@ -200,14 +184,14 @@
         return;
     }
     if (UIInterfaceOrientationIsPortrait(self.interfaceOrientation)) {
-        if (assetPicker.navigationItem.leftBarButtonItem == nil) {
-            popoverButton = assetPicker.navigationItem.leftBarButtonItem = [self popoverBarButtonItem];
-        }
+//        if (assetPicker.navigationItem.leftBarButtonItem == nil) {
+//            assetPicker.navigationItem.leftBarButtonItem = [self popoverBarButtonItem];
+//        }
     }
     else {
-        if (assetPicker.navigationItem.leftBarButtonItem == popoverButton) {
-            popoverButton = assetPicker.navigationItem.leftBarButtonItem = nil;
-        }
+//        if (assetPicker.navigationItem.leftBarButtonItem == popoverButton) {
+//            assetPicker.navigationItem.leftBarButtonItem = nil;
+//        }
     }
 }
 
@@ -228,13 +212,41 @@
 #pragma mark - group picker delegate
 - (void)groupPicker:(GCIPGroupPickerController *)picker didPickGroup:(ALAssetsGroup *)group {
     
-    // setup asset view
+    // get identifier
     NSString *identifier = [group valueForProperty:ALAssetsGroupPropertyPersistentID];
-    assetPicker.groupIdentifier = identifier;
-    [assetPicker.tableView scrollRectToVisible:CGRectZero animated:NO];
-    [assetPicker.tableView flashScrollIndicators];
     
-    // setup group view
+    // remove old view
+    [detailViewController viewWillDisappear:NO];
+    [detailViewController.view removeFromSuperview];
+    [detailViewController viewDidDisappear:NO];
+    [detailViewController release];
+    
+    // tear down old picker
+    [assetPicker removeObserver:self forKeyPath:@"navigationItem.rightBarButtonItem"];
+    [assetPicker removeObserver:self forKeyPath:@"navigationItem.leftBarButtonItem"];
+    [assetPicker release];
+    
+    // create new view
+    assetPicker = [[GCIPAssetPickerController alloc] initWithAssetsGroupIdentifier:identifier];
+    assetPicker.imagePickerController = self;
+    [assetPicker addObserver:self
+                  forKeyPath:@"navigationItem.rightBarButtonItem"
+                     options:0
+                     context:0];
+    [assetPicker addObserver:self
+                  forKeyPath:@"navigationItem.leftBarButtonItem"
+                     options:0
+                     context:0];
+    detailViewController = [[UINavigationController alloc] initWithRootViewController:assetPicker];
+    
+    // setup views
+    [detailViewController view];
+    [detailViewController viewWillAppear:NO];
+    [self.view addSubview:detailViewController.view];
+    [self layoutViews];
+    [detailViewController viewDidAppear:NO];
+    
+    // change group picker view
     NSIndexPath *indexPath = [picker.tableView indexPathForSelectedRow];
     if (UIInterfaceOrientationIsLandscape(self.interfaceOrientation)) {
         [picker.tableView deselectRowAtIndexPath:indexPath animated:YES];
@@ -249,11 +261,6 @@
 
 #pragma mark - kvo
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context {
-    if (object == assetPicker && [keyPath isEqualToString:@"navigationItem.leftBarButtonItem"]) {
-        if (UIInterfaceOrientationIsPortrait(self.interfaceOrientation) && assetPicker.navigationItem.leftBarButtonItem == nil) {
-            popoverButton = assetPicker.navigationItem.leftBarButtonItem = [self popoverBarButtonItem];
-        }
-    }
     if (object == assetPicker && [keyPath isEqualToString:@"navigationItem.rightBarButtonItem"]) {
         if (assetPicker.navigationItem.rightBarButtonItem == nil) {
             UIBarButtonItem *item = [[UIBarButtonItem alloc]
@@ -264,6 +271,22 @@
             [item release];
         }
     }
+    
+//    if (object == assetPicker && [keyPath isEqualToString:@"navigationItem.leftBarButtonItem"]) {
+//        if (UIInterfaceOrientationIsPortrait(self.interfaceOrientation) && assetPicker.navigationItem.leftBarButtonItem == nil) {
+//            assetPicker.navigationItem.leftBarButtonItem = [self popoverBarButtonItem];
+//        }
+//    }
+//    if (object == assetPicker && [keyPath isEqualToString:@"navigationItem.rightBarButtonItem"]) {
+//        if (assetPicker.navigationItem.rightBarButtonItem == nil) {
+//            UIBarButtonItem *item = [[UIBarButtonItem alloc]
+//                                     initWithBarButtonSystemItem:UIBarButtonSystemItemDone
+//                                     target:self
+//                                     action:@selector(done)];
+//            assetPicker.navigationItem.rightBarButtonItem = item;
+//            [item release];
+//        }
+//    }
 }
 
 #pragma mark - popover delegate

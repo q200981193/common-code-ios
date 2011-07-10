@@ -37,8 +37,7 @@
     UIViewController *masterViewController;
     UIViewController *detailViewController;
     
-    // handles to pickers
-    GCIPGroupPickerController *groupPicker;
+    // asset picker pointer
     GCIPAssetPickerController *assetPicker;
     
     // popover

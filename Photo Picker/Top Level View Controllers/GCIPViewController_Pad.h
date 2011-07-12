@@ -28,23 +28,6 @@
 
 @interface GCIPViewController_Pad : UIViewController
 <GCImagePickerController, GCIPGroupPickerControllerDelegate, UIPopoverControllerDelegate> {
-@private
-    
-    // assets library
-    ALAssetsLibrary *library;
-    
-    // master / detail controllers
-    UIViewController *masterViewController;
-    UIViewController *detailViewController;
-    
-    // asset picker pointer
-    GCIPAssetPickerController *assetPicker;
-    
-    // popover
-    UIPopoverController *popover;
-    
-    // buttons
-    UIBarButtonItem *popoverButton;
     
 }
 

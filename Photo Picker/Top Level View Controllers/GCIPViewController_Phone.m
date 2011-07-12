@@ -24,6 +24,10 @@
 
 #import "GCIPViewController_Phone.h"
 
+@interface GCIPViewController_Phone ()
+@property (nonatomic, readwrite, retain) ALAssetsLibrary *assetsLibrary;
+@end
+
 @interface GCIPViewController_Phone (private)
 - (void)reloadChildren;
 @end
@@ -53,26 +57,40 @@
     picker.pickerDelegate = self;
     self = [super initWithRootViewController:picker];
     if (self) {
-        __assetsLibrary = [[ALAssetsLibrary alloc] init];
+        
+        // create library
+        ALAssetsLibrary *library = [[ALAssetsLibrary alloc] init];
+        self.assetsLibrary = library;
+        [library release];
+        
+        // sign up for notifs
         [[NSNotificationCenter defaultCenter]
          addObserver:self
          selector:@selector(assetsLibraryDidChange:)
          name:ALAssetsLibraryChangedNotification
-         object:__assetsLibrary];
+         object:self.assetsLibrary];
+        
     }
     [picker release];
     return self;
 }
 - (void)dealloc {
+    
+    // clear notifs
     [[NSNotificationCenter defaultCenter]
      removeObserver:self
      name:ALAssetsLibraryChangedNotification
-     object:__assetsLibrary];
-    [__assetsLibrary release]; __assetsLibrary = nil;
+     object:self.assetsLibrary];
+    
+    // clear properties
+    self.assetsLibrary = nil;
     self.actionBlock = nil;
     self.actionTitle = nil;
     self.assetsFilter = nil;
+    
+    // super
     [super dealloc];
+    
 }
 
 #pragma mark - picker delegate

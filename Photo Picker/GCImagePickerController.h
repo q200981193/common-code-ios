@@ -40,7 +40,7 @@ ALAssetsLibraryAccessFailureBlock GCImagePickerControllerLibraryFailureBlock();
 // common methods that top level controllers implement
 @protocol GCImagePickerController <NSObject>
 @required
-@property (nonatomic, readonly) ALAssetsLibrary *assetsLibrary;
+@property (nonatomic, readonly, retain) ALAssetsLibrary *assetsLibrary;
 @property (nonatomic, copy) ALAssetsFilter *assetsFilter;
 @property (nonatomic, copy) GCImagePickerControllerActionBlock actionBlock;
 @property (nonatomic, copy) NSString *actionTitle;

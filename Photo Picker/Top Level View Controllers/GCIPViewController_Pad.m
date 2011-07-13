@@ -56,7 +56,6 @@
 - (void)layoutViewsForOrientation:(UIInterfaceOrientation)orientation {
     if (UIInterfaceOrientationIsPortrait(orientation)) {
         self.masterViewController.view.frame = CGRectMake(-320.0, 0, 320.0, self.view.bounds.size.height);
-        self.toolbar.frame = self.view.bounds;
         self.toolbar.frame = CGRectMake(0, 0,
                                         self.view.bounds.size.width,
                                         self.toolbar.bounds.size.height);
@@ -166,7 +165,7 @@
         [nav release];
         
         // create asset picker
-        GCIPAssetPickerController *picker = [[GCIPAssetPickerController alloc] initWithAssetsGroupIdentifier:@"a"];
+        GCIPAssetPickerController *picker = [[GCIPAssetPickerController alloc] initWithNibName:nil bundle:nil];
         picker.imagePickerController = self;
         [picker
          addObserver:self
@@ -218,6 +217,7 @@
     // toolbar
     UIToolbar *toolbar = [[UIToolbar alloc] initWithFrame:CGRectZero];
     [self.view addSubview:toolbar];
+    [toolbar sizeToFit];
     self.toolbar = toolbar;
     [toolbar release];
     
@@ -327,10 +327,13 @@
 
 #pragma mark - group picker delegate
 - (void)groupPicker:(GCIPGroupPickerController *)picker didPickGroup:(ALAssetsGroup *)group {
-    //    
-    //    // get identifier
-    //    NSString *identifier = [group valueForProperty:ALAssetsGroupPropertyPersistentID];
-    //    
+    
+    // get identifier
+    NSString *identifier = [group valueForProperty:ALAssetsGroupPropertyPersistentID];
+    
+    // set new identifier
+    self.assetPickerController.groupIdentifier = identifier;
+    
     //    // remove old view
     //    [detailViewController viewWillDisappear:NO];
     //    [detailViewController.view removeFromSuperview];

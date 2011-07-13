@@ -95,8 +95,8 @@
 
 #pragma mark - picker delegate
 - (void)groupPicker:(GCIPGroupPickerController *)picker didPickGroup:(ALAssetsGroup *)group {
-    NSString *identifier = [group valueForProperty:ALAssetsGroupPropertyPersistentID];
-    GCIPAssetPickerController *assetPicker = [[GCIPAssetPickerController alloc] initWithAssetsGroupIdentifier:identifier];
+    GCIPAssetPickerController *assetPicker = [[GCIPAssetPickerController alloc] initWithNibName:nil bundle:nil];
+    assetPicker.groupIdentifier = [group valueForProperty:ALAssetsGroupPropertyPersistentID];
     assetPicker.imagePickerController = self;
     [self pushViewController:assetPicker animated:YES];
     [assetPicker release];

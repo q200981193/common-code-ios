@@ -33,7 +33,7 @@
     UIImageView *selectedIconView;
 }
 
-@property (nonatomic, assign) BOOL selected;
-@property (nonatomic, retain) ALAsset *asset;
+- (void)setAsset:(ALAsset *)asset;
+- (void)setSelected:(BOOL)selected;
 
 @end

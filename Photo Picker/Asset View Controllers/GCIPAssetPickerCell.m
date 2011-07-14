@@ -29,8 +29,6 @@ CGFloat GCIPAssetViewPadding = 4.0;
 
 @implementation GCIPAssetPickerCell
 
-@synthesize assets = __assets;
-
 #pragma mark - class methods
 + (NSUInteger)sizeForNumberOfAssetsPerRow:(NSUInteger)count inView:(UIView *)view {
     CGFloat space = ((count + 1) * 4);
@@ -46,16 +44,7 @@ CGFloat GCIPAssetViewPadding = 4.0;
     }
     return self;
 }
-- (void)dealloc {
-    self.assets = nil;
-    [super dealloc];
-}
-- (void)setAssets:(NSArray *)assets {
-    [self setAssets:assets selected:nil];
-}
 - (void)setAssets:(NSArray *)assets selected:(NSSet *)selected {
-    [__assets release];
-    __assets = [assets copy];
     NSUInteger count = [assets count];
     for (NSUInteger index = 0; index < numberOfAssets; index++) {
         NSUInteger tag = index + 1;
@@ -68,13 +57,13 @@ CGFloat GCIPAssetViewPadding = 4.0;
             [self.contentView addSubview:assetView];
             [assetView release];
         }
-        ALAsset *object = nil;
+        ALAsset *asset = nil;
         if (index < count) {
-            object = [__assets objectAtIndex:index];
-            NSURL *assetURL = [[object defaultRepresentation] url];
-            assetView.selected = [selected containsObject:assetURL];
+            asset = [assets objectAtIndex:index];
+            NSURL *assetURL = [[asset defaultRepresentation] url];
+            [assetView setSelected:[selected containsObject:assetURL]];
         }
-        assetView.asset = object;
+        [assetView setAsset:asset];
     }
 }
 - (void)layoutSubviews {

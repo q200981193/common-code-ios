@@ -15,8 +15,6 @@ extern CGFloat GCIPAssetViewPadding;
     NSUInteger numberOfAssets;
 }
 
-@property (nonatomic, copy) NSArray *assets;
-
 + (NSUInteger)sizeForNumberOfAssetsPerRow:(NSUInteger)count inView:(UIView *)view;
 
 - (id)initWithNumberOfAssets:(NSUInteger)count identifier:(NSString *)identifier;

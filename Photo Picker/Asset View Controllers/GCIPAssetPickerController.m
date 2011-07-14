@@ -36,6 +36,7 @@
 @property (nonatomic, retain) NSMutableSet *selectedAssetURLs;
 @property (nonatomic, copy) NSString *groupName;
 @property (nonatomic, retain) UIActionSheet *sheet;
+@property (nonatomic, assign) NSUInteger numberOfAssetsPerRow;
 @end
 
 @interface GCIPAssetPickerController (private)
@@ -61,6 +62,7 @@
 
 @implementation GCIPAssetPickerController
 
+@synthesize numberOfAssetsPerRow    = __numberOfAssetsPerRow;
 @synthesize selectedAssetURLs       = __selectedAssets;
 @synthesize groupIdentifier         = __groupIdentifier;
 @synthesize allAssets               = __allAssets;
@@ -69,10 +71,9 @@
 
 #pragma mark - object methods
 - (id)initWithNibName:(NSString *)name bundle:(NSBundle *)bundle {
-    self = [super initWithNibName:nil bundle:nil];
+    self = [super initWithNibName:name bundle:bundle];
     if (self) {
-        if (GC_IS_IPAD) { numberOfAssetsPerRow = 6; }
-        else { numberOfAssetsPerRow = 4; }
+        self.numberOfAssetsPerRow = (GC_IS_IPAD) ? 6 : 4;
         self.editing = NO;
     }
     return self;
@@ -101,15 +102,8 @@
                           filter:[ALAssetsFilter allAssets]
                           group:&group
                           error:&error];
-        
-        // error check
-        if (!group) {
-            [self.navigationController popViewControllerAnimated:YES];
-            return;
-        }
-        else if (error) {
-            ALAssetsLibraryAccessFailureBlock block = GCImagePickerControllerLibraryFailureBlock();
-            block(error);
+        if (error) {
+            [GCImagePickerController failedToLoadAssetsWithError:error];
         }
         
         // get group name

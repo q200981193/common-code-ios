@@ -28,33 +28,6 @@
 #import "GCIPViewController_Phone.h"
 #import "GCIPViewController_Pad.h"
 
-ALAssetsLibraryAccessFailureBlock GCImagePickerControllerLibraryFailureBlock() {
-    return ^(NSError *error){
-        GC_LOG_NSERROR(error);
-        NSInteger code = [error code];
-        if (code == ALAssetsLibraryAccessUserDeniedError || code == ALAssetsLibraryAccessGloballyDeniedError) {
-            UIAlertView *alert = [[UIAlertView alloc]
-                                  initWithTitle:[GCImagePickerController localizedString:@"ERROR"]
-                                  message:[GCImagePickerController localizedString:@"PHOTO_ROLL_LOCATION_ERROR"]
-                                  delegate:nil
-                                  cancelButtonTitle:[GCImagePickerController localizedString:@"OK"]
-                                  otherButtonTitles:nil];
-            [alert show];
-            [alert release];
-        }
-        else {
-            UIAlertView *alert = [[UIAlertView alloc]
-                                  initWithTitle:[GCImagePickerController localizedString:@"ERROR"]
-                                  message:[GCImagePickerController localizedString:@"UNKNOWN_LIBRARY_ERROR"]
-                                  delegate:nil
-                                  cancelButtonTitle:[GCImagePickerController localizedString:@"OK"]
-                                  otherButtonTitles:nil];
-            [alert show];
-            [alert release];
-        }
-    };
-}
-
 @implementation GCImagePickerController
 
 + (GCImagePickerViewController *)picker {
@@ -69,6 +42,30 @@ ALAssetsLibraryAccessFailureBlock GCImagePickerControllerLibraryFailureBlock() {
 }
 + (NSString *)localizedString:(NSString *)key {
     return [[NSBundle mainBundle] localizedStringForKey:key value:nil table:NSStringFromClass(self)];
+}
++ (void)failedToLoadAssetsWithError:(NSError *)error {
+    GC_LOG_NSERROR(error);
+    NSInteger code = [error code];
+    if (code == ALAssetsLibraryAccessUserDeniedError || code == ALAssetsLibraryAccessGloballyDeniedError) {
+        UIAlertView *alert = [[UIAlertView alloc]
+                              initWithTitle:[GCImagePickerController localizedString:@"ERROR"]
+                              message:[GCImagePickerController localizedString:@"PHOTO_ROLL_LOCATION_ERROR"]
+                              delegate:nil
+                              cancelButtonTitle:[GCImagePickerController localizedString:@"OK"]
+                              otherButtonTitles:nil];
+        [alert show];
+        [alert release];
+    }
+    else {
+        UIAlertView *alert = [[UIAlertView alloc]
+                              initWithTitle:[GCImagePickerController localizedString:@"ERROR"]
+                              message:[GCImagePickerController localizedString:@"UNKNOWN_LIBRARY_ERROR"]
+                              delegate:nil
+                              cancelButtonTitle:[GCImagePickerController localizedString:@"OK"]
+                              otherButtonTitles:nil];
+        [alert show];
+        [alert release];
+    }
 }
 
 @end

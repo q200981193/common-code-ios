@@ -22,8 +22,6 @@
  
  */
 
-#import <UIKit/UIKit.h>
-
 #import "GCImagePickerController.h"
 
 // defines base class for asset browsing view controllers

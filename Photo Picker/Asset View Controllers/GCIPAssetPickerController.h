@@ -26,6 +26,7 @@
 
 #import "GCIPTableViewController.h"
 
+// select an asset
 @interface GCIPAssetPickerController : GCIPTableViewController
 <UIActionSheetDelegate, MFMailComposeViewControllerDelegate> {
 @private

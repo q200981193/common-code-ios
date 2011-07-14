@@ -55,8 +55,7 @@
                        assetsFilter:self.imagePickerController.assetsFilter
                        error:&error];
         if (error) {
-            ALAssetsLibraryAccessFailureBlock block = GCImagePickerControllerLibraryFailureBlock();
-            block(error);
+            [GCImagePickerController failedToLoadAssetsWithError:error];
         }
         self.tableView.hidden = (![self.groups count]);
     }
@@ -84,6 +83,10 @@
     // reload
     [self reloadAssets];
     
+}
+- (void)viewDidUnload {
+    [super viewDidUnload];
+    self.groups = nil;
 }
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];

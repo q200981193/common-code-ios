@@ -34,9 +34,6 @@ typedef void (^GCImagePickerControllerActionBlock) (NSURL *assetURL, BOOL *stop)
 @protocol GCImagePickerController;
 typedef UIViewController<GCImagePickerController> GCImagePickerViewController;
 
-// internal method to get failure block
-ALAssetsLibraryAccessFailureBlock GCImagePickerControllerLibraryFailureBlock();
-
 // common methods that top level controllers implement
 @protocol GCImagePickerController <NSObject>
 @required
@@ -56,6 +53,9 @@ ALAssetsLibraryAccessFailureBlock GCImagePickerControllerLibraryFailureBlock();
 
 // get a localized string from the library
 + (NSString *)localizedString:(NSString *)key;
+
+// called when assets fail to load
++ (void)failedToLoadAssetsWithError:(NSError *)error;
 
 @end
 

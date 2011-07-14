@@ -238,11 +238,11 @@
 
 #pragma mark - table view
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
-    return ceilf((float)[self.allAssets count] / (float)numberOfAssetsPerRow);
+    return ceilf((float)[self.allAssets count] / (float)self.numberOfAssetsPerRow);
 }
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
     CGFloat size = [GCIPAssetPickerCell
-                    sizeForNumberOfAssetsPerRow:numberOfAssetsPerRow
+                    sizeForNumberOfAssetsPerRow:self.numberOfAssetsPerRow
                     inView:tableView];
     return size + GCIPAssetViewPadding;
 }
@@ -250,10 +250,12 @@
     static NSString * const identifier = @"CellIdentifier";
     GCIPAssetPickerCell *cell = (GCIPAssetPickerCell *)[tableView dequeueReusableCellWithIdentifier:identifier];
     if (cell == nil) {
-        cell = [[[GCIPAssetPickerCell alloc] initWithNumberOfAssets:numberOfAssetsPerRow identifier:identifier] autorelease];
+        cell = [[[GCIPAssetPickerCell alloc]
+                 initWithNumberOfAssets:self.numberOfAssetsPerRow
+                 identifier:identifier] autorelease];
     }
-    NSUInteger start = indexPath.row * numberOfAssetsPerRow;
-    NSUInteger length = MIN([self.allAssets count] - start, numberOfAssetsPerRow);
+    NSUInteger start = indexPath.row * self.numberOfAssetsPerRow;
+    NSUInteger length = MIN([self.allAssets count] - start, self.numberOfAssetsPerRow);
     NSRange range = NSMakeRange(start, length);
     [cell
      setAssets:[self.allAssets subarrayWithRange:range]
@@ -265,18 +267,18 @@
 - (void)tableDidReceiveTap:(UITapGestureRecognizer *)gesture {
     CGPoint location = [gesture locationInView:gesture.view];
     CGFloat tileSize = [GCIPAssetPickerCell
-                        sizeForNumberOfAssetsPerRow:numberOfAssetsPerRow
+                        sizeForNumberOfAssetsPerRow:self.numberOfAssetsPerRow
                         inView:gesture.view];
     NSUInteger column = 0;
     if (location.x > tileSize + GCIPAssetViewPadding) {
         column = MIN(location.x / (tileSize + GCIPAssetViewPadding),
-                     numberOfAssetsPerRow - 1);
+                     self.numberOfAssetsPerRow - 1);
     }
     NSUInteger row = 0;
     if (location.y > tileSize + GCIPAssetViewPadding) {
         row = (location.y / (tileSize + GCIPAssetViewPadding));
     }
-    NSUInteger index = row * numberOfAssetsPerRow + column;
+    NSUInteger index = row * self.numberOfAssetsPerRow + column;
     if (index < [self.allAssets count]) {
         
         // get asset stuff
@@ -369,6 +371,7 @@
     else if ([title isEqualToString:[GCImagePickerController localizedString:@"EMAIL"]]) {
         MFMailComposeViewController *mail = [[MFMailComposeViewController alloc] init];
         mail.mailComposeDelegate = self;
+        mail.modalPresentationStyle = UIModalPresentationPageSheet;
         __block unsigned long index = 0;
         [self.selectedAssetURLs enumerateObjectsUsingBlock:^(id obj, BOOL *stop) {
             [controller.assetsLibrary

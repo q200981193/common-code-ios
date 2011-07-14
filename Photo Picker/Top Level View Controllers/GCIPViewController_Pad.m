@@ -165,20 +165,26 @@
         [nav release];
         
         // create asset picker
-        GCIPAssetPickerController *picker = [[GCIPAssetPickerController alloc] initWithNibName:nil bundle:nil];
-        picker.imagePickerController = self;
-        [picker
+        GCIPAssetPickerController *assetPicker = [[GCIPAssetPickerController alloc] initWithNibName:nil bundle:nil];
+        assetPicker.imagePickerController = self;
+        [assetPicker
          addObserver:self
          forKeyPath:@"navigationItem.leftBarButtonItem"
          options:0
          context:0];
-        [picker
+        [assetPicker
          addObserver:self
          forKeyPath:@"navigationItem.rightBarButtonItem"
          options:0
          context:0];
-        self.assetPickerController = picker;
-        [picker release];
+        self.assetPickerController = assetPicker;
+        [assetPicker release];
+        
+        @try {
+            [groupPicker setValue:self forKey:@"parentViewController"];
+            [assetPicker setValue:self forKey:@"parentViewController"];
+        }
+        @catch (NSException *exception) {}
         
     }
     return self;

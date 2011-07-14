@@ -29,9 +29,6 @@
 // select an asset
 @interface GCIPAssetPickerController : GCIPTableViewController
 <UIActionSheetDelegate, MFMailComposeViewControllerDelegate> {
-@private
-    
-    NSUInteger numberOfAssetsPerRow;
     
 }
 

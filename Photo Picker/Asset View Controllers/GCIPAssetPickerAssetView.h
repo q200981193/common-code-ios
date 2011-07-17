@@ -27,13 +27,10 @@
 @class ALAsset;
 
 @interface GCIPAssetPickerAssetView : UIView {
-@private
-    UIImageView *thumbnailView;
-    UIImageView *videoIconView;
-    UIImageView *selectedIconView;
+    
 }
 
-- (void)setAsset:(ALAsset *)asset;
-- (void)setSelected:(BOOL)selected;
+@property (nonatomic, retain) ALAsset *asset;
+@property (nonatomic, assign) BOOL selected;
 
 @end

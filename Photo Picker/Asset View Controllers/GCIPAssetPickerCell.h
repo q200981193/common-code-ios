@@ -8,16 +8,18 @@
 
 #import <UIKit/UIKit.h>
 
-extern CGFloat GCIPAssetViewPadding;
-
 @interface GCIPAssetPickerCell : UITableViewCell {
-@private
-    NSUInteger numberOfAssets;
+    
 }
 
-+ (NSUInteger)sizeForNumberOfAssetsPerRow:(NSUInteger)count inView:(UIView *)view;
+// view geometry properties
+@property (nonatomic, assign) CGFloat columnPadding;
+@property (nonatomic, assign) NSUInteger numberOfColumns;
 
-- (id)initWithNumberOfAssets:(NSUInteger)count identifier:(NSString *)identifier;
+// calculate the tile size given certain parameters
++ (CGFloat)columnWidthForNumberOfColumns:(NSUInteger)columns withPadding:(CGFloat)padding inView:(UIView *)view;
+
+// set assets to display and pass a set of selected asset urls
 - (void)setAssets:(NSArray *)assets selected:(NSSet *)selected;
 
 @end

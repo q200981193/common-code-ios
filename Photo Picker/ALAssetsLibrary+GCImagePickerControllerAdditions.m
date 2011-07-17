@@ -75,7 +75,7 @@
          }
      }
      failureBlock:^(NSError *error) {
-         if (error != nil) { *inError = [error retain]; }
+         if (inError) { *inError = [error retain]; }
          groups = [[NSArray alloc] init];
      }];
     
@@ -85,7 +85,7 @@
     }
         
     // return
-    [*inError autorelease];
+    if (inError) { [*inError autorelease]; }
     return [groups autorelease];
     
 }
@@ -116,7 +116,7 @@
          }
      }
      failureBlock:^(NSError *error) {
-         if (inError != nil) { *inError = [error retain]; }
+         if (inError) { *inError = [error retain]; }
          assets = [[NSArray alloc] init];
      }];
     
@@ -126,8 +126,8 @@
     }
     
     // return
-    [*inError autorelease];
-    [*inGroup autorelease];
+    if (inGroup) { [*inGroup autorelease]; }
+    if (inError) { [*inError autorelease]; }
     return [assets autorelease];
     
 }

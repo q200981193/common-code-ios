@@ -32,15 +32,23 @@
 #import "ALAssetsLibrary+GCImagePickerControllerAdditions.h"
 
 @interface GCIPAssetPickerController ()
+
+// asset resources
 @property (nonatomic, copy) NSArray *allAssets;
 @property (nonatomic, retain) NSMutableSet *selectedAssetURLs;
 @property (nonatomic, copy) NSString *groupName;
+
+// ui resources
 @property (nonatomic, retain) UIActionSheet *sheet;
-@property (nonatomic, assign) NSUInteger numberOfAssetsPerRow;
+@property (nonatomic, retain) UITapGestureRecognizer *tapRecognizer;
+@property (nonatomic, assign) CGFloat columnPadding;
+@property (nonatomic, assign) NSUInteger numberOfColumns;
+
 @end
 
 @interface GCIPAssetPickerController (private)
 - (void)updateTitle;
+- (void)updateNumberOfColumns;
 @end
 
 @implementation GCIPAssetPickerController (private)
@@ -58,22 +66,33 @@
         self.title = self.groupName;
     }
 }
+- (void)updateNumberOfColumns {
+    if (UIInterfaceOrientationIsPortrait(self.interfaceOrientation)) {
+        self.numberOfColumns = (GC_IS_IPAD) ? 6 : 4;
+    }
+    else {
+        self.numberOfColumns = (GC_IS_IPAD) ? 8 : 4;
+    }
+}
 @end
 
 @implementation GCIPAssetPickerController
 
-@synthesize numberOfAssetsPerRow    = __numberOfAssetsPerRow;
-@synthesize selectedAssetURLs       = __selectedAssets;
-@synthesize groupIdentifier         = __groupIdentifier;
 @synthesize allAssets               = __allAssets;
+@synthesize selectedAssetURLs       = __selectedAssets;
 @synthesize groupName               = __groupName;
+@synthesize groupIdentifier         = __groupIdentifier;
+
 @synthesize sheet                   = __sheet;
+@synthesize tapRecognizer           = __tapRecognizer;
+@synthesize columnPadding           = __columnPadding;
+@synthesize numberOfColumns         = __numberOfColumns;
 
 #pragma mark - object methods
 - (id)initWithNibName:(NSString *)name bundle:(NSBundle *)bundle {
     self = [super initWithNibName:name bundle:bundle];
     if (self) {
-        self.numberOfAssetsPerRow = (GC_IS_IPAD) ? 6 : 4;
+        self.columnPadding = (GC_IS_IPAD) ? 6.0 : 4.0;
         self.editing = NO;
     }
     return self;
@@ -142,14 +161,15 @@
     [super viewDidLoad];
     
     // table view
+    [self updateNumberOfColumns];
     self.tableView.separatorStyle = UITableViewCellSeparatorStyleNone;
-    self.tableView.contentInset = UIEdgeInsetsMake(GCIPAssetViewPadding, 0.0, 0.0, 0.0);
-    self.tableView.contentOffset = CGPointMake(0.0, -GCIPAssetViewPadding);
-    UITapGestureRecognizer *gesture = [[UITapGestureRecognizer alloc]
-                                       initWithTarget:self
-                                       action:@selector(tableDidReceiveTap:)];
-    [self.tableView addGestureRecognizer:gesture];
-    [gesture release];
+    self.tableView.contentInset = UIEdgeInsetsMake(self.columnPadding, 0.0, 0.0, 0.0);
+    self.tableView.contentOffset = CGPointMake(0.0, self.columnPadding * -1.0);
+//    UITapGestureRecognizer *gesture = [[UITapGestureRecognizer alloc]
+//                                       initWithTarget:self
+//                                       action:@selector(tableDidReceiveTap:)];
+//    [self.tableView addGestureRecognizer:gesture];
+//    [gesture release];
     
     // reload
     [self reloadAssets];
@@ -238,24 +258,18 @@
 
 #pragma mark - table view
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
-    return ceilf((float)[self.allAssets count] / (float)self.numberOfAssetsPerRow);
-}
-- (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
-    CGFloat size = [GCIPAssetPickerCell
-                    sizeForNumberOfAssetsPerRow:self.numberOfAssetsPerRow
-                    inView:tableView];
-    return size + GCIPAssetViewPadding;
+    return ceilf((float)[self.allAssets count] / (float)self.numberOfColumns);
 }
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
     static NSString * const identifier = @"CellIdentifier";
     GCIPAssetPickerCell *cell = (GCIPAssetPickerCell *)[tableView dequeueReusableCellWithIdentifier:identifier];
     if (cell == nil) {
-        cell = [[[GCIPAssetPickerCell alloc]
-                 initWithNumberOfAssets:self.numberOfAssetsPerRow
-                 identifier:identifier] autorelease];
+        cell = [[[GCIPAssetPickerCell alloc] initWithStyle:0 reuseIdentifier:identifier] autorelease];
+        cell.columnPadding = self.columnPadding;
     }
-    NSUInteger start = indexPath.row * self.numberOfAssetsPerRow;
-    NSUInteger length = MIN([self.allAssets count] - start, self.numberOfAssetsPerRow);
+    cell.numberOfColumns = self.numberOfColumns;
+    NSUInteger start = indexPath.row * self.numberOfColumns;
+    NSUInteger length = MIN([self.allAssets count] - start, self.numberOfColumns);
     NSRange range = NSMakeRange(start, length);
     [cell
      setAssets:[self.allAssets subarrayWithRange:range]
@@ -265,57 +279,57 @@
 
 #pragma mark - gestures
 - (void)tableDidReceiveTap:(UITapGestureRecognizer *)gesture {
-    CGPoint location = [gesture locationInView:gesture.view];
-    CGFloat tileSize = [GCIPAssetPickerCell
-                        sizeForNumberOfAssetsPerRow:self.numberOfAssetsPerRow
-                        inView:gesture.view];
-    NSUInteger column = 0;
-    if (location.x > tileSize + GCIPAssetViewPadding) {
-        column = MIN(location.x / (tileSize + GCIPAssetViewPadding),
-                     self.numberOfAssetsPerRow - 1);
-    }
-    NSUInteger row = 0;
-    if (location.y > tileSize + GCIPAssetViewPadding) {
-        row = (location.y / (tileSize + GCIPAssetViewPadding));
-    }
-    NSUInteger index = row * self.numberOfAssetsPerRow + column;
-    if (index < [self.allAssets count]) {
-        
-        // get asset stuff
-        ALAsset *asset = [self.allAssets objectAtIndex:index];
-        ALAssetRepresentation *representation = [asset defaultRepresentation];
-        NSURL *defaultURL = [representation url];
-        
-        // enter select mode
-        if (!self.editing) {
-            self.editing = YES;
-        }
-        
-        // modify set
-        if ([self.selectedAssetURLs containsObject:defaultURL]) {
-            [self.selectedAssetURLs removeObject:defaultURL];
-        }
-        else {
-            [self.selectedAssetURLs addObject:defaultURL];
-        }
-        
-        // check set count
-        if (![self.selectedAssetURLs count]) {
-            self.editing = NO;
-        }
-        else {
-            GCImagePickerViewController *controller = self.imagePickerController;
-            BOOL action = (controller.actionTitle && controller.actionEnabled);
-            BOOL count = ([self.selectedAssetURLs count] < 6);
-            self.navigationItem.rightBarButtonItem.enabled = (action || count);
-        }
-        
-        // reload
-        [self updateTitle];
-        NSArray *paths = [NSArray arrayWithObject:[NSIndexPath indexPathForRow:row inSection:0]];
-        [self.tableView reloadRowsAtIndexPaths:paths withRowAnimation:UITableViewRowAnimationNone];
-        
-    }
+//    CGPoint location = [gesture locationInView:gesture.view];
+//    CGFloat tileSize = [GCIPAssetPickerCell
+//                        sizeForNumberOfAssetsPerRow:self.numberOfAssetsPerRow
+//                        inView:gesture.view];
+//    NSUInteger column = 0;
+//    if (location.x > tileSize + GCIPAssetViewPadding) {
+//        column = MIN(location.x / (tileSize + GCIPAssetViewPadding),
+//                     self.numberOfAssetsPerRow - 1);
+//    }
+//    NSUInteger row = 0;
+//    if (location.y > tileSize + GCIPAssetViewPadding) {
+//        row = (location.y / (tileSize + GCIPAssetViewPadding));
+//    }
+//    NSUInteger index = row * self.numberOfAssetsPerRow + column;
+//    if (index < [self.allAssets count]) {
+//        
+//        // get asset stuff
+//        ALAsset *asset = [self.allAssets objectAtIndex:index];
+//        ALAssetRepresentation *representation = [asset defaultRepresentation];
+//        NSURL *defaultURL = [representation url];
+//        
+//        // enter select mode
+//        if (!self.editing) {
+//            self.editing = YES;
+//        }
+//        
+//        // modify set
+//        if ([self.selectedAssetURLs containsObject:defaultURL]) {
+//            [self.selectedAssetURLs removeObject:defaultURL];
+//        }
+//        else {
+//            [self.selectedAssetURLs addObject:defaultURL];
+//        }
+//        
+//        // check set count
+//        if (![self.selectedAssetURLs count]) {
+//            self.editing = NO;
+//        }
+//        else {
+//            GCImagePickerViewController *controller = self.imagePickerController;
+//            BOOL action = (controller.actionTitle && controller.actionEnabled);
+//            BOOL count = ([self.selectedAssetURLs count] < 6);
+//            self.navigationItem.rightBarButtonItem.enabled = (action || count);
+//        }
+//        
+//        // reload
+//        [self updateTitle];
+//        NSArray *paths = [NSArray arrayWithObject:[NSIndexPath indexPathForRow:row inSection:0]];
+//        [self.tableView reloadRowsAtIndexPaths:paths withRowAnimation:UITableViewRowAnimationNone];
+//        
+//    }
 }
 
 #pragma mark - mail compose

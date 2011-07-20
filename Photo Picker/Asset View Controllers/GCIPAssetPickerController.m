@@ -40,14 +40,14 @@
 
 // ui resources
 @property (nonatomic, retain) UIActionSheet *sheet;
-@property (nonatomic, retain) UITapGestureRecognizer *tapRecognizer;
-@property (nonatomic, assign) CGFloat columnPadding;
+//@property (nonatomic, retain) UITapGestureRecognizer *tapRecognizer;
 @property (nonatomic, assign) NSUInteger numberOfColumns;
 
 @end
 
 @interface GCIPAssetPickerController (private)
 - (void)updateTitle;
+- (void)updateNumberOfColumnsForOrientation:(UIInterfaceOrientation)orientation;
 - (void)updateNumberOfColumns;
 @end
 
@@ -66,13 +66,16 @@
         self.title = self.groupName;
     }
 }
-- (void)updateNumberOfColumns {
-    if (UIInterfaceOrientationIsPortrait(self.interfaceOrientation)) {
-        self.numberOfColumns = (GC_IS_IPAD) ? 6 : 4;
+- (void)updateNumberOfColumnsForOrientation:(UIInterfaceOrientation)orientation {
+    if (UIInterfaceOrientationIsPortrait(orientation)) {
+        self.numberOfColumns = (GC_IS_IPAD) ? 5 : 4;
     }
     else {
-        self.numberOfColumns = (GC_IS_IPAD) ? 8 : 4;
+        self.numberOfColumns = (GC_IS_IPAD) ? 5 : 6;
     }
+}
+- (void)updateNumberOfColumns {
+    [self updateNumberOfColumnsForOrientation:self.interfaceOrientation];
 }
 @end
 
@@ -84,15 +87,13 @@
 @synthesize groupIdentifier         = __groupIdentifier;
 
 @synthesize sheet                   = __sheet;
-@synthesize tapRecognizer           = __tapRecognizer;
-@synthesize columnPadding           = __columnPadding;
+//@synthesize tapRecognizer           = __tapRecognizer;
 @synthesize numberOfColumns         = __numberOfColumns;
 
 #pragma mark - object methods
 - (id)initWithNibName:(NSString *)name bundle:(NSBundle *)bundle {
     self = [super initWithNibName:name bundle:bundle];
     if (self) {
-        self.columnPadding = (GC_IS_IPAD) ? 6.0 : 4.0;
         self.editing = NO;
     }
     return self;
@@ -104,7 +105,7 @@
     self.groupIdentifier = nil;
     self.allAssets = nil;
     self.groupName = nil;
-    self.sheet = nil;
+    [self.sheet dismissWithClickedButtonIndex:self.sheet.cancelButtonIndex animated:NO];
     
     // super
     [super dealloc];
@@ -163,8 +164,9 @@
     // table view
     [self updateNumberOfColumns];
     self.tableView.separatorStyle = UITableViewCellSeparatorStyleNone;
-    self.tableView.contentInset = UIEdgeInsetsMake(self.columnPadding, 0.0, 0.0, 0.0);
-    self.tableView.contentOffset = CGPointMake(0.0, self.columnPadding * -1.0);
+    self.tableView.rowHeight = (GC_IS_IPAD) ? 175.0 : 79.0;
+//    self.tableView.contentInset = UIEdgeInsetsMake(self.columnPadding, 0.0, 0.0, 0.0);
+//    self.tableView.contentOffset = CGPointMake(0.0, self.columnPadding * -1.0);
 //    UITapGestureRecognizer *gesture = [[UITapGestureRecognizer alloc]
 //                                       initWithTarget:self
 //                                       action:@selector(tableDidReceiveTap:)];
@@ -177,8 +179,19 @@
 }
 - (void)viewDidUnload {
     [super viewDidUnload];
+    self.allAssets = nil;
+    self.groupName = nil;
+    [self.sheet dismissWithClickedButtonIndex:self.sheet.cancelButtonIndex animated:NO];
     self.editing = NO;
 }
+- (void)willRotateToInterfaceOrientation:(UIInterfaceOrientation)orientation duration:(NSTimeInterval)duration {
+    [self updateNumberOfColumnsForOrientation:orientation];
+    [self.tableView reloadData];
+}
+//- (void)willAnimateRotationToInterfaceOrientation:(UIInterfaceOrientation)orientation duration:(NSTimeInterval)duration {
+//    [self updateNumberOfColumns];
+//    [self.tableView reloadData];
+//}
 
 #pragma mark - button actions
 - (void)setEditing:(BOOL)editing animated:(BOOL)animated {
@@ -258,14 +271,13 @@
 
 #pragma mark - table view
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
-    return ceilf((float)[self.allAssets count] / (float)self.numberOfColumns);
+    return (NSInteger)ceilf((float)[self.allAssets count] / (float)self.numberOfColumns);
 }
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
-    static NSString * const identifier = @"CellIdentifier";
+    static NSString *identifier = @"CellIdentifier";
     GCIPAssetPickerCell *cell = (GCIPAssetPickerCell *)[tableView dequeueReusableCellWithIdentifier:identifier];
     if (cell == nil) {
         cell = [[[GCIPAssetPickerCell alloc] initWithStyle:0 reuseIdentifier:identifier] autorelease];
-        cell.columnPadding = self.columnPadding;
     }
     cell.numberOfColumns = self.numberOfColumns;
     NSUInteger start = indexPath.row * self.numberOfColumns;

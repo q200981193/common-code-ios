@@ -14,20 +14,12 @@
 @implementation GCIPAssetPickerCell
 
 @synthesize numberOfColumns     = __numberOfColumns;
-@synthesize columnPadding       = __columnPadding;
-
-#pragma mark - class methods
-+ (CGFloat)columnWidthForNumberOfColumns:(NSUInteger)columns withPadding:(CGFloat)padding inView:(UIView *)view {
-    NSUInteger numberOfSpaces = columns + 1;
-    CGFloat spaceWidth = (CGFloat)numberOfSpaces * padding;
-    return (view.bounds.size.width - spaceWidth) / (CGFloat)columns;
-}
 
 #pragma mark - object methods
 - (id)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)identifier {
     self = [super initWithStyle:UITableViewCellStyleDefault reuseIdentifier:identifier];
     if (self) {
-        self.selectionStyle = UITableViewCellSelectionStyleNone;
+//        self.selectionStyle = UITableViewCellSelectionStyleNone;
     }
     return self;
 }
@@ -60,7 +52,6 @@
         if (assetView == nil && index < count) {
             assetView = [[GCIPAssetPickerAssetView alloc] initWithFrame:CGRectZero];
             assetView.tag = tag;
-//            assetView.autoresizingMask = UIViewAutoresizingFlexibleTopMargin;
             [self.contentView addSubview:assetView];
             [assetView release];
         }
@@ -77,22 +68,14 @@
 }
 - (void)layoutSubviews {
     [super layoutSubviews];
-//    CGFloat tile = [GCIPAssetPickerCell sizeForNumberOfAssetsPerRow:numberOfAssets inView:self];
-//    CGFloat y = self.bounds.size.height - tile - GCIPAssetViewPadding;
-//    CGFloat innerWidth = (float)numberOfAssets * tile + ((float)numberOfAssets - 1) * GCIPAssetViewPadding;
-//    CGFloat outerWidth = self.bounds.size.width - innerWidth;
-//    __block CGFloat x = floorf(outerWidth / 2.0);
-    CGFloat width = [GCIPAssetPickerCell
-                     columnWidthForNumberOfColumns:self.numberOfColumns
-                     withPadding:self.columnPadding
-                     inView:self.contentView];
-    CGFloat height = self.contentView.bounds.size.height;
-    CGFloat padding = self.columnPadding;
-    [self.contentView.subviews enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
-        CGRect frame = CGRectMake(padding + (width + padding) * (CGFloat)idx,
-                                  0.0,
-                                  width,
-                                  height);
+    CGFloat height = self.contentView.bounds.size.height - 4.0;
+    CGFloat width = self.contentView.bounds.size.width;
+    CGFloat columns = (CGFloat)self.numberOfColumns;
+    CGFloat occupiedWidth = height * columns;
+    CGFloat emptyWidth = width - occupiedWidth;
+    CGFloat paddingWidth = emptyWidth / (columns + 1.0);
+    [self.contentView.subviews enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop){
+        CGRect frame = CGRectMake(paddingWidth + (paddingWidth + height) * (CGFloat)idx, 0.0, height, height);
         [(UIView *)obj setFrame:frame];
     }];
 }

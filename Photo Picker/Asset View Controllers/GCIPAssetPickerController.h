@@ -26,12 +26,13 @@
 
 #import "GCIPTableViewController.h"
 
-// select an asset
+// select an asset from a given group
 @interface GCIPAssetPickerController : GCIPTableViewController
 <UIActionSheetDelegate, MFMailComposeViewControllerDelegate> {
     
 }
 
+// the group to browse
 @property (nonatomic, copy) NSString *groupIdentifier;
 
 @end

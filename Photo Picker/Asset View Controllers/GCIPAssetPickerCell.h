@@ -12,12 +12,8 @@
     
 }
 
-// view geometry properties
-@property (nonatomic, assign) CGFloat columnPadding;
+// number of columns for the cell to display
 @property (nonatomic, assign) NSUInteger numberOfColumns;
-
-// calculate the tile size given certain parameters
-+ (CGFloat)columnWidthForNumberOfColumns:(NSUInteger)columns withPadding:(CGFloat)padding inView:(UIView *)view;
 
 // set assets to display and pass a set of selected asset urls
 - (void)setAssets:(NSArray *)assets selected:(NSSet *)selected;

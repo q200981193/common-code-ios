@@ -28,6 +28,10 @@
 
 #import "ALAssetsLibrary+GCImagePickerControllerAdditions.h"
 
+@interface GCIPGroupPickerController ()
+@property (nonatomic, readwrite, copy) NSArray *groups;
+@end
+
 @implementation GCIPGroupPickerController
 
 @synthesize pickerDelegate                  = __pickerDelegate;
@@ -40,11 +44,15 @@
     if (self) {
         self.title = [GCImagePickerController localizedString:@"PHOTO_LIBRARY"];
         self.showDisclosureIndicators = YES;
+        formatter = [[NSNumberFormatter alloc] init];
+        [formatter setNumberStyle:NSNumberFormatterDecimalStyle];
     }
     return self;
 }
 - (void)dealloc {
     self.groups = nil;
+    [formatter release];
+    formatter = nil;
     [super dealloc];
 }
 - (void)reloadAssets {
@@ -58,6 +66,7 @@
             [GCImagePickerController failedToLoadAssetsWithError:error];
         }
         self.tableView.hidden = (![self.groups count]);
+        [self.tableView reloadData];
     }
 }
 
@@ -103,7 +112,7 @@
 	return [self.groups count];
 }
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
-	static NSString *CellIdentifier = @"Cell";
+	static NSString * CellIdentifier = @"Cell";
     UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier];
     if (cell == nil) {
         cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleValue1 reuseIdentifier:CellIdentifier] autorelease];
@@ -112,7 +121,8 @@
     ALAssetsGroup *group = [self.groups objectAtIndex:indexPath.row];
 	cell.textLabel.text = [group valueForProperty:ALAssetsGroupPropertyName];
 	cell.imageView.image = [UIImage imageWithCGImage:[group posterImage]];
-	cell.detailTextLabel.text = [NSString stringWithFormat:@"%d", [group numberOfAssets]];
+    NSNumber *count = [NSNumber numberWithInteger:[group numberOfAssets]];
+    cell.detailTextLabel.text = [formatter stringFromNumber:count];
     return cell;
 }
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {

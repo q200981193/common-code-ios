@@ -38,14 +38,15 @@
 
 // select a group (album, faces group, camera roll, etc)
 @interface GCIPGroupPickerController : GCIPTableViewController {
-    
+@private
+    NSNumberFormatter *formatter;
 }
 
 // group picker delegate
 @property (nonatomic, assign) id<GCIPGroupPickerControllerDelegate> pickerDelegate;
 
 // list of groups
-@property (nonatomic, copy) NSArray *groups;
+@property (nonatomic, readonly, copy) NSArray *groups;
 
 // show or hide disclosure indicators
 @property (nonatomic, assign) BOOL showDisclosureIndicators;

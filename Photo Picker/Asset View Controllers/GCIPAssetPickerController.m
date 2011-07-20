@@ -165,8 +165,8 @@
     [self updateNumberOfColumns];
     self.tableView.separatorStyle = UITableViewCellSeparatorStyleNone;
     self.tableView.rowHeight = (GC_IS_IPAD) ? 175.0 : 79.0;
-//    self.tableView.contentInset = UIEdgeInsetsMake(self.columnPadding, 0.0, 0.0, 0.0);
-//    self.tableView.contentOffset = CGPointMake(0.0, self.columnPadding * -1.0);
+    self.tableView.contentInset = UIEdgeInsetsMake(4.0, 0.0, 0.0, 0.0);
+    self.tableView.contentOffset = CGPointMake(0.0, -4.0);
 //    UITapGestureRecognizer *gesture = [[UITapGestureRecognizer alloc]
 //                                       initWithTarget:self
 //                                       action:@selector(tableDidReceiveTap:)];

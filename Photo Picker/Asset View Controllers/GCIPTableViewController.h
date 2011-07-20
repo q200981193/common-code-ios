@@ -24,7 +24,13 @@
 
 #import "GCIPViewController.h"
 
-// defines base class for browsing assets in a table
+/*
+ 
+ defines an abstract base class for view
+ controllers that show items from the
+ assets library in a table format.
+ 
+ */
 @interface GCIPTableViewController : GCIPViewController <UITableViewDelegate, UITableViewDataSource> {
     
 }

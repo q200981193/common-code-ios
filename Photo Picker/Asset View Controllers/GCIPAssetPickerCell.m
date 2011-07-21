@@ -1,27 +1,53 @@
-//
-//  GCAssetPickerCell.m
-//  QuickShot
-//
-//  Created by Caleb Davenport on 6/14/11.
-//  Copyright 2011 GUI Cocoa, LLC. All rights reserved.
-//
+/*
+ 
+ Copyright (C) 2011 GUI Cocoa, LLC.
+ 
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights
+ to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ copies of the Software, and to permit persons to whom the Software is
+ furnished to do so, subject to the following conditions:
+ 
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
+ 
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+ 
+ */
 
 #import <AssetsLibrary/AssetsLibrary.h>
 
 #import "GCIPAssetPickerCell.h"
 #import "GCIPAssetPickerAssetView.h"
 
+@interface GCIPAssetPickerCell ()
+@property (nonatomic, retain) UIGestureRecognizer *recognizer;
+@end
+
 @implementation GCIPAssetPickerCell
 
 @synthesize numberOfColumns     = __numberOfColumns;
+@synthesize recognizer          = __recognizer;
 
 #pragma mark - object methods
-- (id)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)identifier {
+- (id)initWithGestureRecognizer:(UIGestureRecognizer *)recognizer identifier:(NSString *)identifier {
     self = [super initWithStyle:UITableViewCellStyleDefault reuseIdentifier:identifier];
     if (self) {
         self.selectionStyle = UITableViewCellSelectionStyleNone;
+        self.recognizer = recognizer;
     }
     return self;
+}
+- (void)dealloc {
+    self.recognizer = nil;
+    [super dealloc];
 }
 - (void)setNumberOfColumns:(NSUInteger)count {
     
@@ -51,6 +77,7 @@
         // create view if we need one
         if (assetView == nil && index < count) {
             assetView = [[GCIPAssetPickerAssetView alloc] initWithFrame:CGRectZero];
+            [assetView addGestureRecognizer:self.recognizer];
             assetView.tag = tag;
             [self.contentView addSubview:assetView];
             [assetView release];
@@ -70,15 +97,15 @@
 }
 - (void)layoutSubviews {
     [super layoutSubviews];
-    CGFloat height = self.contentView.bounds.size.height - 4.0;
-    CGFloat width = self.contentView.bounds.size.width;
-    CGFloat columns = (CGFloat)self.numberOfColumns;
-    CGFloat spaces = columns + 1.0;
-    CGFloat emptyWidth = spaces * 4.0;
-    CGFloat occupiedWidth = width - emptyWidth;
-    CGFloat itemWidth = occupiedWidth / columns;
+    CGSize viewSize = self.contentView.bounds.size;
+    CGSize tileSize = { 0.0, viewSize.height - 4.0 };
+    NSUInteger columns = self.numberOfColumns;
+    NSUInteger spaces = columns + 1;
+    CGFloat totalHorizontalSpace = (CGFloat)spaces * 4.0;
+    CGFloat occupiedWidth = viewSize.width - totalHorizontalSpace;
+    tileSize.width = occupiedWidth / (CGFloat)columns;
     [self.contentView.subviews enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop){
-        CGRect frame = CGRectMake(4.0 + (4.0 + itemWidth) * (CGFloat)idx, 0.0, height, height);
+        CGRect frame = CGRectMake(4.0 + (4.0 + tileSize.width) * (CGFloat)idx, 0.0, tileSize.width, tileSize.height);
         [(UIView *)obj setFrame:frame];
     }];
 }

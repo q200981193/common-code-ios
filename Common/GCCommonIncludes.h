@@ -26,8 +26,7 @@ typedef void (^GCNotificationBlock)(NSNotification *);
 
 // default orientation support
 #define GC_SHOULD_ALLOW_ORIENTATION(orientation) \
-    if(GC_IS_IPAD) { return YES; } \
-    else { return (orientation == UIInterfaceOrientationPortrait); }
+    (GC_IS_IPAD) ? YES : (orientation == UIInterfaceOrientationPortrait);
 
 // macro to determine if platform is ipad
 #define GC_IS_IPAD (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad)

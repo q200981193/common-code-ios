@@ -32,7 +32,7 @@
 
 + (GCImagePickerViewController *)picker {
     if (GC_IS_IPAD) {
-        GCIPViewController_Pad *controller = [[GCIPViewController_Pad alloc] initWithNibName:nil bundle:nil];
+        GCIPViewController_Pad *controller = [[GCIPViewController_Pad alloc] init];
         return [controller autorelease];
     }
     else {

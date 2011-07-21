@@ -146,8 +146,8 @@
 @synthesize masterViewController        = __masterViewController;
 @synthesize assetPickerController       = __assetPickerController;
 
-- (id)initWithNibName:(NSString *)name bundle:(NSBundle *)bundle {
-    self = [super initWithNibName:name bundle:bundle];
+- (id)init {
+    self = [super init];
     if (self) {
         
         // assets library
@@ -180,6 +180,7 @@
         self.assetPickerController = assetPicker;
         [assetPicker release];
         
+        // set parent controllers
         @try {
             [groupPicker setValue:self forKey:@"parentViewController"];
             [assetPicker setValue:self forKey:@"parentViewController"];
@@ -262,7 +263,8 @@
 
 #pragma mark - view rotation
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)orientation {
-    GC_SHOULD_ALLOW_ORIENTATION(orientation);
+//    return GC_SHOULD_ALLOW_ORIENTATION(orientation);
+    return UIInterfaceOrientationIsLandscape(orientation);
 }
 - (void)willRotateToInterfaceOrientation:(UIInterfaceOrientation)orientation duration:(NSTimeInterval)duration {
     [self.masterViewController willRotateToInterfaceOrientation:orientation duration:duration];
@@ -340,48 +342,16 @@
     // set new identifier
     self.assetPickerController.groupIdentifier = identifier;
     
-    //    // remove old view
-    //    [detailViewController viewWillDisappear:NO];
-    //    [detailViewController.view removeFromSuperview];
-    //    [detailViewController viewDidDisappear:NO];
-    //    [detailViewController release];
-    //    
-    //    // tear down old picker
-    //    [assetPicker removeObserver:self forKeyPath:@"navigationItem.rightBarButtonItem"];
-    //    [assetPicker removeObserver:self forKeyPath:@"navigationItem.leftBarButtonItem"];
-    //    [assetPicker release];
-    //    
-    //    // create new view
-    //    assetPicker = [[GCIPAssetPickerController alloc] initWithAssetsGroupIdentifier:identifier];
-    //    assetPicker.imagePickerController = self;
-    //    [assetPicker addObserver:self
-    //                  forKeyPath:@"navigationItem.rightBarButtonItem"
-    //                     options:0
-    //                     context:0];
-    //    [assetPicker addObserver:self
-    //                  forKeyPath:@"navigationItem.leftBarButtonItem"
-    //                     options:0
-    //                     context:0];
-    //    detailViewController = [[UINavigationController alloc] initWithRootViewController:assetPicker];
-    //    
-    //    // setup views
-    //    [detailViewController view];
-    //    [detailViewController viewWillAppear:NO];
-    //    [self.view addSubview:detailViewController.view];
-    //    [self layoutViews];
-    //    [detailViewController viewDidAppear:NO];
-    //    
-    //    // change group picker view
-    //    NSIndexPath *indexPath = [picker.tableView indexPathForSelectedRow];
-    //    if (UIInterfaceOrientationIsLandscape(self.interfaceOrientation)) {
-    //        [picker.tableView deselectRowAtIndexPath:indexPath animated:YES];
-    //    }
-    //    else {
-    //        [popover dismissPopoverAnimated:YES];
-    //        [self popoverControllerDidDismissPopover:popover];
-    //        [picker.tableView deselectRowAtIndexPath:indexPath animated:NO];
-    //    }
-    //   
+    // deselect cell
+    NSIndexPath *indexPath = [picker.tableView indexPathForSelectedRow];
+    if (UIInterfaceOrientationIsLandscape(self.interfaceOrientation)) {
+        [picker.tableView deselectRowAtIndexPath:indexPath animated:YES];
+    }
+    else {
+        [GCIPViewController_Pad dismissPopover:self.popover animated:YES];
+        [picker.tableView deselectRowAtIndexPath:indexPath animated:NO];
+    }
+    
 }
 
 @end

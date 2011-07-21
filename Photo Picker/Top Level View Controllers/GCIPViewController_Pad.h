@@ -31,4 +31,7 @@
     
 }
 
+// designated initializer
+- (id)init;
+
 @end

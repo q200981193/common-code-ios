@@ -19,7 +19,7 @@
 - (id)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)identifier {
     self = [super initWithStyle:UITableViewCellStyleDefault reuseIdentifier:identifier];
     if (self) {
-//        self.selectionStyle = UITableViewCellSelectionStyleNone;
+        self.selectionStyle = UITableViewCellSelectionStyleNone;
     }
     return self;
 }
@@ -64,18 +64,21 @@
             [assetView setSelected:[selected containsObject:assetURL]];
         }
         [assetView setAsset:asset];
+        
     }
+    
 }
 - (void)layoutSubviews {
     [super layoutSubviews];
     CGFloat height = self.contentView.bounds.size.height - 4.0;
     CGFloat width = self.contentView.bounds.size.width;
     CGFloat columns = (CGFloat)self.numberOfColumns;
-    CGFloat occupiedWidth = height * columns;
-    CGFloat emptyWidth = width - occupiedWidth;
-    CGFloat paddingWidth = emptyWidth / (columns + 1.0);
+    CGFloat spaces = columns + 1.0;
+    CGFloat emptyWidth = spaces * 4.0;
+    CGFloat occupiedWidth = width - emptyWidth;
+    CGFloat itemWidth = occupiedWidth / columns;
     [self.contentView.subviews enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop){
-        CGRect frame = CGRectMake(paddingWidth + (paddingWidth + height) * (CGFloat)idx, 0.0, height, height);
+        CGRect frame = CGRectMake(4.0 + (4.0 + itemWidth) * (CGFloat)idx, 0.0, height, height);
         [(UIView *)obj setFrame:frame];
     }];
 }

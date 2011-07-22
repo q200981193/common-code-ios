@@ -30,6 +30,7 @@
 
 @interface GCIPGroupPickerController ()
 @property (nonatomic, readwrite, copy) NSArray *groups;
+@property (nonatomic, retain) NSNumberFormatter *format;
 @end
 
 @implementation GCIPGroupPickerController
@@ -37,6 +38,7 @@
 @synthesize pickerDelegate              = __pickerDelegate;
 @synthesize showDisclosureIndicators    = __showDisclosureIndicators;
 @synthesize groups                      = __groups;
+@synthesize format                      = __format;
 
 #pragma mark - object methods
 - (id)initWithNibName:(NSString *)name bundle:(NSBundle *)bundle {
@@ -44,15 +46,16 @@
     if (self) {
         self.title = [GCImagePickerController localizedString:@"PHOTO_LIBRARY"];
         self.showDisclosureIndicators = YES;
-        formatter = [[NSNumberFormatter alloc] init];
-        [formatter setNumberStyle:NSNumberFormatterDecimalStyle];
+        NSNumberFormatter *number = [[NSNumberFormatter alloc] init];
+        [number setNumberStyle:NSNumberFormatterDecimalStyle];
+        self.format = number;
+        [number release];
     }
     return self;
 }
 - (void)dealloc {
     self.groups = nil;
-    [formatter release];
-    formatter = nil;
+    self.format = nil;
     [super dealloc];
 }
 - (void)reloadAssets {
@@ -122,7 +125,7 @@
 	cell.textLabel.text = [group valueForProperty:ALAssetsGroupPropertyName];
 	cell.imageView.image = [UIImage imageWithCGImage:[group posterImage]];
     NSNumber *count = [NSNumber numberWithInteger:[group numberOfAssets]];
-    cell.detailTextLabel.text = [formatter stringFromNumber:count];
+    cell.detailTextLabel.text = [self.format stringFromNumber:count];
     return cell;
 }
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {

@@ -245,8 +245,8 @@
 - (void)action:(UIBarButtonItem *)sender {
     if (!self.sheet) {
         UIActionSheet *sheet = [[UIActionSheet alloc] initWithTitle:nil delegate:self cancelButtonTitle:nil destructiveButtonTitle:nil otherButtonTitles:nil];
-        GCImagePickerViewController *controller = self.imagePickerController;
-        if (controller.actionEnabled && controller.actionTitle) {
+        GCImagePickerController *controller = self.imagePickerController;
+        if (controller.actionBlock && controller.actionTitle) {
             [sheet addButtonWithTitle:controller.actionTitle];
         }
         if ([self.selectedAssetURLs count] < 6 && [MFMailComposeViewController canSendMail]) {
@@ -323,8 +323,8 @@
                 self.editing = NO;
             }
             else {
-                GCImagePickerViewController *controller = self.imagePickerController;
-                BOOL action = (controller.actionTitle && controller.actionEnabled);
+                GCImagePickerController *controller = self.imagePickerController;
+                BOOL action = (controller.actionBlock && controller.actionTitle);
                 BOOL count = ([self.selectedAssetURLs count] < 6);
                 self.navigationItem.rightBarButtonItem.enabled = (action || count);
             }
@@ -364,7 +364,7 @@
     
     // get resources
     NSString *title = [actionSheet buttonTitleAtIndex:buttonIndex];
-    GCImagePickerViewController *controller = self.imagePickerController;
+    GCImagePickerController *controller = self.imagePickerController;
     
     // copy
     if ([title isEqualToString:[GCImagePickerController localizedString:@"COPY"]]) {
@@ -392,7 +392,7 @@
         MFMailComposeViewController *mail = [[MFMailComposeViewController alloc] init];
         mail.mailComposeDelegate = self;
         mail.modalPresentationStyle = UIModalPresentationPageSheet;
-        __block unsigned long index = 0;
+        __block NSUInteger index = 0;
         [self.selectedAssetURLs enumerateObjectsUsingBlock:^(id obj, BOOL *stop) {
             [controller.assetsLibrary
              assetForURL:obj

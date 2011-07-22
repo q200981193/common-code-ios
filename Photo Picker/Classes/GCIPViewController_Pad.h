@@ -22,16 +22,12 @@
  
  */
 
-#import "GCImagePickerController.h"
+#import "GCIPViewController.h"
 #import "GCIPGroupPickerController.h"
-#import "GCIPAssetPickerController.h"
 
-@interface GCIPViewController_Pad : UIViewController
-<GCImagePickerController, GCIPGroupPickerControllerDelegate, UIPopoverControllerDelegate> {
+@interface GCIPViewController_Pad : GCIPViewController
+<GCIPGroupPickerControllerDelegate, UIPopoverControllerDelegate> {
     
 }
-
-// designated initializer
-- (id)init;
 
 @end

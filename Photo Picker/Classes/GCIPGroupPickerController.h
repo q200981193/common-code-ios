@@ -22,31 +22,32 @@
  
  */
 
-#import "GCImagePickerController.h"
+#import "GCIPTableViewController.h"
 
-/*
- 
- defines an abstract base class for view
- controllers that show items from the
- assets library.
- 
- */
-@interface GCIPViewController : UIViewController {
+@class GCIPGroupPickerController;
+@class ALAssetsGroup;
+
+// group picker delegate
+@protocol GCIPGroupPickerControllerDelegate <NSObject>
+@required
+
+// callback for group selection
+- (void)groupPicker:(GCIPGroupPickerController *)picker didPickGroup:(ALAssetsGroup *)group;
+
+@end
+
+// select a group (album, faces group, camera roll, etc)
+@interface GCIPGroupPickerController : GCIPTableViewController {
     
 }
 
-// object for which we get data and listen for changes
-@property (nonatomic, assign) GCImagePickerViewController *imagePickerController;
+// group picker delegate
+@property (nonatomic, assign) id<GCIPGroupPickerControllerDelegate> pickerDelegate;
 
-/*
- 
- perform a reload of the assets we are displaying.
- the default implementation of this method does
- nothing and should only serve as a template for
- how subclasses should perform reloading. you do
- not need to call super.
- 
- */
-- (void)reloadAssets;
+// list of groups
+@property (nonatomic, readonly, copy) NSArray *groups;
+
+// show or hide disclosure indicators
+@property (nonatomic, assign) BOOL showDisclosureIndicators;
 
 @end

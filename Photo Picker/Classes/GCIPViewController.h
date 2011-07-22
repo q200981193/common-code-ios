@@ -24,13 +24,31 @@
 
 #import <UIKit/UIKit.h>
 
-@class ALAsset;
+@class GCImagePickerController;
 
-@interface GCIPAssetPickerAssetView : UIView {
+/*
+ 
+ defines an abstract base class for view
+ controllers that show items from the
+ assets library.
+ 
+ */
+@interface GCIPViewController : UIViewController {
     
 }
 
-@property (nonatomic, retain) ALAsset *asset;
-@property (nonatomic, assign) BOOL selected;
+// object for which we get data and listen for changes
+@property (nonatomic, assign) GCImagePickerController *imagePickerController;
+
+/*
+ 
+ perform a reload of the assets we are displaying.
+ the default implementation of this method does
+ nothing and should only serve as a template for
+ how subclasses should perform reloading. you do
+ not need to call super.
+ 
+ */
+- (void)reloadAssets;
 
 @end

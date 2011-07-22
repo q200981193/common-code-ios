@@ -26,8 +26,8 @@
 
 @implementation GCIPTableViewController
 
-@synthesize tableView = __tableView;
-@synthesize imageView = __imageView;
+@synthesize tableView   = __tableView;
+@synthesize imageView   = __imageView;
 
 - (id)initWithNibName:(NSString *)name bundle:(NSBundle *)bundle {
     return [super initWithNibName:@"GCIPTableViewController" bundle:bundle];

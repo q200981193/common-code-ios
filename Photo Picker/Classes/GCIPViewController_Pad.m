@@ -22,14 +22,16 @@
  
  */
 
+#import <AssetsLibrary/AssetsLibrary.h>
+
 #import "GCIPViewController_Pad.h"
+#import "GCIPAssetPickerController.h"
 
 @interface GCIPViewController_Pad ()
 @property (nonatomic, retain) UIToolbar *toolbar;
 @property (nonatomic, retain) UIPopoverController *popover;
 @property (nonatomic, retain) UIViewController *masterViewController;
 @property (nonatomic, retain) GCIPAssetPickerController *assetPickerController;
-@property (nonatomic, readwrite, retain) ALAssetsLibrary *assetsLibrary;
 @end
 
 @interface GCIPViewController_Pad (private)
@@ -133,13 +135,6 @@
 
 @implementation GCIPViewController_Pad
 
-// image picker controller properties
-@synthesize actionBlock     = __actionBlock;
-@synthesize actionTitle     = __actionTitle;
-@synthesize actionEnabled   = __actionEnabled;
-@synthesize assetsFilter    = __assetsFilter;
-@synthesize assetsLibrary   = __assetsLibrary;
-
 // local properties
 @synthesize toolbar                     = __toolbar;
 @synthesize popover                     = __popover;
@@ -150,15 +145,10 @@
     self = [super init];
     if (self) {
         
-        // assets library
-        ALAssetsLibrary *library = [[ALAssetsLibrary alloc] init];
-        self.assetsLibrary = library;
-        [library release];
-        
         // create group picker controller
         GCIPGroupPickerController *groupPicker = [[GCIPGroupPickerController alloc] initWithNibName:nil bundle:nil];
         groupPicker.pickerDelegate = self;
-        groupPicker.imagePickerController = self;
+        groupPicker.imagePickerController = self.imagePickerController;
         groupPicker.showDisclosureIndicators = NO;
         UINavigationController *nav = [[UINavigationController alloc] initWithRootViewController:groupPicker];
         self.masterViewController = nav;
@@ -166,7 +156,7 @@
         
         // create asset picker
         GCIPAssetPickerController *assetPicker = [[GCIPAssetPickerController alloc] initWithNibName:nil bundle:nil];
-        assetPicker.imagePickerController = self;
+        assetPicker.imagePickerController = self.imagePickerController;
         [assetPicker
          addObserver:self
          forKeyPath:@"navigationItem.leftBarButtonItem"
@@ -193,10 +183,6 @@
 - (void)dealloc {
     
     // clear properties
-    self.actionBlock = nil;
-    self.actionTitle = nil;
-    self.assetsFilter = nil;
-    self.assetsLibrary = nil;
     self.toolbar = nil;
     
     // dismiss popover

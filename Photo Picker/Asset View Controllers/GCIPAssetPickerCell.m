@@ -25,7 +25,7 @@
 #import <AssetsLibrary/AssetsLibrary.h>
 
 #import "GCIPAssetPickerCell.h"
-#import "GCIPAssetPickerAssetView.h"
+#import "GCIPAssetPickerView.h"
 
 @implementation GCIPAssetPickerCell
 
@@ -62,11 +62,11 @@
         
         // get view
         NSUInteger tag = index + 1;
-        GCIPAssetPickerAssetView *assetView = (GCIPAssetPickerAssetView *)[self.contentView viewWithTag:tag];
+        GCIPAssetPickerView *assetView = (GCIPAssetPickerView *)[self.contentView viewWithTag:tag];
         
         // create view if we need one
         if (assetView == nil && index < count) {
-            assetView = [[GCIPAssetPickerAssetView alloc] initWithFrame:CGRectZero];
+            assetView = [[GCIPAssetPickerView alloc] initWithFrame:CGRectZero];
             assetView.tag = tag;
             [self.contentView addSubview:assetView];
             [assetView release];

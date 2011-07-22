@@ -26,6 +26,7 @@
 
 #import "GCIPAssetPickerController.h"
 #import "GCIPAssetPickerCell.h"
+#import "GCIPAssetPickerAssetView.h"
 
 #import "GCImagePickerController.h"
 
@@ -40,7 +41,7 @@
 
 // ui resources
 @property (nonatomic, retain) UIActionSheet *sheet;
-//@property (nonatomic, retain) UITapGestureRecognizer *tapRecognizer;
+@property (nonatomic, retain) UITapGestureRecognizer *recognizer;
 @property (nonatomic, assign) NSUInteger numberOfColumns;
 
 @end
@@ -87,7 +88,7 @@
 @synthesize groupIdentifier         = __groupIdentifier;
 
 @synthesize sheet                   = __sheet;
-//@synthesize tapRecognizer           = __tapRecognizer;
+@synthesize recognizer              = __recognizer;
 @synthesize numberOfColumns         = __numberOfColumns;
 
 #pragma mark - object methods
@@ -105,6 +106,7 @@
     self.groupIdentifier = nil;
     self.allAssets = nil;
     self.groupName = nil;
+    self.recognizer = nil;
     [self.sheet dismissWithClickedButtonIndex:self.sheet.cancelButtonIndex animated:NO];
     
     // super
@@ -164,14 +166,14 @@
     // table view
     [self updateNumberOfColumns];
     self.tableView.separatorStyle = UITableViewCellSeparatorStyleNone;
-    self.tableView.rowHeight = (GC_IS_IPAD) ? 175.0 : 79.0;
+    self.tableView.rowHeight = (GC_IS_IPAD) ? 150.0 : 79.0;
     self.tableView.contentInset = UIEdgeInsetsMake(4.0, 0.0, 0.0, 0.0);
     self.tableView.contentOffset = CGPointMake(0.0, -4.0);
-//    UITapGestureRecognizer *gesture = [[UITapGestureRecognizer alloc]
-//                                       initWithTarget:self
-//                                       action:@selector(tableDidReceiveTap:)];
-//    [self.tableView addGestureRecognizer:gesture];
-//    [gesture release];
+    UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc]
+                                   initWithTarget:self
+                                   action:@selector(tableDidReceiveTap:)];
+    self.recognizer = tap;
+    [tap release];
     
     // reload
     [self reloadAssets];
@@ -181,6 +183,7 @@
     [super viewDidUnload];
     self.allAssets = nil;
     self.groupName = nil;
+    self.recognizer = nil;
     [self.sheet dismissWithClickedButtonIndex:self.sheet.cancelButtonIndex animated:NO];
     self.editing = NO;
 }
@@ -277,7 +280,7 @@
     static NSString *identifier = @"CellIdentifier";
     GCIPAssetPickerCell *cell = (GCIPAssetPickerCell *)[tableView dequeueReusableCellWithIdentifier:identifier];
     if (cell == nil) {
-        cell = [[[GCIPAssetPickerCell alloc] initWithStyle:0 reuseIdentifier:identifier] autorelease];
+        cell = [[[GCIPAssetPickerCell alloc] initWithGestureRecognizer:self.recognizer identifier:identifier] autorelease];
     }
     cell.numberOfColumns = self.numberOfColumns;
     NSUInteger start = indexPath.row * self.numberOfColumns;
@@ -291,57 +294,45 @@
 
 #pragma mark - gestures
 - (void)tableDidReceiveTap:(UITapGestureRecognizer *)gesture {
-//    CGPoint location = [gesture locationInView:gesture.view];
-//    CGFloat tileSize = [GCIPAssetPickerCell
-//                        sizeForNumberOfAssetsPerRow:self.numberOfAssetsPerRow
-//                        inView:gesture.view];
-//    NSUInteger column = 0;
-//    if (location.x > tileSize + GCIPAssetViewPadding) {
-//        column = MIN(location.x / (tileSize + GCIPAssetViewPadding),
-//                     self.numberOfAssetsPerRow - 1);
-//    }
-//    NSUInteger row = 0;
-//    if (location.y > tileSize + GCIPAssetViewPadding) {
-//        row = (location.y / (tileSize + GCIPAssetViewPadding));
-//    }
-//    NSUInteger index = row * self.numberOfAssetsPerRow + column;
-//    if (index < [self.allAssets count]) {
-//        
-//        // get asset stuff
-//        ALAsset *asset = [self.allAssets objectAtIndex:index];
-//        ALAssetRepresentation *representation = [asset defaultRepresentation];
-//        NSURL *defaultURL = [representation url];
-//        
-//        // enter select mode
-//        if (!self.editing) {
-//            self.editing = YES;
-//        }
-//        
-//        // modify set
-//        if ([self.selectedAssetURLs containsObject:defaultURL]) {
-//            [self.selectedAssetURLs removeObject:defaultURL];
-//        }
-//        else {
-//            [self.selectedAssetURLs addObject:defaultURL];
-//        }
-//        
-//        // check set count
-//        if (![self.selectedAssetURLs count]) {
-//            self.editing = NO;
-//        }
-//        else {
-//            GCImagePickerViewController *controller = self.imagePickerController;
-//            BOOL action = (controller.actionTitle && controller.actionEnabled);
-//            BOOL count = ([self.selectedAssetURLs count] < 6);
-//            self.navigationItem.rightBarButtonItem.enabled = (action || count);
-//        }
-//        
-//        // reload
-//        [self updateTitle];
-//        NSArray *paths = [NSArray arrayWithObject:[NSIndexPath indexPathForRow:row inSection:0]];
-//        [self.tableView reloadRowsAtIndexPaths:paths withRowAnimation:UITableViewRowAnimationNone];
-//        
-//    }
+    if (gesture.state == UIGestureRecognizerStateEnded) {
+        if ([gesture.view isKindOfClass:[GCIPAssetPickerAssetView class]]) {
+            
+            // get asset
+            GCIPAssetPickerAssetView *assetView = (GCIPAssetPickerAssetView *)gesture.view;
+            ALAsset *asset = assetView.asset;
+            ALAssetRepresentation *representation = [asset defaultRepresentation];
+            NSURL *defaultURL = [representation url];
+            
+            // enter select mode
+            if (!self.editing) {
+                self.editing = YES;
+            }
+            
+            // modify set
+            if ([self.selectedAssetURLs containsObject:defaultURL]) {
+                [self.selectedAssetURLs removeObject:defaultURL];
+            }
+            else {
+                [self.selectedAssetURLs addObject:defaultURL];
+            }
+            
+            // check set count
+            if (![self.selectedAssetURLs count]) {
+                self.editing = NO;
+            }
+            else {
+                GCImagePickerViewController *controller = self.imagePickerController;
+                BOOL action = (controller.actionTitle && controller.actionEnabled);
+                BOOL count = ([self.selectedAssetURLs count] < 6);
+                self.navigationItem.rightBarButtonItem.enabled = (action || count);
+            }
+            
+            // reload
+            [self updateTitle];
+            [self.tableView reloadData];
+            
+        }
+    }
 }
 
 #pragma mark - mail compose

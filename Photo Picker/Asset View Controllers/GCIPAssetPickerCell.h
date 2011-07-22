@@ -29,9 +29,6 @@
     
 }
 
-// create cell with a regognizer to register with all tiles
-- (id)initWithGestureRecognizer:(UIGestureRecognizer *)recognizer identifier:(NSString *)identifier;
-
 // number of columns for the cell to display
 @property (nonatomic, assign) NSUInteger numberOfColumns;
 

@@ -27,27 +27,17 @@
 #import "GCIPAssetPickerCell.h"
 #import "GCIPAssetPickerAssetView.h"
 
-@interface GCIPAssetPickerCell ()
-@property (nonatomic, retain) UIGestureRecognizer *recognizer;
-@end
-
 @implementation GCIPAssetPickerCell
 
 @synthesize numberOfColumns     = __numberOfColumns;
-@synthesize recognizer          = __recognizer;
 
 #pragma mark - object methods
-- (id)initWithGestureRecognizer:(UIGestureRecognizer *)recognizer identifier:(NSString *)identifier {
+- (id)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)identifier {
     self = [super initWithStyle:UITableViewCellStyleDefault reuseIdentifier:identifier];
     if (self) {
         self.selectionStyle = UITableViewCellSelectionStyleNone;
-        self.recognizer = recognizer;
     }
     return self;
-}
-- (void)dealloc {
-    self.recognizer = nil;
-    [super dealloc];
 }
 - (void)setNumberOfColumns:(NSUInteger)count {
     
@@ -77,7 +67,6 @@
         // create view if we need one
         if (assetView == nil && index < count) {
             assetView = [[GCIPAssetPickerAssetView alloc] initWithFrame:CGRectZero];
-            [assetView addGestureRecognizer:self.recognizer];
             assetView.tag = tag;
             [self.contentView addSubview:assetView];
             [assetView release];

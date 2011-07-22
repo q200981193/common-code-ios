@@ -26,7 +26,6 @@
 
 #import "GCIPAssetPickerController.h"
 #import "GCIPAssetPickerCell.h"
-#import "GCIPAssetPickerAssetView.h"
 
 #import "GCImagePickerController.h"
 
@@ -172,7 +171,7 @@
     UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc]
                                    initWithTarget:self
                                    action:@selector(tableDidReceiveTap:)];
-    self.recognizer = tap;
+    [self.tableView addGestureRecognizer:tap];
     [tap release];
     
     // reload
@@ -280,7 +279,7 @@
     static NSString *identifier = @"CellIdentifier";
     GCIPAssetPickerCell *cell = (GCIPAssetPickerCell *)[tableView dequeueReusableCellWithIdentifier:identifier];
     if (cell == nil) {
-        cell = [[[GCIPAssetPickerCell alloc] initWithGestureRecognizer:self.recognizer identifier:identifier] autorelease];
+        cell = [[[GCIPAssetPickerCell alloc] initWithStyle:0 reuseIdentifier:identifier] autorelease];
     }
     cell.numberOfColumns = self.numberOfColumns;
     NSUInteger start = indexPath.row * self.numberOfColumns;
@@ -294,12 +293,15 @@
 
 #pragma mark - gestures
 - (void)tableDidReceiveTap:(UITapGestureRecognizer *)gesture {
-    if (gesture.state == UIGestureRecognizerStateEnded) {
-        if ([gesture.view isKindOfClass:[GCIPAssetPickerAssetView class]]) {
+    if (gesture.state == UIGestureRecognizerStateEnded && gesture.view == self.tableView) {
+        CGPoint location = [gesture locationInView:gesture.view];
+        NSUInteger row = location.y / self.tableView.rowHeight;
+        NSUInteger column = location.x / (self.tableView.bounds.size.width / self.numberOfColumns);
+        NSUInteger index = row * self.numberOfColumns + column;
+        if (index < [self.allAssets count]) {
             
-            // get asset
-            GCIPAssetPickerAssetView *assetView = (GCIPAssetPickerAssetView *)gesture.view;
-            ALAsset *asset = assetView.asset;
+            // get asset stuff
+            ALAsset *asset = [self.allAssets objectAtIndex:index];
             ALAssetRepresentation *representation = [asset defaultRepresentation];
             NSURL *defaultURL = [representation url];
             
@@ -329,7 +331,8 @@
             
             // reload
             [self updateTitle];
-            [self.tableView reloadData];
+            NSArray *paths = [NSArray arrayWithObject:[NSIndexPath indexPathForRow:row inSection:0]];
+            [self.tableView reloadRowsAtIndexPaths:paths withRowAnimation:UITableViewRowAnimationNone];
             
         }
     }

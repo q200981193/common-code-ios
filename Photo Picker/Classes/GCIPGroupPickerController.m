@@ -35,7 +35,7 @@
 
 @implementation GCIPGroupPickerController
 
-@synthesize pickerDelegate              = __pickerDelegate;
+@synthesize groupPickerDelegate         = __pickerDelegate;
 @synthesize showDisclosureIndicators    = __showDisclosureIndicators;
 @synthesize groups                      = __groups;
 @synthesize format                      = __format;
@@ -130,7 +130,7 @@
 }
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
     ALAssetsGroup *group = [self.groups objectAtIndex:indexPath.row];
-    [self.pickerDelegate groupPicker:self didPickGroup:group];
+    [self.groupPickerDelegate groupPicker:self didSelectGroup:group];
 }
 
 @end

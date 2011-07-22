@@ -32,7 +32,7 @@
 @required
 
 // callback for group selection
-- (void)groupPicker:(GCIPGroupPickerController *)picker didPickGroup:(ALAssetsGroup *)group;
+- (void)groupPicker:(GCIPGroupPickerController *)groupPicker didSelectGroup:(ALAssetsGroup *)group;
 
 @end
 
@@ -42,7 +42,7 @@
 }
 
 // group picker delegate
-@property (nonatomic, assign) id<GCIPGroupPickerControllerDelegate> pickerDelegate;
+@property (nonatomic, assign) id<GCIPGroupPickerControllerDelegate> groupPickerDelegate;
 
 // list of groups
 @property (nonatomic, readonly, copy) NSArray *groups;

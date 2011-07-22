@@ -147,7 +147,7 @@
         
         // create group picker controller
         GCIPGroupPickerController *groupPicker = [[GCIPGroupPickerController alloc] initWithNibName:nil bundle:nil];
-        groupPicker.pickerDelegate = self;
+        groupPicker.groupPickerDelegate = self;
         groupPicker.imagePickerController = self.imagePickerController;
         groupPicker.showDisclosureIndicators = NO;
         UINavigationController *nav = [[UINavigationController alloc] initWithRootViewController:groupPicker];
@@ -320,7 +320,7 @@
 }
 
 #pragma mark - group picker delegate
-- (void)groupPicker:(GCIPGroupPickerController *)picker didPickGroup:(ALAssetsGroup *)group {
+- (void)groupPicker:(GCIPGroupPickerController *)groupPicker didSelectGroup:(ALAssetsGroup *)group {
     
     // get identifier
     NSString *identifier = [group valueForProperty:ALAssetsGroupPropertyPersistentID];
@@ -329,13 +329,13 @@
     self.assetPickerController.groupIdentifier = identifier;
     
     // deselect cell
-    NSIndexPath *indexPath = [picker.tableView indexPathForSelectedRow];
+    NSIndexPath *indexPath = [groupPicker.tableView indexPathForSelectedRow];
     if (UIInterfaceOrientationIsLandscape(self.interfaceOrientation)) {
-        [picker.tableView deselectRowAtIndexPath:indexPath animated:YES];
+        [groupPicker.tableView deselectRowAtIndexPath:indexPath animated:YES];
     }
     else {
         [GCIPViewController_Pad dismissPopover:self.popover animated:YES];
-        [picker.tableView deselectRowAtIndexPath:indexPath animated:NO];
+        [groupPicker.tableView deselectRowAtIndexPath:indexPath animated:NO];
     }
     
 }

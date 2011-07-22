@@ -147,20 +147,20 @@
     NSInteger code = [error code];
     if (code == ALAssetsLibraryAccessUserDeniedError || code == ALAssetsLibraryAccessGloballyDeniedError) {
         UIAlertView *alert = [[UIAlertView alloc]
-                              initWithTitle:[GCImagePickerController localizedString:@"ERROR"]
-                              message:[GCImagePickerController localizedString:@"PHOTO_ROLL_LOCATION_ERROR"]
+                              initWithTitle:[self localizedString:@"ERROR"]
+                              message:[self localizedString:@"PHOTO_ROLL_LOCATION_ERROR"]
                               delegate:nil
-                              cancelButtonTitle:[GCImagePickerController localizedString:@"OK"]
+                              cancelButtonTitle:[self localizedString:@"OK"]
                               otherButtonTitles:nil];
         [alert show];
         [alert release];
     }
     else {
         UIAlertView *alert = [[UIAlertView alloc]
-                              initWithTitle:[GCImagePickerController localizedString:@"ERROR"]
-                              message:[GCImagePickerController localizedString:@"UNKNOWN_LIBRARY_ERROR"]
+                              initWithTitle:[self localizedString:@"ERROR"]
+                              message:[self localizedString:@"UNKNOWN_LIBRARY_ERROR"]
                               delegate:nil
-                              cancelButtonTitle:[GCImagePickerController localizedString:@"OK"]
+                              cancelButtonTitle:[self localizedString:@"OK"]
                               otherButtonTitles:nil];
         [alert show];
         [alert release];

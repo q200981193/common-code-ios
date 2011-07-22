@@ -32,6 +32,7 @@
 @property (nonatomic, retain) UIPopoverController *popover;
 @property (nonatomic, retain) UIViewController *masterViewController;
 @property (nonatomic, retain) GCIPAssetPickerController *assetPickerController;
+@property (nonatomic, retain) GCIPGroupPickerController *groupPickerController;
 @end
 
 @interface GCIPViewController_Pad (private)
@@ -136,11 +137,13 @@
 @implementation GCIPViewController_Pad
 
 // local properties
-@synthesize toolbar                     = __toolbar;
-@synthesize popover                     = __popover;
-@synthesize masterViewController        = __masterViewController;
-@synthesize assetPickerController       = __assetPickerController;
+@synthesize toolbar                 = __toolbar;
+@synthesize popover                 = __popover;
+@synthesize masterViewController    = __masterViewController;
+@synthesize assetPickerController   = __assetPickerController;
+@synthesize groupPickerController   = __groupPickerController;
 
+#pragma mark - object methods
 - (id)init {
     self = [super init];
     if (self) {
@@ -152,7 +155,9 @@
         groupPicker.showDisclosureIndicators = NO;
         UINavigationController *nav = [[UINavigationController alloc] initWithRootViewController:groupPicker];
         self.masterViewController = nav;
+        self.groupPickerController = groupPicker;
         [nav release];
+        [groupPicker release];
         
         // create asset picker
         GCIPAssetPickerController *assetPicker = [[GCIPAssetPickerController alloc] initWithNibName:nil bundle:nil];
@@ -190,6 +195,7 @@
     
     // clear view controllers
     self.masterViewController = nil;
+    self.groupPickerController = nil;
     [self.assetPickerController
      removeObserver:self
      forKeyPath:@"navigationItem.rightBarButtonItem"];
@@ -201,6 +207,10 @@
     // super
     [super dealloc];
     
+}
+- (void)reloadAssets {
+    [self.groupPickerController reloadAssets];
+    [self.assetPickerController reloadAssets];
 }
 
 #pragma mark - view lifecycle

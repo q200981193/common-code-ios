@@ -27,6 +27,7 @@
 
 #import "GCImagePickerController.h"
 #import "GCIPViewController_Pad.h"
+#import "GCIPAssetPickerController.h"
 
 @interface GCImagePickerController ()
 @property (nonatomic, readwrite, retain) ALAssetsLibrary *assetsLibrary;
@@ -57,12 +58,14 @@
 - (id)initWithRootViewController:(UIViewController *)root {
     if (GC_IS_IPAD) {
         GCIPViewController_Pad *controller = [[GCIPViewController_Pad alloc] initWithNibName:nil bundle:nil];
+        controller.imagePickerController = self;
         self = [super initWithRootViewController:controller];
         [controller release];
     }
     else {
         GCIPGroupPickerController *controller = [[GCIPGroupPickerController alloc] initWithNibName:nil bundle:nil];
         controller.imagePickerController = self;
+        controller.groupPickerDelegate = self;
         self = [super initWithRootViewController:controller];
         [controller release];
     }
@@ -103,12 +106,12 @@
 }
 
 #pragma mark - group picker delegate
-- (void)groupPicker:(GCIPGroupPickerController *)picker didPickGroup:(ALAssetsGroup *)group {
-//    GCIPAssetPickerController *assetPicker = [[GCIPAssetPickerController alloc] initWithNibName:nil bundle:nil];
-//    assetPicker.groupIdentifier = [group valueForProperty:ALAssetsGroupPropertyPersistentID];
-//    assetPicker.imagePickerController = self;
-//    [self pushViewController:assetPicker animated:YES];
-//    [assetPicker release];
+- (void)groupPicker:(GCIPGroupPickerController *)groupPicker didSelectGroup:(ALAssetsGroup *)group {
+    GCIPAssetPickerController *assetPicker = [[GCIPAssetPickerController alloc] initWithNibName:nil bundle:nil];
+    assetPicker.groupIdentifier = [group valueForProperty:ALAssetsGroupPropertyPersistentID];
+    assetPicker.imagePickerController = groupPicker.imagePickerController;
+    [self pushViewController:assetPicker animated:YES];
+    [assetPicker release];
 }
 
 #pragma mark - notifications

@@ -23,23 +23,110 @@
  */
 
 #import <MobileCoreServices/MobileCoreServices.h>
+#import <AssetsLibrary/AssetsLibrary.h>
 
 #import "GCImagePickerController.h"
 #import "GCIPViewController_Phone.h"
 #import "GCIPViewController_Pad.h"
 
+@interface GCImagePickerController ()
+@property (nonatomic, readwrite, retain) ALAssetsLibrary *assetsLibrary;
+@end
+
+@interface GCImagePickerController (private)
+- (void)reloadChildren;
+@end
+
+@implementation GCImagePickerController (private)
+- (void)reloadChildren {
+    [self.viewControllers enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+        if ([obj isKindOfClass:[GCIPViewController class]]) {
+            [(GCIPViewController *)obj reloadAssets];
+        }
+    }];
+}
+@end
+
 @implementation GCImagePickerController
 
-+ (GCImagePickerViewController *)picker {
-    if (GC_IS_IPAD) {
-        GCIPViewController_Pad *controller = [[GCIPViewController_Pad alloc] init];
-        return [controller autorelease];
+@synthesize actionBlock     = __actionBlock;
+@synthesize actionTitle     = __actionTitle;
+@synthesize assetsFilter    = __assetsFilter;
+@synthesize assetsLibrary   = __assetsLibrary;
+
+#pragma mark - object methods
+- (id)initWithRootViewController:(UIViewController *)root {
+    self = [super initWithRootViewController:nil];
+    if (self) {
+        
+        // create library
+        ALAssetsLibrary *library = [[ALAssetsLibrary alloc] init];
+        self.assetsLibrary = library;
+        [library release];
+        
+        // sign up for notifs
+        [[NSNotificationCenter defaultCenter]
+         addObserver:self
+         selector:@selector(assetsLibraryDidChange:)
+         name:ALAssetsLibraryChangedNotification
+         object:self.assetsLibrary];
+        
     }
-    else {
-        GCIPViewController_Phone *controller = [[GCIPViewController_Phone alloc] initWithRootViewController:nil];
-        return [controller autorelease];
-    }
+    return self;
 }
+- (void)dealloc {
+    
+    // clear notifs
+    [[NSNotificationCenter defaultCenter]
+     removeObserver:self
+     name:ALAssetsLibraryChangedNotification
+     object:self.assetsLibrary];
+    
+    // clear properties
+    self.assetsLibrary = nil;
+    self.actionBlock = nil;
+    self.actionTitle = nil;
+    self.assetsFilter = nil;
+    
+    // super
+    [super dealloc];
+    
+}
+
+#pragma mark - group picker delegate
+- (void)groupPicker:(GCIPGroupPickerController *)picker didPickGroup:(ALAssetsGroup *)group {
+    GCIPAssetPickerController *assetPicker = [[GCIPAssetPickerController alloc] initWithNibName:nil bundle:nil];
+    assetPicker.groupIdentifier = [group valueForProperty:ALAssetsGroupPropertyPersistentID];
+    assetPicker.imagePickerController = self;
+    [self pushViewController:assetPicker animated:YES];
+    [assetPicker release];
+}
+
+#pragma mark - notifications
+- (void)assetsLibraryDidChange:(NSNotification *)notif {
+    [self reloadChildren];
+}
+
+#pragma mark - accessors
+- (void)setAssetsFilter:(ALAssetsFilter *)filter {
+    
+    // check value
+    if ([filter isEqual:__assetsFilter]) {
+        return;
+    }
+    
+    // capture value
+    [__assetsFilter release];
+    __assetsFilter = [filter retain];
+    
+    // reload
+    [self reloadChildren];
+    
+}
+
+@end
+
+@implementation GCImagePickerController (ClassMethods)
 + (NSString *)localizedString:(NSString *)key {
     return [[NSBundle mainBundle] localizedStringForKey:key value:nil table:NSStringFromClass(self)];
 }
@@ -67,10 +154,6 @@
         [alert release];
     }
 }
-
-@end
-
-@implementation GCImagePickerController (utilities)
 + (NSString *)extensionForAssetRepresentation:(ALAssetRepresentation *)rep {
     NSString *UTI = [rep UTI];
     if (UTI == nil) {

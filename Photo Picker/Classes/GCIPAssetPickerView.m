@@ -56,6 +56,8 @@
         
         // thumbnail view
         imageView = [[UIImageView alloc] initWithImage:nil];
+        imageView.contentMode = UIViewContentModeScaleAspectFill;
+        imageView.clipsToBounds = YES;
         self.thumbnailView = imageView;
         [imageView release];
         

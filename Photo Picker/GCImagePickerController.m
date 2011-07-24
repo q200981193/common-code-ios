@@ -56,19 +56,7 @@
 
 #pragma mark - object methods
 - (id)initWithRootViewController:(UIViewController *)root {
-    if (GC_IS_IPAD) {
-        GCIPViewController_Pad *controller = [[GCIPViewController_Pad alloc] initWithNibName:nil bundle:nil];
-        controller.imagePickerController = self;
-        self = [super initWithRootViewController:controller];
-        [controller release];
-    }
-    else {
-        GCIPGroupPickerController *controller = [[GCIPGroupPickerController alloc] initWithNibName:nil bundle:nil];
-        controller.imagePickerController = self;
-        controller.groupPickerDelegate = self;
-        self = [super initWithRootViewController:controller];
-        [controller release];
-    }
+    self = [super initWithRootViewController:nil];
     if (self) {
         
         // create library
@@ -82,6 +70,21 @@
          selector:@selector(assetsLibraryDidChange:)
          name:ALAssetsLibraryChangedNotification
          object:self.assetsLibrary];
+        
+        // create views
+        if (GC_IS_IPAD) {
+            GCIPViewController_Pad *controller = [[GCIPViewController_Pad alloc] initWithImagePickerController:self];
+            [self pushViewController:controller animated:NO];
+            [self setNavigationBarHidden:YES animated:NO];
+            [controller release];
+        }
+        else {
+            GCIPGroupPickerController *controller = [[GCIPGroupPickerController alloc] initWithNibName:nil bundle:nil];
+            controller.imagePickerController = self;
+            controller.groupPickerDelegate = self;
+            [self pushViewController:controller animated:NO];
+            [controller release];
+        }
         
     }
     return self;
@@ -240,16 +243,29 @@
     }
     return [data autorelease];
 }
-+ (void)writeDataForAssetRepresentation:(ALAssetRepresentation *)rep toFile:(NSString *)path atomically:(BOOL)atomically {
++ (BOOL)writeDataForAssetRepresentation:(ALAssetRepresentation *)rep toFile:(NSString *)path atomically:(BOOL)atomically {
+    
+    // return if the file exists already
     if ([[NSFileManager defaultManager] fileExistsAtPath:path]) {
-        return;
+        return NO;
     }
+    
+    // get write path
 	NSString *writePath = path;
 	if (atomically) {
 		writePath = [NSTemporaryDirectory() stringByAppendingPathComponent:[path lastPathComponent]];
 	}
-	[[NSFileManager defaultManager] createFileAtPath:writePath contents:nil attributes:nil];
+    
+    // return if we cannot create a file handle
+    if (![[NSFileManager defaultManager] createFileAtPath:writePath contents:nil attributes:nil]) {
+        return NO;
+    }
+    
+    // create file handle and return if unsuccessful
 	NSFileHandle *handle = [NSFileHandle fileHandleForWritingAtPath:writePath];
+    if (!handle) { return NO; }
+    
+    // do writing
 	long long size = [rep size];
     long long offset = 0;
 	while (offset < size) {
@@ -260,7 +276,7 @@
             GC_LOG_NSERROR(error);
             [handle closeFile];
             [[NSFileManager defaultManager] removeItemAtPath:writePath error:nil];
-            return;
+            return NO;
         }
         NSData *toWrite = [[NSData alloc] initWithBytes:buffer length:written];
         [handle writeData:toWrite];
@@ -268,8 +284,17 @@
         offset += written;
 	}
 	[handle closeFile];
+    
+    // move file into place
 	if (atomically) {
-		[[NSFileManager defaultManager] moveItemAtPath:writePath toPath:path error:nil];
+		if (![[NSFileManager defaultManager] moveItemAtPath:writePath toPath:path error:nil]) {
+            [[NSFileManager defaultManager] removeItemAtPath:writePath error:nil];
+            return NO;
+        }
 	}
+    
+    // it worked!
+    return YES;
+    
 }
 @end

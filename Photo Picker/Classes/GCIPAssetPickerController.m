@@ -47,8 +47,6 @@
 
 @interface GCIPAssetPickerController (private)
 - (void)updateTitle;
-- (void)updateNumberOfColumnsForOrientation:(UIInterfaceOrientation)orientation;
-- (void)updateNumberOfColumns;
 @end
 
 @implementation GCIPAssetPickerController (private)
@@ -65,17 +63,6 @@
     else {
         self.title = self.groupName;
     }
-}
-- (void)updateNumberOfColumnsForOrientation:(UIInterfaceOrientation)orientation {
-    if (UIInterfaceOrientationIsPortrait(orientation)) {
-        self.numberOfColumns = (GC_IS_IPAD) ? 5 : 4;
-    }
-    else {
-        self.numberOfColumns = (GC_IS_IPAD) ? 5 : 6;
-    }
-}
-- (void)updateNumberOfColumns {
-    [self updateNumberOfColumnsForOrientation:self.interfaceOrientation];
 }
 @end
 
@@ -94,6 +81,7 @@
 - (id)initWithNibName:(NSString *)name bundle:(NSBundle *)bundle {
     self = [super initWithNibName:name bundle:bundle];
     if (self) {
+        self.numberOfColumns = (GC_IS_IPAD) ? 5 : 4;
         self.editing = NO;
     }
     return self;
@@ -163,9 +151,8 @@
     [super viewDidLoad];
     
     // table view
-    [self updateNumberOfColumns];
     self.tableView.separatorStyle = UITableViewCellSeparatorStyleNone;
-    self.tableView.rowHeight = (GC_IS_IPAD) ? 150.0 : 79.0;
+    self.tableView.rowHeight = (GC_IS_IPAD) ? 140.0 : 79.0;
     self.tableView.contentInset = UIEdgeInsetsMake(4.0, 0.0, 0.0, 0.0);
     self.tableView.contentOffset = CGPointMake(0.0, -4.0);
     UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc]
@@ -186,14 +173,6 @@
     [self.sheet dismissWithClickedButtonIndex:self.sheet.cancelButtonIndex animated:NO];
     self.editing = NO;
 }
-- (void)willRotateToInterfaceOrientation:(UIInterfaceOrientation)orientation duration:(NSTimeInterval)duration {
-    [self updateNumberOfColumnsForOrientation:orientation];
-    [self.tableView reloadData];
-}
-//- (void)willAnimateRotationToInterfaceOrientation:(UIInterfaceOrientation)orientation duration:(NSTimeInterval)duration {
-//    [self updateNumberOfColumns];
-//    [self.tableView reloadData];
-//}
 
 #pragma mark - button actions
 - (void)setEditing:(BOOL)editing animated:(BOOL)animated {

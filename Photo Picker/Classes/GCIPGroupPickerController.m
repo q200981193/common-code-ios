@@ -30,7 +30,7 @@
 
 @interface GCIPGroupPickerController ()
 @property (nonatomic, readwrite, copy) NSArray *groups;
-@property (nonatomic, retain) NSNumberFormatter *format;
+@property (nonatomic, retain) NSNumberFormatter *numberFormatter;
 @end
 
 @implementation GCIPGroupPickerController
@@ -38,24 +38,24 @@
 @synthesize groupPickerDelegate         = __pickerDelegate;
 @synthesize showDisclosureIndicators    = __showDisclosureIndicators;
 @synthesize groups                      = __groups;
-@synthesize format                      = __format;
+@synthesize numberFormatter             = __numberFormatter;
 
 #pragma mark - object methods
-- (id)initWithNibName:(NSString *)name bundle:(NSBundle *)bundle {
-    self = [super initWithNibName:name bundle:bundle];
+- (id)initWithImagePickerController:(GCImagePickerController *)controller {
+    self = [super initWithImagePickerController:controller];
     if (self) {
         self.title = [GCImagePickerController localizedString:@"PHOTO_LIBRARY"];
         self.showDisclosureIndicators = YES;
-        NSNumberFormatter *number = [[NSNumberFormatter alloc] init];
-        [number setNumberStyle:NSNumberFormatterDecimalStyle];
-        self.format = number;
-        [number release];
+        NSNumberFormatter *formatter = [[NSNumberFormatter alloc] init];
+        [formatter setNumberStyle:NSNumberFormatterDecimalStyle];
+        self.numberFormatter = formatter;
+        [formatter release];
     }
     return self;
 }
 - (void)dealloc {
     self.groups = nil;
-    self.format = nil;
+    self.numberFormatter = nil;
     [super dealloc];
 }
 - (void)reloadAssets {
@@ -125,7 +125,7 @@
 	cell.textLabel.text = [group valueForProperty:ALAssetsGroupPropertyName];
 	cell.imageView.image = [UIImage imageWithCGImage:[group posterImage]];
     NSNumber *count = [NSNumber numberWithInteger:[group numberOfAssets]];
-    cell.detailTextLabel.text = [self.format stringFromNumber:count];
+    cell.detailTextLabel.text = [self.numberFormatter stringFromNumber:count];
     return cell;
 }
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {

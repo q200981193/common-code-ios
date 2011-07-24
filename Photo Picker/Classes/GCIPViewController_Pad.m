@@ -30,7 +30,7 @@
 @interface GCIPViewController_Pad ()
 @property (nonatomic, retain) UIToolbar *toolbar;
 @property (nonatomic, retain) UIPopoverController *popover;
-@property (nonatomic, retain) UIViewController *masterViewController;
+@property (nonatomic, copy) NSArray *childViewControllers;
 @property (nonatomic, retain) GCIPAssetPickerController *assetPickerController;
 @property (nonatomic, retain) GCIPGroupPickerController *groupPickerController;
 @end
@@ -57,23 +57,25 @@
     [self layoutViewsForOrientation:self.interfaceOrientation];
 }
 - (void)layoutViewsForOrientation:(UIInterfaceOrientation)orientation {
+    UIViewController *left = [self.childViewControllers objectAtIndex:0];
+    UIViewController *right = [self.childViewControllers objectAtIndex:1];
     if (UIInterfaceOrientationIsPortrait(orientation)) {
-        self.masterViewController.view.frame = CGRectMake(-320.0, 0, 320.0, self.view.bounds.size.height);
-        self.toolbar.frame = CGRectMake(0, 0,
+        left.view.frame = CGRectMake(-320.0, 0, 320.0, self.view.bounds.size.height);
+        self.toolbar.frame = CGRectMake(0.0, 0.0,
                                         self.view.bounds.size.width,
                                         self.toolbar.bounds.size.height);
-        self.assetPickerController.view.frame = CGRectMake(0, self.toolbar.bounds.size.height,
-                                                           self.view.bounds.size.width,
-                                                           self.view.bounds.size.height - self.toolbar.bounds.size.height);
+        right.view.frame = CGRectMake(0.0, self.toolbar.bounds.size.height,
+                                      self.view.bounds.size.width,
+                                      self.view.bounds.size.height - self.toolbar.bounds.size.height);
     }
     else {
         CGFloat width = self.view.bounds.size.width - 321.0;
-        self.masterViewController.view.frame = CGRectMake(0, 0, 320.0, self.view.bounds.size.height);
+        left.view.frame = CGRectMake(0.0, 0.0, 320.0, self.view.bounds.size.height);
         self.toolbar.frame = CGRectMake(321.0, 0.0, width, self.toolbar.bounds.size.height);
-        self.assetPickerController.view.frame = CGRectMake(self.toolbar.frame.origin.x,
-                                                           self.toolbar.bounds.size.height,
-                                                           self.toolbar.bounds.size.width,
-                                                           self.view.bounds.size.height - self.toolbar.bounds.size.height);
+        right.view.frame = CGRectMake(self.toolbar.frame.origin.x,
+                                      self.toolbar.bounds.size.height,
+                                      self.toolbar.bounds.size.width,
+                                      self.view.bounds.size.height - self.toolbar.bounds.size.height);
     }
 }
 - (void)updateToolbarItems {
@@ -89,7 +91,7 @@
         
         // ...add popover button
         UIBarButtonItem *item = [[UIBarButtonItem alloc]
-                                 initWithTitle:self.masterViewController.title
+                                 initWithTitle:[[self.childViewControllers objectAtIndex:0] title]
                                  style:UIBarButtonItemStyleBordered 
                                  target:self
                                  action:@selector(popover:)];
@@ -139,29 +141,24 @@
 // local properties
 @synthesize toolbar                 = __toolbar;
 @synthesize popover                 = __popover;
-@synthesize masterViewController    = __masterViewController;
+@synthesize childViewControllers    = __childViewControllers;
 @synthesize assetPickerController   = __assetPickerController;
 @synthesize groupPickerController   = __groupPickerController;
 
 #pragma mark - object methods
-- (id)init {
-    self = [super init];
+- (id)initWithImagePickerController:(GCImagePickerController *)controller {
+    self = [super initWithImagePickerController:controller];
     if (self) {
         
         // create group picker controller
-        GCIPGroupPickerController *groupPicker = [[GCIPGroupPickerController alloc] initWithNibName:nil bundle:nil];
+        GCIPGroupPickerController *groupPicker = [[GCIPGroupPickerController alloc] initWithImagePickerController:controller];
         groupPicker.groupPickerDelegate = self;
-        groupPicker.imagePickerController = self.imagePickerController;
         groupPicker.showDisclosureIndicators = NO;
-        UINavigationController *nav = [[UINavigationController alloc] initWithRootViewController:groupPicker];
-        self.masterViewController = nav;
         self.groupPickerController = groupPicker;
-        [nav release];
         [groupPicker release];
         
         // create asset picker
-        GCIPAssetPickerController *assetPicker = [[GCIPAssetPickerController alloc] initWithNibName:nil bundle:nil];
-        assetPicker.imagePickerController = self.imagePickerController;
+        GCIPAssetPickerController *assetPicker = [[GCIPAssetPickerController alloc] initWithImagePickerController:controller];
         [assetPicker
          addObserver:self
          forKeyPath:@"navigationItem.leftBarButtonItem"
@@ -180,7 +177,14 @@
             [groupPicker setValue:self forKey:@"parentViewController"];
             [assetPicker setValue:self forKey:@"parentViewController"];
         }
-        @catch (NSException *exception) {}
+        @catch (NSException *exception) {
+            GC_LOG_ERROR(@"unable to set parent view controller\n%@", exception);
+        }
+        
+        // save child controllers
+        UINavigationController *nav = [[UINavigationController alloc] initWithRootViewController:self.groupPickerController];
+        self.childViewControllers = [NSArray arrayWithObjects:nav, self.assetPickerController, nil];
+        [nav release];
         
     }
     return self;
@@ -194,8 +198,7 @@
     [GCIPViewController_Pad dismissPopover:self.popover animated:NO];
     
     // clear view controllers
-    self.masterViewController = nil;
-    self.groupPickerController = nil;
+    self.childViewControllers = nil;
     [self.assetPickerController
      removeObserver:self
      forKeyPath:@"navigationItem.rightBarButtonItem"];
@@ -203,6 +206,7 @@
      removeObserver:self
      forKeyPath:@"navigationItem.leftBarButtonItem"];
     self.assetPickerController = nil;
+    self.groupPickerController = nil;
     
     // super
     [super dealloc];
@@ -225,9 +229,10 @@
     [toolbar release];
     
     // views
-    [self.view addSubview:self.masterViewController.view];
-    [self.view addSubview:self.assetPickerController.view];
     self.view.backgroundColor = [UIColor blackColor];
+    [self.childViewControllers enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+        [self.view addSubview:[(UIViewController *)obj view]];
+    }];
     
 }
 - (void)viewDidUnload {
@@ -236,66 +241,74 @@
 }
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
-    [self.masterViewController viewWillAppear:animated];
-    [self.assetPickerController viewWillAppear:animated];
+    [self.childViewControllers enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+        [(UIViewController *)obj viewWillAppear:animated];
+    }];
     [self layoutViews];
     [self updateToolbarItems];
 }
 - (void)viewDidAppear:(BOOL)animated {
     [super viewDidAppear:animated];
-    [self.masterViewController viewDidAppear:animated];
-    [self.assetPickerController viewDidAppear:animated];
+    [self.childViewControllers enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+        [(UIViewController *)obj viewDidAppear:animated];
+    }];
 }
 - (void)viewWillDisappear:(BOOL)animated {
     [super viewWillDisappear:animated];
-    [self.masterViewController viewWillDisappear:animated];
-    [self.assetPickerController viewWillDisappear:animated];
+    [self.childViewControllers enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+        [(UIViewController *)obj viewWillDisappear:animated];
+    }];
 }
 - (void)viewDidDisappear:(BOOL)animated {
     [super viewDidDisappear:animated];
-    [self.masterViewController viewDidDisappear:animated];
-    [self.assetPickerController viewDidDisappear:animated];
+    [self.childViewControllers enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+        [(UIViewController *)obj viewDidDisappear:animated];
+    }];
 }
 
 #pragma mark - view rotation
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)orientation {
-//    return GC_SHOULD_ALLOW_ORIENTATION(orientation);
-    return UIInterfaceOrientationIsLandscape(orientation);
+    return GC_SHOULD_ALLOW_ORIENTATION(orientation);
 }
 - (void)willRotateToInterfaceOrientation:(UIInterfaceOrientation)orientation duration:(NSTimeInterval)duration {
-    [self.masterViewController willRotateToInterfaceOrientation:orientation duration:duration];
-    [self.assetPickerController willRotateToInterfaceOrientation:orientation duration:duration];
+    [self.childViewControllers enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+        [(UIViewController *)obj willRotateToInterfaceOrientation:orientation duration:duration];
+    }];
     if (UIInterfaceOrientationIsPortrait(orientation) == UIInterfaceOrientationIsPortrait(self.interfaceOrientation)) {
         return;
     }
     if (UIInterfaceOrientationIsLandscape(orientation)) {
         [GCIPViewController_Pad dismissPopover:self.popover animated:NO];
-        [self.view addSubview:self.masterViewController.view];
     }
     [self updateToolbarItemsForOrientation:orientation];
 }
 - (void)willAnimateRotationToInterfaceOrientation:(UIInterfaceOrientation)orientation duration:(NSTimeInterval)duration {
-    [self.masterViewController willAnimateRotationToInterfaceOrientation:orientation duration:duration];
-    [self.assetPickerController willAnimateRotationToInterfaceOrientation:orientation duration:duration];
+    [self.childViewControllers enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+        [(UIViewController *)obj willAnimateRotationToInterfaceOrientation:orientation duration:duration];
+    }];
     [self layoutViewsForOrientation:orientation];
 }
 - (void)willAnimateFirstHalfOfRotationToInterfaceOrientation:(UIInterfaceOrientation)orientation duration:(NSTimeInterval)duration {
-    [self.masterViewController willAnimateFirstHalfOfRotationToInterfaceOrientation:orientation duration:duration];
-    [self.assetPickerController willAnimateFirstHalfOfRotationToInterfaceOrientation:orientation duration:duration];
+    [self.childViewControllers enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+        [(UIViewController *)obj willAnimateFirstHalfOfRotationToInterfaceOrientation:orientation duration:duration];
+    }];
 }
 - (void)willAnimateSecondHalfOfRotationFromInterfaceOrientation:(UIInterfaceOrientation)orientation duration:(NSTimeInterval)duration {
-    [self.masterViewController willAnimateSecondHalfOfRotationFromInterfaceOrientation:orientation duration:duration];
-    [self.assetPickerController willAnimateSecondHalfOfRotationFromInterfaceOrientation:orientation duration:duration];
+    [self.childViewControllers enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+        [(UIViewController *)obj willAnimateSecondHalfOfRotationFromInterfaceOrientation:orientation duration:duration];
+    }];
 }
 - (void)didRotateFromInterfaceOrientation:(UIInterfaceOrientation)orientation {
-    [self.masterViewController didRotateFromInterfaceOrientation:orientation];
-    [self.assetPickerController didRotateFromInterfaceOrientation:orientation];
+    [self.childViewControllers enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+        [(UIViewController *)obj didRotateFromInterfaceOrientation:orientation];
+    }];
 }
 
 #pragma mark - button actions
 - (void)popover:(UIBarButtonItem *)sender {
     if (!self.popover) {
-        UIPopoverController *popover = [[UIPopoverController alloc] initWithContentViewController:self.masterViewController];
+        UIViewController *controller = [self.childViewControllers objectAtIndex:0];
+        UIPopoverController *popover = [[UIPopoverController alloc] initWithContentViewController:controller];
         popover.delegate = self;
         [popover presentPopoverFromBarButtonItem:sender permittedArrowDirections:UIPopoverArrowDirectionAny animated:YES];
         self.popover = popover;
@@ -326,6 +339,9 @@
 - (void)popoverControllerDidDismissPopover:(UIPopoverController *)popover {
     if (popover == self.popover) {
         self.popover = nil;
+        UIViewController *controller = [self.childViewControllers objectAtIndex:0];
+        [self.view addSubview:controller.view];
+        [self layoutViews];
     }
 }
 

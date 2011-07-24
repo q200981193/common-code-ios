@@ -29,7 +29,7 @@
 
 @implementation GCIPAssetPickerCell
 
-@synthesize numberOfColumns     = __numberOfColumns;
+@synthesize numberOfColumns = __numberOfColumns;
 
 #pragma mark - object methods
 - (id)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)identifier {

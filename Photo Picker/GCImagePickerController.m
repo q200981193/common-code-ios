@@ -79,8 +79,7 @@
             [controller release];
         }
         else {
-            GCIPGroupPickerController *controller = [[GCIPGroupPickerController alloc] initWithNibName:nil bundle:nil];
-            controller.imagePickerController = self;
+            GCIPGroupPickerController *controller = [[GCIPGroupPickerController alloc] initWithImagePickerController:self];
             controller.groupPickerDelegate = self;
             [self pushViewController:controller animated:NO];
             [controller release];
@@ -110,9 +109,9 @@
 
 #pragma mark - group picker delegate
 - (void)groupPicker:(GCIPGroupPickerController *)groupPicker didSelectGroup:(ALAssetsGroup *)group {
-    GCIPAssetPickerController *assetPicker = [[GCIPAssetPickerController alloc] initWithNibName:nil bundle:nil];
+    GCImagePickerController *controller = groupPicker.imagePickerController;
+    GCIPAssetPickerController *assetPicker = [[GCIPAssetPickerController alloc] initWithImagePickerController:controller];
     assetPicker.groupIdentifier = [group valueForProperty:ALAssetsGroupPropertyPersistentID];
-    assetPicker.imagePickerController = groupPicker.imagePickerController;
     [self pushViewController:assetPicker animated:YES];
     [assetPicker release];
 }

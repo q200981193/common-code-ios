@@ -68,18 +68,18 @@
 
 @implementation GCIPAssetPickerController
 
-@synthesize allAssets               = __allAssets;
-@synthesize selectedAssetURLs       = __selectedAssets;
-@synthesize groupName               = __groupName;
-@synthesize groupIdentifier         = __groupIdentifier;
+@synthesize allAssets           = __allAssets;
+@synthesize selectedAssetURLs   = __selectedAssets;
+@synthesize groupName           = __groupName;
+@synthesize groupIdentifier     = __groupIdentifier;
 
-@synthesize sheet                   = __sheet;
-@synthesize recognizer              = __recognizer;
-@synthesize numberOfColumns         = __numberOfColumns;
+@synthesize sheet               = __sheet;
+@synthesize recognizer          = __recognizer;
+@synthesize numberOfColumns     = __numberOfColumns;
 
 #pragma mark - object methods
-- (id)initWithNibName:(NSString *)name bundle:(NSBundle *)bundle {
-    self = [super initWithNibName:name bundle:bundle];
+- (id)initWithImagePickerController:(GCImagePickerController *)controller {
+    self = [super initWithImagePickerController:controller];
     if (self) {
         self.numberOfColumns = (GC_IS_IPAD) ? 5 : 4;
         self.editing = NO;

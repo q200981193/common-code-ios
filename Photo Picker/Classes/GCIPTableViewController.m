@@ -26,16 +26,36 @@
 
 @implementation GCIPTableViewController
 
-@synthesize tableView   = __tableView;
-@synthesize imageView   = __imageView;
+@synthesize tableView = __tableView;
 
-- (id)initWithNibName:(NSString *)name bundle:(NSBundle *)bundle {
-    return [super initWithNibName:@"GCIPTableViewController" bundle:bundle];
+- (id)initWithImagePickerController:(GCImagePickerController *)controller {
+    return [super initWithImagePickerController:controller];
 }
 - (void)dealloc {
     self.tableView = nil;
-    self.imageView = nil;
     [super dealloc];
+}
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    
+    // image view
+    UIImage *image = [UIImage imageNamed:@"GCImagePickerControllerFilmRoll"];
+    UIImageView *imageView = [[UIImageView alloc] initWithImage:image];
+    imageView.frame = self.view.bounds;
+    imageView.autoresizingMask = (UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight);
+    imageView.contentMode = UIViewContentModeCenter;
+    [self.view addSubview:imageView];
+    [imageView release];
+    
+    // table view
+    UITableView *tableView = [[UITableView alloc] initWithFrame:self.view.bounds style:UITableViewStylePlain];
+    tableView.delegate = self;
+    tableView.dataSource = self;
+    tableView.autoresizingMask = (UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight);
+    [self.view addSubview:tableView];
+    self.tableView = tableView;
+    [tableView release];
+    
 }
 - (void)viewDidAppear:(BOOL)animated {
     [super viewDidAppear:animated];

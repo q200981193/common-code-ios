@@ -24,10 +24,21 @@
 
 #import "GCIPViewController.h"
 
+@interface GCIPViewController ()
+@property (nonatomic, readwrite, assign) GCImagePickerController *imagePickerController;
+@end
+
 @implementation GCIPViewController
 
 @synthesize imagePickerController = __imagePickerController;
 
+- (id)initWithImagePickerController:(GCImagePickerController *)controller {
+    self = [super initWithNibName:nil bundle:nil];
+    if (self) {
+        self.imagePickerController = controller;
+    }
+    return self;
+}
 - (void)reloadAssets {
     if ([self isViewLoaded]) {
         

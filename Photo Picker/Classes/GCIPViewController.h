@@ -38,7 +38,10 @@
 }
 
 // object for which we get data and listen for changes
-@property (nonatomic, assign) GCImagePickerController *imagePickerController;
+@property (nonatomic, readonly, assign) GCImagePickerController *imagePickerController;
+
+// designated initializer
+- (id)initWithImagePickerController:(GCImagePickerController *)controller;
 
 /*
  

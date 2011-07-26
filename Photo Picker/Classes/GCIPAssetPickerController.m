@@ -40,7 +40,6 @@
 
 // ui resources
 @property (nonatomic, retain) UIActionSheet *sheet;
-@property (nonatomic, retain) UITapGestureRecognizer *recognizer;
 @property (nonatomic, assign) NSUInteger numberOfColumns;
 
 @end
@@ -74,7 +73,6 @@
 @synthesize groupIdentifier     = __groupIdentifier;
 
 @synthesize sheet               = __sheet;
-@synthesize recognizer          = __recognizer;
 @synthesize numberOfColumns     = __numberOfColumns;
 
 #pragma mark - object methods
@@ -93,7 +91,6 @@
     self.groupIdentifier = nil;
     self.allAssets = nil;
     self.groupName = nil;
-    self.recognizer = nil;
     [self.sheet dismissWithClickedButtonIndex:self.sheet.cancelButtonIndex animated:NO];
     
     // super
@@ -105,6 +102,7 @@
     // no group
     if (!self.groupIdentifier) {
         self.allAssets = nil;
+        self.groupName = nil;
     }
     
     // view loaded
@@ -177,7 +175,6 @@
     [super viewDidUnload];
     self.allAssets = nil;
     self.groupName = nil;
-    self.recognizer = nil;
     [self.sheet dismissWithClickedButtonIndex:self.sheet.cancelButtonIndex animated:NO];
     self.editing = NO;
 }

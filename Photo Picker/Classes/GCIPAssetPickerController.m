@@ -101,7 +101,7 @@
     
 }
 - (void)reloadAssets {
-    if ([self isViewLoaded]) {
+    if ([self isViewLoaded] && self.groupIdentifier) {
         
         // load assets
         ALAssetsGroup *group = nil;
@@ -141,6 +141,7 @@
     
     // reload assets
     [self reloadAssets];
+    self.tableView.contentOffset = CGPointMake(0.0, -4.0);
     
 }
 

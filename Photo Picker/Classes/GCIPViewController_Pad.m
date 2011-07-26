@@ -152,6 +152,11 @@
         
         // create group picker controller
         GCIPGroupPickerController *groupPicker = [[GCIPGroupPickerController alloc] initWithImagePickerController:controller];
+        [groupPicker
+         addObserver:self
+         forKeyPath:@"groups"
+         options:0
+         context:0];
         groupPicker.groupPickerDelegate = self;
         groupPicker.showDisclosureIndicators = NO;
         self.groupPickerController = groupPicker;
@@ -206,6 +211,9 @@
      removeObserver:self
      forKeyPath:@"navigationItem.leftBarButtonItem"];
     self.assetPickerController = nil;
+    [self.groupPickerController
+     removeObserver:self
+     forKeyPath:@"groups"];
     self.groupPickerController = nil;
     
     // super
@@ -331,6 +339,17 @@
     // right button
     else if (object == self.assetPickerController && [keyPath isEqualToString:@"navigationItem.leftBarButtonItem"]) {
         [self updateToolbarItems];
+    }
+    
+    // groups
+    else if (object == self.groupPickerController && [keyPath isEqualToString:@"groups"]) {
+        if (!self.assetPickerController.groupIdentifier && [self.groupPickerController.groups count]) {
+            ALAssetsGroup *group = [self.groupPickerController.groups objectAtIndex:0];
+            [self groupPicker:self.groupPickerController didSelectGroup:group];
+        }
+        else if (![self.groupPickerController.groups count]) {
+            
+        }
     }
     
 }

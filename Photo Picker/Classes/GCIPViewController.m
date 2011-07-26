@@ -39,6 +39,10 @@
     }
     return self;
 }
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    self.view.backgroundColor = [UIColor whiteColor];
+}
 - (void)reloadAssets {
     if ([self isViewLoaded]) {
         

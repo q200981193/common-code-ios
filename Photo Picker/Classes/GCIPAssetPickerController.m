@@ -101,7 +101,14 @@
     
 }
 - (void)reloadAssets {
-    if ([self isViewLoaded] && self.groupIdentifier) {
+    
+    // no group
+    if (!self.groupIdentifier) {
+        self.allAssets = nil;
+    }
+    
+    // view loaded
+    else if ([self isViewLoaded]) {
         
         // load assets
         ALAssetsGroup *group = nil;
@@ -118,13 +125,13 @@
         // get group name
         self.groupName = [group valueForProperty:ALAssetsGroupPropertyName];
         
-        // table visibility
-        self.tableView.hidden = (![self.allAssets count]);
-        
-        // trigger a reload
-        self.editing = NO;
-        
     }
+    
+    // table visibility
+    self.tableView.hidden = (![self.allAssets count]);
+    
+    // trigger a reload
+    self.editing = NO;
 }
 
 #pragma mark - accessors

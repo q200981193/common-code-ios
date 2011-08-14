@@ -11,6 +11,10 @@
 #import "GCTextFieldCell.h"
 #import "GCSwitchCell.h"
 
+#ifdef GC_LOCATION_SERVICES
+#import "CLLocationManager+Singleton.h"
+#endif
+
 typedef void (^GCNotificationBlock)(NSNotification *);
 
 // foundation version numbers

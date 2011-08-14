@@ -22,6 +22,8 @@
  
  */
 
+#ifdef GC_LOCATION_SERVICES
+
 #import "CLLocationManager+Singleton.h"
 
 static CLLocationManager *gc_sharedManager;
@@ -50,3 +52,5 @@ static CLLocationManager *gc_sharedManager;
 }
 
 @end
+
+#endif

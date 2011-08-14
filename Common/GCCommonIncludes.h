@@ -17,6 +17,9 @@
 #ifdef GC_CORE_DATA
 #import "GCManagedObject.h"
 #endif
+#ifdef GC_SYSTEM_CONFIGURATION
+#import "GCReachability.h"
+#endif
 
 // foundation version numbers
 #ifndef NSFoundationVersionNumber_iOS_4_0

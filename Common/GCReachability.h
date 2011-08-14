@@ -6,6 +6,8 @@
 //  Copyright 2011 GUI Cocoa, LLC. All rights reserved.
 //
 
+#ifdef GC_SYSTEM_CONFIGURATION
+
 #import <Foundation/Foundation.h>
 #import <SystemConfiguration/SystemConfiguration.h>
 
@@ -23,15 +25,19 @@ extern NSString * const GCReachabilityDidChangeNotification;
 @interface GCReachability : NSObject {
 @private
     SCNetworkReachabilityRef reachability;
+    SCNetworkReachabilityFlags flags;
 }
 
-// use key value store
+// properties
+@property (atomic, readonly, assign) SCNetworkReachabilityFlags flags;
+@property (nonatomic, readonly, getter = isReachable) BOOL reachable;
+@property (nonatomic, readonly, getter = isReachableViaWiFi) BOOL reachableViaWiFi;
+@property (nonatomic, readonly, getter = isReachableViaWWAN) BOOL reachableViaWWAN;
+@property (nonatomic, readonly) GCReachabilityStatus status;
+
+// Get a reachability object
 + (GCReachability *)reachabilityForHost:(NSString *)host;
 
-// check reachability
-- (BOOL)isReachable;
-- (BOOL)isReachableViaWiFi;
-- (BOOL)isReachableViaWWAN;
-- (GCReachabilityStatus)reachabilityStatus;
-
 @end
+
+#endif

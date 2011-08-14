@@ -14,8 +14,9 @@
 #ifdef GC_LOCATION_SERVICES
 #import "CLLocationManager+Singleton.h"
 #endif
-
-typedef void (^GCNotificationBlock)(NSNotification *);
+#ifdef GC_CORE_DATA
+#import "GCManagedObject.h"
+#endif
 
 // foundation version numbers
 #ifndef NSFoundationVersionNumber_iOS_4_0

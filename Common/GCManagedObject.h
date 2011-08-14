@@ -6,6 +6,8 @@
 //  Copyright 2011 GUI Cocoa, LLC. All rights reserved.
 //
 
+#ifdef GC_CORE_DATA
+
 #import <CoreData/CoreData.h>
 
 @interface GCManagedObject : NSManagedObject {
@@ -32,3 +34,5 @@
 - (void)destroyAndSave;
 
 @end
+
+#endif

@@ -20,12 +20,12 @@ enum {
 typedef NSUInteger GCReachabilityStatus;
 
 // change notification name
-extern NSString * const GCReachabilityDidChangeNotification;
+extern NSString *GCReachabilityDidChangeNotification;
 
 @interface GCReachability : NSObject {
 @private
     SCNetworkReachabilityRef reachability;
-    SCNetworkReachabilityFlags flags;
+    SCNetworkReachabilityFlags __flags;
 }
 
 // properties

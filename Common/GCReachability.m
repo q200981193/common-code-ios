@@ -17,40 +17,17 @@ static NSMutableDictionary *reachabilityObjects = nil;
 #pragma mark - reachability callback
 void GCReachabilityDidChangeCallback(SCNetworkReachabilityRef target, SCNetworkReachabilityFlags flags, void *info);
 
-#pragma mark - private methods
+#pragma mark - interface
+@interface GCReachability ()
+@property (atomic, readwrite, assign) SCNetworkReachabilityFlags flags;
+@end
 @interface GCReachability (PrivateMethods)
 - (id)initWithHost:(NSString *)host;
 - (BOOL)startUpdatingReachability;
-- (void)stopUpdatingReachability;
-@end
-@implementation GCReachability (PrivateMethods)
-- (id)initWithHost:(NSString *)host {
-    self = [super init];
-    if (self) {
-        reachability = SCNetworkReachabilityCreateWithName(kCFAllocatorDefault, [host UTF8String]);
-        self.flags = 0;
-        [self startUpdatingReachability];
-    }
-    return self;
-}
-- (BOOL)startUpdatingReachability {
-    BOOL result = NO;
-    SCNetworkReachabilityContext context = {0, self, NULL, NULL, NULL};
-    if (SCNetworkReachabilitySetCallback(reachability, GCReachabilityDidChangeCallback, &context)) {
-        if (SCNetworkReachabilityScheduleWithRunLoop(reachability, CFRunLoopGetMain(), kCFRunLoopDefaultMode)) {
-            result = YES;
-        }
-    }
-    return result;
-}
-- (BOOL)stopUpdatingReachability {
-    BOOL loop = SCNetworkReachabilityUnscheduleFromRunLoop(reachability, CFRunLoopGetMain(), kCFRunLoopDefaultMode);
-    BOOL callback = SCNetworkReachabilitySetCallback(reachability, NULL, NULL);
-    return (loop && callback);
-}
+- (BOOL)stopUpdatingReachability;
 @end
 
-#pragma mark - public methods
+#pragma mark - implementation
 @implementation GCReachability
 
 @synthesize flags = __flags;
@@ -76,13 +53,13 @@ void GCReachabilityDidChangeCallback(SCNetworkReachabilityRef target, SCNetworkR
     [super dealloc];
 }
 - (BOOL)isReachable {
-    return ([self reachabilityStatus] != GCNotReachable);
+    return ([self status] != GCNotReachable);
 }
 - (BOOL)isReachableViaWiFi {
-    return ([self reachabilityStatus] == GCReachableViaWiFi);
+    return ([self status] == GCReachableViaWiFi);
 }
 - (BOOL)isReachableViaWWAN {
-    return ([self reachabilityStatus] == GCReachableViaWWAN);
+    return ([self status] == GCReachableViaWWAN);
 }
 - (GCReachabilityStatus)status {
     
@@ -109,6 +86,32 @@ void GCReachabilityDidChangeCallback(SCNetworkReachabilityRef target, SCNetworkR
     
 }
 
+@end
+@implementation GCReachability (PrivateMethods)
+- (id)initWithHost:(NSString *)host {
+    self = [super init];
+    if (self) {
+        reachability = SCNetworkReachabilityCreateWithName(kCFAllocatorDefault, [host UTF8String]);
+        self.flags = 0;
+        [self startUpdatingReachability];
+    }
+    return self;
+}
+- (BOOL)startUpdatingReachability {
+    BOOL result = NO;
+    SCNetworkReachabilityContext context = {0, self, NULL, NULL, NULL};
+    if (SCNetworkReachabilitySetCallback(reachability, GCReachabilityDidChangeCallback, &context)) {
+        if (SCNetworkReachabilityScheduleWithRunLoop(reachability, CFRunLoopGetMain(), kCFRunLoopDefaultMode)) {
+            result = YES;
+        }
+    }
+    return result;
+}
+- (BOOL)stopUpdatingReachability {
+    BOOL loop = SCNetworkReachabilityUnscheduleFromRunLoop(reachability, CFRunLoopGetMain(), kCFRunLoopDefaultMode);
+    BOOL callback = SCNetworkReachabilitySetCallback(reachability, NULL, NULL);
+    return (loop && callback);
+}
 @end
 
 #pragma mark - reachability callbak

@@ -72,13 +72,8 @@ void GCReachabilityDidChangeCallback(SCNetworkReachabilityRef target, SCNetworkR
     }
     
     // check WWAN
-    if (flags & kSCNetworkReachabilityFlagsIsWWAN) {
+    if ((flags & kSCNetworkReachabilityFlagsIsWWAN) != 0) {
         return GCReachableViaWWAN;
-    }
-    
-    // intervention required
-    if (flags & kSCNetworkReachabilityFlagsInterventionRequired) {
-        return GCNotReachable;
     }
     
     // return wifi

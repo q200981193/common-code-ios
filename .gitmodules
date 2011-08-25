@@ -1,0 +1,3 @@
+[submodule "alertview-blocks"]
+	path = alertview-blocks
+	url = http://github.com/guicocoa/alertview-blocks.git

@@ -6,7 +6,8 @@ This is the common code library created by GUI Cocoa, LLC. and is used in severa
 Clone:
 
     git clone https://github.com/guicocoa/common-code-ios.git
-  
-Submodule
+    
+Submodule:
 
     git submodule update --init --recursive
+    

@@ -7,3 +7,6 @@
 [submodule "table-cells"]
 	path = table-cells
 	url = https://github.com/guicocoa/table-cells.git
+[submodule "reachability"]
+	path = reachability
+	url = https://github.com/guicocoa/reachability.git

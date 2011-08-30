@@ -1,12 +1,7 @@
 [submodule "alertview-blocks"]
 	path = alertview-blocks
 	url = https://github.com/guicocoa/alertview-blocks.git
-[submodule "photopicker-ios"]
-	path = photopicker-ios
-	url = https://github.com/guicocoa/photopicker-ios.git
 [submodule "table-cells"]
 	path = table-cells
 	url = https://github.com/guicocoa/table-cells.git
-[submodule "reachability"]
-	path = reachability
-	url = https://github.com/guicocoa/reachability.git
+	

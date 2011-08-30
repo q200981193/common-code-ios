@@ -25,7 +25,7 @@
 #import <UIKit/UIKit.h>
 
 #ifndef __IPHONE_4_0
-#warning "This project uses features only available in iPhone SDK 4.0 and later."
+#error "This project uses features only available in iPhone SDK 4.0 and later."
 #endif
 
 @interface GCAlertView : UIAlertView <UIAlertViewDelegate> {

@@ -24,6 +24,10 @@
 
 #import "CLLocationManager+Singleton.h"
 
+#ifndef NSFoundationVersionNumber_iOS_4_2
+#define NSFoundationVersionNumber_iOS_4_2  751.49
+#endif
+
 static CLLocationManager *gc_sharedManager;
 
 @implementation CLLocationManager (Singleton)

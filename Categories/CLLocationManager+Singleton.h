@@ -25,6 +25,10 @@
 #import <Foundation/Foundation.h>
 #import <CoreLocation/CoreLocation.h>
 
+#ifndef __IPHONE_4_0
+#error "This project uses features only available in iPhone SDK 4.0 and later."
+#endif
+
 @interface CLLocationManager (Singleton)
 
 + (void)gc_setSharedManager:(CLLocationManager *)manager;

@@ -11,16 +11,6 @@
 #import "GCTextFieldCell.h"
 #import "GCSwitchCell.h"
 
-#ifdef GC_LOCATION_SERVICES
-#import "CLLocationManager+Singleton.h"
-#endif
-#ifdef GC_CORE_DATA
-#import "GCManagedObject.h"
-#endif
-#ifdef GC_SYSTEM_CONFIGURATION
-#import "GCReachability.h"
-#endif
-
 // foundation version numbers
 #ifndef NSFoundationVersionNumber_iOS_4_0
 #define NSFoundationVersionNumber_iOS_4_0  751.32

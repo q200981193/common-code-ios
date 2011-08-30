@@ -22,31 +22,14 @@
  
  */
 
-#import "CLLocationManager+Singleton.h"
+#import <UIKit/UIKit.h>
 
-static CLLocationManager *gc_sharedManager;
+@interface GCTextFieldCell : UITableViewCell {
+    
+}
 
-@implementation CLLocationManager (Singleton)
+@property (nonatomic, readonly) UITextField *textField;
 
-+ (void)gc_setSharedManager:(CLLocationManager *)manager {
-    [gc_sharedManager release];
-    gc_sharedManager = manager;
-    [gc_sharedManager retain];
-}
-+ (CLLocationManager *)gc_sharedManager {
-    return gc_sharedManager;
-}
-+ (BOOL)gc_areLocationServicesAvailable {
-    BOOL available = [CLLocationManager locationServicesEnabled];
-	if (NSFoundationVersionNumber >= NSFoundationVersionNumber_iOS_4_2) {
-		CLAuthorizationStatus status = [CLLocationManager authorizationStatus];
-		CLAuthorizationStatus unknown = kCLAuthorizationStatusNotDetermined;
-		CLAuthorizationStatus authorized = kCLAuthorizationStatusAuthorized;
-		return (available && (status == unknown || status == authorized));
-	}
-	else {
-		return available;
-	}
-}
+- (id)initWithReuseIdentifier:(NSString *)identifier;
 
 @end

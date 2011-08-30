@@ -22,8 +22,6 @@
  
  */
 
-#ifdef GC_LOCATION_SERVICES
-
 #import <Foundation/Foundation.h>
 #import <CoreLocation/CoreLocation.h>
 
@@ -34,5 +32,3 @@
 + (BOOL)gc_areLocationServicesAvailable;
 
 @end
-
-#endif

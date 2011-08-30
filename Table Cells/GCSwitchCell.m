@@ -22,31 +22,27 @@
  
  */
 
-#import "CLLocationManager+Singleton.h"
+#import "GCSwitchCell.h"
 
-static CLLocationManager *gc_sharedManager;
+@implementation GCSwitchCell
 
-@implementation CLLocationManager (Singleton)
+@synthesize cellSwitch = __cellSwitch;
 
-+ (void)gc_setSharedManager:(CLLocationManager *)manager {
-    [gc_sharedManager release];
-    gc_sharedManager = manager;
-    [gc_sharedManager retain];
-}
-+ (CLLocationManager *)gc_sharedManager {
-    return gc_sharedManager;
-}
-+ (BOOL)gc_areLocationServicesAvailable {
-    BOOL available = [CLLocationManager locationServicesEnabled];
-	if (NSFoundationVersionNumber >= NSFoundationVersionNumber_iOS_4_2) {
-		CLAuthorizationStatus status = [CLLocationManager authorizationStatus];
-		CLAuthorizationStatus unknown = kCLAuthorizationStatusNotDetermined;
-		CLAuthorizationStatus authorized = kCLAuthorizationStatusAuthorized;
-		return (available && (status == unknown || status == authorized));
+#pragma mark - object lifecycle
+- (id)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)identifier {
+	self = [super initWithStyle:style reuseIdentifier:identifier];
+	if (self) {
+		self.selectionStyle = UITableViewCellSelectionStyleNone;
+		self.accessoryType = UITableViewCellAccessoryNone;
+		__cellSwitch = [[UISwitch alloc] init];
+		self.accessoryView = self.cellSwitch;
 	}
-	else {
-		return available;
-	}
+	return self;
+}
+- (void)dealloc {
+    [__cellSwitch release];
+    __cellSwitch = nil;
+    [super dealloc];
 }
 
 @end

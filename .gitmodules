@@ -1,7 +1,0 @@
-[submodule "alertview-blocks"]
-	path = alertview-blocks
-	url = https://github.com/guicocoa/alertview-blocks.git
-[submodule "table-cells"]
-	path = table-cells
-	url = https://github.com/guicocoa/table-cells.git
-	

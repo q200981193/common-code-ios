@@ -27,7 +27,7 @@
 @interface NSUserDefaults (ByHost)
 
 // register
-- (void)gcregisterByHostDefaults:(NSDictionary *)defaults;
+- (void)registerByHostDefaults:(NSDictionary *)defaults;
 
 // remove values
 - (void)removeByHostObjectForKey:(NSString *)key;

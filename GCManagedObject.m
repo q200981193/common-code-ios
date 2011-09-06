@@ -8,21 +8,51 @@
 
 #import "GCManagedObject.h"
 
+static NSManagedObjectContext *__context = nil;
+
 @implementation GCManagedObject
 
-#pragma mark - entity description
-+ (NSEntityDescription *)entityDescriptionInContext:(NSManagedObjectContext *)context {
-    NSString *className = NSStringFromClass(self);
-    return [NSEntityDescription entityForName:className inManagedObjectContext:context];
+#pragma mark - default context
++ (void)setDefaultContext:(NSManagedObjectContext *)context {
+    @synchronized(self) {
+        [__context release];
+        __context = [context retain];
+    }
+}
++ (NSManagedObjectContext *)defaultContext {
+    @synchronized(self) {
+        return __context;
+    }    
 }
 
 #pragma mark - create objects
++ (id)instance {
+    return [self instanceInContext:[self defaultContext]];
+}
 + (id)instanceInContext:(NSManagedObjectContext *)context {
     NSString *className = NSStringFromClass(self);
     return [NSEntityDescription insertNewObjectForEntityForName:className inManagedObjectContext:context];
 }
 
 #pragma mark - find objects
++ (NSArray *)all {
+    return [self allInContext:[self defaultContext]];
+}
++ (NSArray *)allWithSortDescriptor:(NSSortDescriptor *)descriptor {
+    return [self allInContext:[self defaultContext] sortDescriptor:descriptor];
+}
++ (NSArray *)allWithSortDescriptors:(NSArray *)descriptors {
+    return [self allInContext:[self defaultContext] sortDescriptors:descriptors];
+}
++ (NSArray *)allWithPredicate:(NSPredicate *)predicate {
+    return [self allInContext:[self defaultContext] withPredicate:predicate];
+}
++ (NSArray *)allWithPredicate:(NSPredicate *)predicate sortDescriptor:(NSSortDescriptor *)descriptor {
+    return [self allInContext:[self defaultContext] withPredicate:predicate sortDescriptor:descriptor];
+}
++ (NSArray *)allWithPredicate:(NSPredicate *)predicate sortDescriptors:(NSArray *)descriptors {
+    return [self allInContext:[self defaultContext] withPredicate:predicate sortDescriptors:descriptors];    
+}
 + (NSArray *)allInContext:(NSManagedObjectContext *)context {
     return [self allInContext:context withPredicate:nil sortDescriptors:nil];
 }
@@ -55,6 +85,12 @@
 }
 
 #pragma mark - count objects
++ (NSUInteger)count {
+    return [self countInContext:[self defaultContext]];
+}
++ (NSUInteger)countWithPredicate:(NSPredicate *)predicate {
+    return [self countInContext:[self defaultContext] withPredicate:predicate];
+}
 + (NSUInteger)countInContext:(NSManagedObjectContext *)context {
     return [self countInContext:context withPredicate:nil];
 }
@@ -76,7 +112,7 @@
     NSManagedObjectContext *context = [self managedObjectContext];
     [context deleteObject:self];
 }
-- (void)destroyAndSave {
+- (void)destroyAndSaveContext {
     NSManagedObjectContext *context = [self managedObjectContext];
     [context deleteObject:self];
     [context save:nil];

@@ -10,6 +10,8 @@
 
 @interface GCManagedObject : NSManagedObject
 
+@property (nonatomic, retain) NSDate *createdAt;
+
 // default context
 + (void)setDefaultContext:(NSManagedObjectContext *)context;
 + (NSManagedObjectContext *)defaultContext;

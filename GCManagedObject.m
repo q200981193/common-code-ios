@@ -12,6 +12,8 @@ static NSManagedObjectContext *__context = nil;
 
 @implementation GCManagedObject
 
+@dynamic createdAt;
+
 #pragma mark - default context
 + (void)setDefaultContext:(NSManagedObjectContext *)context {
     @synchronized(self) {

@@ -111,13 +111,7 @@ static NSManagedObjectContext *__context = nil;
 
 #pragma mark delete objects
 - (void)destroy {
-    NSManagedObjectContext *context = [self managedObjectContext];
-    [context deleteObject:self];
-}
-- (void)destroyAndSaveContext {
-    NSManagedObjectContext *context = [self managedObjectContext];
-    [context deleteObject:self];
-    [context save:nil];
+    [[self managedObjectContext] deleteObject:self];
 }
 
 @end

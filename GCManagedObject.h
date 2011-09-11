@@ -48,6 +48,5 @@
 
 // delete object
 - (void)destroy;
-- (void)destroyAndSaveContext;
 
 @end

@@ -7,5 +7,6 @@ This is the common code library created by GUI Cocoa, LLC. and is used in severa
 - Block-based UIActionSheet subclass
 - CLLocationManager singleton category
 - Objective C reachability wrapper class
+- NSManagedObject subclass with lots of useful methods
 - Set of common UITableViewCell subclasses
 - Set of useful preprocessor macros

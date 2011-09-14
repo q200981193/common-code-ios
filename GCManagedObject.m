@@ -33,7 +33,9 @@ static NSManagedObjectContext *__context = nil;
 }
 + (id)instanceInContext:(NSManagedObjectContext *)context {
     NSString *className = NSStringFromClass(self);
-    return [NSEntityDescription insertNewObjectForEntityForName:className inManagedObjectContext:context];
+    id instance = [NSEntityDescription insertNewObjectForEntityForName:className inManagedObjectContext:context];
+    [(GCManagedObject *)instance setCreatedAt:[NSDate date]];
+    return instance;
 }
 
 #pragma mark - find objects

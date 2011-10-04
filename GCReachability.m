@@ -107,18 +107,24 @@ void GCReachabilityDidChangeCallback(SCNetworkReachabilityRef target, SCNetworkR
     // get flags
     SCNetworkReachabilityFlags flags = self.flags;
     
-    // check reachable in general
+    // check status
     if ((flags & kSCNetworkReachabilityFlagsReachable) == 0) {
         return GCNotReachable;
     }
-    
-    // check WWAN
-    if ((flags & kSCNetworkReachabilityFlagsIsWWAN) != 0) {
-        return GCReachableViaWWAN;
+    GCReachabilityStatus status = GCNotReachable;
+    if ((flags & kSCNetworkReachabilityFlagsConnectionRequired) == 0) {
+        status = GCReachableViaWiFi;
     }
-    
-    // return wifi
-    return GCReachableViaWiFi;
+    if (((flags & kSCNetworkReachabilityFlagsConnectionOnDemand) != 0) ||
+        ((flags & kSCNetworkReachabilityFlagsConnectionOnTraffic) != 0)) {
+        if ((flags & kSCNetworkReachabilityFlagsInterventionRequired) == 0) {
+            status = GCReachableViaWiFi;
+        }
+    }
+    if ((flags & kSCNetworkReachabilityFlagsIsWWAN) != 0) {
+		status = GCReachableViaWWAN;
+	}
+    return status;
     
 }
 - (void)addObserver:(id)observer selector:(SEL)selector {

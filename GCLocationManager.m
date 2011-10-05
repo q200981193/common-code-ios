@@ -22,7 +22,7 @@
  
  */
 
-#import "CLLocationManager+Singleton.h"
+#import "GCLocationManager.h"
 
 #ifndef __IPHONE_4_0
 #error "This class uses features only available in iPhone SDK 4.0 and later."

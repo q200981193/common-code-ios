@@ -25,7 +25,7 @@
 #import <Foundation/Foundation.h>
 #import <CoreLocation/CoreLocation.h>
 
-@interface GCLocationManager
+@interface GCLocationManager : CLLocationManager
 
 + (GCLocationManager *)sharedManager;
 + (BOOL)areLocationServicesAvailable;

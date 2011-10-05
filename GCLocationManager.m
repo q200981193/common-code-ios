@@ -32,7 +32,7 @@
 #define NSFoundationVersionNumber_iOS_4_2  751.49
 #endif
 
-@interface GCLocationManager
+@implementation GCLocationManager
 
 + (GCLocationManager *)sharedManager {
     static GCLocationManager *manager = nil;

@@ -65,12 +65,6 @@ static BOOL GCURLOperationShowNetworkActivityIndicator = YES;
     self = [super init];
     if (self) {
         
-        // check request
-        if (![NSURLConnection canHandleRequest:request]) {
-            [self release];
-            return nil;
-        }
-        
         // setup connection
         __connection = [[NSURLConnection alloc]
                         initWithRequest:request

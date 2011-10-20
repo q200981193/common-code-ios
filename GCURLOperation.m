@@ -22,8 +22,8 @@ static BOOL GCURLOperationShowNetworkActivityIndicator = YES;
 // implementation
 @implementation GCURLOperation
 
-@synthesize completionBlock = __completionBlock;
-@synthesize progressBlock = __progressBlock;
+@synthesize URLCompletionBlock = __URLCompletionBlock;
+@synthesize URLProgressBlock = __URLProgressBlock;
 @synthesize outputStream = __outputStream;
 
 #pragma mark - class methods
@@ -84,8 +84,8 @@ static BOOL GCURLOperationShowNetworkActivityIndicator = YES;
 }
 - (void)dealloc {
     
-    self.completionBlock = nil;
-    self.progressBlock = nil;
+    self.URLCompletionBlock = nil;
+    self.URLProgressBlock = nil;
     self.outputStream = nil;
     
     [__connection cancel];
@@ -150,7 +150,7 @@ static BOOL GCURLOperationShowNetworkActivityIndicator = YES;
 - (void)connection:(NSURLConnection *)connection didReceiveData:(NSData *)data {
     if (connection == __connection) {
         NSOutputStream *stream = self.outputStream;
-        GCURLOperationProgressBlock block = self.progressBlock;
+        GCURLOperationProgressBlock block = self.URLProgressBlock;
         if (stream) { [stream write:[data bytes] maxLength:[data length]]; }
         else { [__data appendData:data]; }
         if (block) {
@@ -160,7 +160,7 @@ static BOOL GCURLOperationShowNetworkActivityIndicator = YES;
 }
 - (void)connection:(NSURLConnection *)connection didSendBodyData:(NSInteger)bytesWritten totalBytesWritten:(NSInteger)totalBytesWritten totalBytesExpectedToWrite:(NSInteger)totalBytesExpectedToWrite {
     if (connection == __connection) {
-        GCURLOperationProgressBlock block = self.progressBlock;
+        GCURLOperationProgressBlock block = self.URLProgressBlock;
         if (block) {
             block((CGFloat)totalBytesWritten / (CGFloat)totalBytesExpectedToWrite);
         }
@@ -168,7 +168,7 @@ static BOOL GCURLOperationShowNetworkActivityIndicator = YES;
 }
 - (void)connection:(NSURLConnection *)connection didFailWithError:(NSError *)error {
     if (connection == __connection) {
-        GCURLOperationCompletionBlock block = self.completionBlock;
+        GCURLOperationCompletionBlock block = self.URLCompletionBlock;
         if (block) { block(__response, nil, error); }
         [GCURLOperation popNetworkActivity];
         [self willChangeValueForKey:@"isExecuting"];
@@ -181,7 +181,7 @@ static BOOL GCURLOperationShowNetworkActivityIndicator = YES;
 }
 - (void)connectionDidFinishLoading:(NSURLConnection *)connection {
     if (connection == __connection) {
-        GCURLOperationCompletionBlock block = self.completionBlock;
+        GCURLOperationCompletionBlock block = self.URLCompletionBlock;
         if (block) { block(__response, __data, nil); }
         [GCURLOperation popNetworkActivity];
         [self willChangeValueForKey:@"isExecuting"];

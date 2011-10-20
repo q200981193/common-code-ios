@@ -34,8 +34,8 @@ typedef void (^GCURLOperationProgressBlock) (float progress);
 /*
  Blocks for key events.
  */
-@property (copy) GCURLOperationCompletionBlock completionBlock;
-@property (copy) GCURLOperationProgressBlock progressBlock;
+@property (copy) GCURLOperationCompletionBlock URLCompletionBlock;
+@property (copy) GCURLOperationProgressBlock URLProgressBlock;
 
 /*
  Create operation with the given URL request. The request object will be coppied

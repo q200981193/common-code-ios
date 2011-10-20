@@ -171,6 +171,12 @@ static BOOL GCURLOperationShowNetworkActivityIndicator = YES;
         GCURLOperationCompletionBlock block = self.completionBlock;
         if (block) { block(__response, nil, error); }
         [GCURLOperation popNetworkActivity];
+        [self willChangeValueForKey:@"isExecuting"];
+        [self willChangeValueForKey:@"isFinished"];
+        finished = YES;
+        executing = YES;
+        [self didChangeValueForKey:@"isFinished"];
+        [self didChangeValueForKey:@"isExecuting"];
     }
 }
 - (void)connectionDidFinishLoading:(NSURLConnection *)connection {
@@ -178,6 +184,12 @@ static BOOL GCURLOperationShowNetworkActivityIndicator = YES;
         GCURLOperationCompletionBlock block = self.completionBlock;
         if (block) { block(__response, __data, nil); }
         [GCURLOperation popNetworkActivity];
+        [self willChangeValueForKey:@"isExecuting"];
+        [self willChangeValueForKey:@"isFinished"];
+        finished = YES;
+        executing = YES;
+        [self didChangeValueForKey:@"isFinished"];
+        [self didChangeValueForKey:@"isExecuting"];
     }
 }
 

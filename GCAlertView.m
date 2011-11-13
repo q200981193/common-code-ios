@@ -35,7 +35,7 @@ static NSString *GCAlertViewDidDismissKey = @"GCAlertViewDidDismissAction";
 
 @implementation GCAlertView
 
-@synthisize actions = __actions;
+@synthesize actions = __actions;
 
 - (id)initWithTitle:(NSString *)title message:(NSString *)message {
     self = [super initWithTitle:title message:message delegate:self cancelButtonTitle:nil otherButtonTitles:nil];

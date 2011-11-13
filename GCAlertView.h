@@ -28,10 +28,7 @@
 #error "This project uses features only available in iPhone SDK 4.0 and later."
 #endif
 
-@interface GCAlertView : UIAlertView <UIAlertViewDelegate> {
-@private
-    NSMutableDictionary *actions;
-}
+@interface GCAlertView : UIAlertView <UIAlertViewDelegate>
 
 // create an alert view
 - (id)initWithTitle:(NSString *)title message:(NSString *)message;

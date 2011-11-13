@@ -29,89 +29,95 @@ static NSString *GCAlertViewDidPresentKey = @"GCAlertViewDidPresentAction";
 static NSString *GCAlertViewWillDismissKey = @"GCAlertViewWillDismissAction";
 static NSString *GCAlertViewDidDismissKey = @"GCAlertViewDidDismissAction";
 
+@interface GCAlertView ()
+@property (nonatomic, retain) NSMutableDictionary *actions;
+@end
+
 @implementation GCAlertView
+
+@synthisize actions = __actions;
+
 - (id)initWithTitle:(NSString *)title message:(NSString *)message {
     self = [super initWithTitle:title message:message delegate:self cancelButtonTitle:nil otherButtonTitles:nil];
     if (self) {
-        actions = [[NSMutableDictionary alloc] init];
+        self.actions = [[[NSMutableDictionary alloc] init] autorelease];
     }
     return self;
 }
 - (void)dealloc {
-    [actions release];
-    actions = nil;
+    self.actions = nil;
     [super dealloc];
 }
 - (void)addButtonWithTitle:(NSString *)title block:(void (^) (void))block {
-    if ([actions objectForKey:title]) { return; }
+    if ([self.actions objectForKey:title]) { return; }
     [self addButtonWithTitle:title];
     if (block) {
         void (^action) () = Block_copy(block);
-        [actions setObject:action forKey:title];
+        [self.actions setObject:action forKey:title];
         Block_release(action);
     }
 }
 - (void)setWillPresentBlock:(void (^) (void))block {
     if (block) {
         void (^action) () = Block_copy(block);
-        [actions setObject:action forKey:GCAlertViewWillPresentKey];
+        [self.actions setObject:action forKey:GCAlertViewWillPresentKey];
         Block_release(action);
     }
     else {
-        [actions removeObjectForKey:GCAlertViewWillPresentKey];
+        [self.actions removeObjectForKey:GCAlertViewWillPresentKey];
     }
 }
 - (void)setDidPresentBlock:(void (^) (void))block {
     if (block) {
         void (^action) () = Block_copy(block);
-        [actions setObject:action forKey:GCAlertViewDidPresentKey];
+        [self.actions setObject:action forKey:GCAlertViewDidPresentKey];
         Block_release(action);
     }
     else {
-        [actions removeObjectForKey:GCAlertViewDidPresentKey];
+        [self.actions removeObjectForKey:GCAlertViewDidPresentKey];
     }
 }
 - (void)setWillDismissBlock:(void (^) (void))block {
     if (block) {
         void (^action) () = Block_copy(block);
-        [actions setObject:action forKey:GCAlertViewWillDismissKey];
+        [self.actions setObject:action forKey:GCAlertViewWillDismissKey];
         Block_release(action);
     }
     else {
-        [actions removeObjectForKey:GCAlertViewWillDismissKey];
+        [self.actions removeObjectForKey:GCAlertViewWillDismissKey];
     }
 }
 - (void)setDidDismissBlock:(void (^) (void))block {
     if (block) {
         void (^action) () = Block_copy(block);
-        [actions setObject:action forKey:GCAlertViewDidDismissKey];
+        [self.actions setObject:action forKey:GCAlertViewDidDismissKey];
         Block_release(action);
     }
     else {
-        [actions removeObjectForKey:GCAlertViewDidDismissKey];
+        [self.actions removeObjectForKey:GCAlertViewDidDismissKey];
     }
 }
 - (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex {
     if (buttonIndex >= 0 && buttonIndex < alertView.numberOfButtons) {
         NSString *title = [alertView buttonTitleAtIndex:buttonIndex];
-        void (^action) () = [actions objectForKey:title];
+        void (^action) () = [self.actions objectForKey:title];
         if (action) { action(); }
     }
 }
 - (void)willPresentAlertView:(UIAlertView *)alertView {
-    void (^action) () = [actions objectForKey:GCAlertViewWillPresentKey];
+    void (^action) () = [self.actions objectForKey:GCAlertViewWillPresentKey];
     if (action) { action(); }
 }
 - (void)didPresentAlertView:(UIAlertView *)alertView {
-    void (^action) () = [actions objectForKey:GCAlertViewDidPresentKey];
+    void (^action) () = [self.actions objectForKey:GCAlertViewDidPresentKey];
     if (action) { action(); }
 }
 - (void)alertView:(UIAlertView *)alertView willDismissWithButtonIndex:(NSInteger)buttonIndex {
-    void (^action) () = [actions objectForKey:GCAlertViewWillDismissKey];
+    void (^action) () = [self.actions objectForKey:GCAlertViewWillDismissKey];
     if (action) { action(); }
 }
 - (void)alertView:(UIAlertView *)alertView didDismissWithButtonIndex:(NSInteger)buttonIndex {
-    void (^action) () = [actions objectForKey:GCAlertViewDidDismissKey];
+    void (^action) () = [self.actions objectForKey:GCAlertViewDidDismissKey];
     if (action) { action(); }
 }
 

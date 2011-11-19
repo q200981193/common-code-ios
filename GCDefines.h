@@ -14,13 +14,13 @@
 #define GC_IS_IPAD (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad)
 
 // utility macros
-#define GC_REVIEW_URL(id) [NSURL URLWithString:[NSString stringWithFormat:@"http://itunes.apple.com/WebObjects/MZStore.woa/wa/viewContentsUserReviews?id=%@&pageNumber=0&sortOrdering=4&type=Purple+Software&mt=8", id]]
+#define GC_APP_REVIEW_URL(id) [NSURL URLWithString:[NSString stringWithFormat:@"http://itunes.apple.com/WebObjects/MZStore.woa/wa/viewContentsUserReviews?id=%@&pageNumber=0&sortOrdering=4&type=Purple+Software&mt=8", id]]
 
 // custom logging
 #define __GC_LOG(fmt, args...) NSLog(@"%s " fmt, __PRETTY_FUNCTION__, ##args)
 #define GC_LOG_ERROR(fmt, args...) __GC_LOG(fmt, ##args)
 #define GC_LOG_NSERROR(error) __GC_LOG(@"%@", error)
-#ifdef DEBUG
+#if defined(DEVELOPMENT) || defined(TESTING) || defined(DEBUG)
     #define GC_LOG_INFO(fmt, args...) __GC_LOG(fmt, ##args)
 #else
     #define GC_LOG_INFO(fmt, args...)

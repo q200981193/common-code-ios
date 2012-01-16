@@ -1,10 +1,26 @@
-//
-//  GCManagedObject.m
-//  GUI Cocoa Common Code Library for iOS
-//
-//  Created by Caleb Davenport on 3/10/11.
-//  Copyright 2011 GUI Cocoa, LLC. All rights reserved.
-//
+/*
+ 
+ Copyright (C) 2011 GUI Cocoa, LLC.
+ 
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights
+ to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ copies of the Software, and to permit persons to whom the Software is
+ furnished to do so, subject to the following conditions:
+ 
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
+ 
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+ 
+ */
 
 #import "GCManagedObject.h"
 
@@ -27,15 +43,32 @@ static NSManagedObjectContext *__context = nil;
     }    
 }
 
+#pragma mark - custom model name
++ (NSString *)modelName {
+  return NSStringFromClass(self);
+}
+
 #pragma mark - create objects
 + (id)instance {
     return [self instanceInContext:[self defaultContext]];
 }
 + (id)instanceInContext:(NSManagedObjectContext *)context {
-    NSString *className = NSStringFromClass(self);
-    id instance = [NSEntityDescription insertNewObjectForEntityForName:className inManagedObjectContext:context];
+    NSString *name = [self modelName];
+    id instance = [NSEntityDescription insertNewObjectForEntityForName:name inManagedObjectContext:context];
     [(GCManagedObject *)instance setCreatedAt:[NSDate date]];
     return instance;
+}
+
+#pragma mark - fetch request
++ (NSFetchRequest *)fetchRequest {
+    return [self fetchRequestInContext:[self defaultContext]];
+}
++ (NSFetchRequest *)fetchRequestInContext:(NSManagedObjectContext *)context {
+    NSString *name = [self modelName];
+    NSEntityDescription *entity = [NSEntityDescription entityForName:name inManagedObjectContext:context];
+    NSFetchRequest *request = [[NSFetchRequest alloc] init];
+    [request setEntity:entity];
+    return [request autorelease];
 }
 
 #pragma mark - find objects
@@ -73,19 +106,14 @@ static NSManagedObjectContext *__context = nil;
     return [self allInContext:context withPredicate:predicate sortDescriptors:[NSArray arrayWithObject:descriptor]];
 }
 + (NSArray *)allInContext:(NSManagedObjectContext *)context withPredicate:(NSPredicate *)predicate sortDescriptors:(NSArray *)descriptors {
-    NSString *className = NSStringFromClass(self);
-    NSEntityDescription *entity = [NSEntityDescription entityForName:className inManagedObjectContext:context];
-    NSFetchRequest *request = [[NSFetchRequest alloc] init];
-    [request setEntity:entity];
+    NSFetchRequest *request = [self fetchRequestInContext:context];
     if (descriptors) {
         [request setSortDescriptors:descriptors];
     }
     if (predicate) {
         [request setPredicate:predicate];
     }
-    NSArray *matching = [context executeFetchRequest:request error:nil];
-    [request release];
-    return matching;
+    return [context executeFetchRequest:request error:nil];
 }
 
 #pragma mark - count objects
@@ -99,21 +127,11 @@ static NSManagedObjectContext *__context = nil;
     return [self countInContext:context withPredicate:nil];
 }
 + (NSUInteger)countInContext:(NSManagedObjectContext *)context withPredicate:(NSPredicate *)predicate {
-    NSString *className = NSStringFromClass(self);
-    NSEntityDescription *entity = [NSEntityDescription entityForName:className inManagedObjectContext:context];
-    NSFetchRequest *request = [[NSFetchRequest alloc] init];
-    [request setEntity:entity];
+    NSFetchRequest *request = [self fetchRequestInContext:context];
     if (predicate) {
         [request setPredicate:predicate];
     }
-    NSUInteger count = [context countForFetchRequest:request error:nil];
-    [request release];
-    return count;
-}
-
-#pragma mark delete objects
-- (void)destroy {
-    [[self managedObjectContext] deleteObject:self];
+    return [context countForFetchRequest:request error:nil];
 }
 
 @end

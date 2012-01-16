@@ -24,11 +24,9 @@
 
 #import <UIKit/UIKit.h>
 
-@interface GCTextFieldCell : UITableViewCell {
-    
-}
+@interface GCTextFieldCell : UITableViewCell
 
-@property (nonatomic, readonly) UITextField *textField;
+@property (nonatomic, retain) UITextField *textField;
 
 - (id)initWithReuseIdentifier:(NSString *)identifier;
 

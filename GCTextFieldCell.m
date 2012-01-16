@@ -34,16 +34,17 @@
 	if (self) {
         
 		// setup text field
-        __textField = [[UITextField alloc] init];
-        __textField.backgroundColor = [UIColor clearColor];
-		__textField.opaque = YES;
-		__textField.contentVerticalAlignment = UIControlContentVerticalAlignmentCenter;
-		__textField.clearButtonMode = UITextFieldViewModeWhileEditing;
-		__textField.font = [UIFont systemFontOfSize:[UIFont labelFontSize]];
-		__textField.textAlignment = UITextAlignmentLeft;
-		__textField.autocapitalizationType = UITextAutocapitalizationTypeWords;
-		__textField.autocorrectionType = UITextAutocorrectionTypeDefault;
-		[self.contentView addSubview:__textField];
+        UITextField *field = [[[UITextField alloc] initWithFrame:CGRectZero] autorelease];
+        field.backgroundColor = [UIColor clearColor];
+		field.opaque = YES;
+		field.contentVerticalAlignment = UIControlContentVerticalAlignmentCenter;
+		field.clearButtonMode = UITextFieldViewModeWhileEditing;
+		field.font = [UIFont systemFontOfSize:[UIFont labelFontSize]];
+		field.textAlignment = UITextAlignmentLeft;
+		field.autocapitalizationType = UITextAutocapitalizationTypeWords;
+		field.autocorrectionType = UITextAutocorrectionTypeDefault;
+		[self.contentView addSubview:field];
+        self.textField = field;
         
 		// setup self
 		self.selectionStyle = UITableViewCellSelectionStyleNone;
@@ -54,25 +55,19 @@
 	return self;
 }
 - (void)dealloc {
-    [__textField release];
-    __textField = nil;
+    self.textField = nil;
     [super dealloc];
 }
 
 #pragma mark - layout
 - (void)layoutSubviews {
-    
-#define kSideOffset 10
-    
 	[super layoutSubviews];
-	
 	CGRect content = self.contentView.bounds;
 	CGRect rect;
-	
 	if ([self.textLabel.text length]) {
 		
 		// field width
-		CGFloat fieldWidth = floor(content.size.width * 0.5 - kSideOffset * 0.5);
+		CGFloat fieldWidth = floor(content.size.width * 0.5 - 10.0 * 0.5);
 		if (self.textField.textAlignment == UITextAlignmentRight) {
 			fieldWidth -= 2.0;
 		}
@@ -88,8 +83,8 @@
 		
 	}
 	else {
-		rect = CGRectMake(kSideOffset, 0,
-						  content.size.width - kSideOffset - kSideOffset * 0.5,
+		rect = CGRectMake(10.0, 0,
+						  content.size.width - 10.0 - 10.0 * 0.5,
 						  content.size.height);
 		self.textField.frame = rect;
 	}

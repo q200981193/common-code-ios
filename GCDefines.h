@@ -1,27 +1,34 @@
-//
-//  GCCommonIncludes.h
-//  GUI Cocoa Common Code Library for iOS
-//
-//  Created by Caleb Davenport on 3/10/11.
-//  Copyright 2011 GUI Cocoa, LLC. All rights reserved.
-//
-
-// default orientation support
-#define GC_SHOULD_ALLOW_ORIENTATION(orientation) \
-    (GC_IS_IPAD) ? YES : (orientation == UIInterfaceOrientationPortrait);
-
-// macro to determine if platform is ipad
-#define GC_IS_IPAD (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad)
+/*
+ 
+ Copyright (C) 2011 GUI Cocoa, LLC.
+ 
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights
+ to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ copies of the Software, and to permit persons to whom the Software is
+ furnished to do so, subject to the following conditions:
+ 
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
+ 
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+ 
+ */
 
 // utility macros
 #define GC_APP_REVIEW_URL(id) [NSURL URLWithString:[NSString stringWithFormat:@"http://itunes.apple.com/WebObjects/MZStore.woa/wa/viewContentsUserReviews?id=%@&pageNumber=0&sortOrdering=4&type=Purple+Software&mt=8", id]]
 
 // custom logging
-#define __GC_LOG(fmt, args...) NSLog(@"%s " fmt, __PRETTY_FUNCTION__, ##args)
-#define GC_LOG_ERROR(fmt, args...) __GC_LOG(fmt, ##args)
-#define GC_LOG_NSERROR(error) __GC_LOG(@"%@", error)
-#if defined(DEVELOPMENT) || defined(TESTING) || defined(DEBUG)
-    #define GC_LOG_INFO(fmt, args...) __GC_LOG(fmt, ##args)
+#define GCLog(fmt, args...) NSLog(fmt, ##args)
+#if defined(TEST) || defined(DEVELOPMENT) || defined(DEBUG)
+    #define GCDebugLog(fmt, args...) GCLog(fmt, ##args)
 #else
-    #define GC_LOG_INFO(fmt, args...)
+    #define GCDebugLog(fmt, args...)
 #endif

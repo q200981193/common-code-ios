@@ -38,7 +38,6 @@ typedef NSUInteger GCReachabilityStatus;
 @private
     SCNetworkReachabilityRef reachability;
     SCNetworkReachabilityFlags __flags;
-    NSUInteger __notifyCount;
 }
 
 // properties
@@ -48,20 +47,19 @@ typedef NSUInteger GCReachabilityStatus;
 @property (nonatomic, readonly, getter = isReachableViaWWAN) BOOL reachableViaWWAN;
 @property (nonatomic, readonly) GCReachabilityStatus status;
 
-// Get a reachability object
+/*
+ Get a reachability object.
+ */
 + (GCReachability *)reachabilityForHost:(NSString *)host;
 
 /*
- Register the given observer for notifications about reachability changes. If
- this is the first observer to register, the receiver will automatically begin
- posting notifications.
+ Register the given observer for notifications about reachability changes.
+ These notifications are posted using NSNotificationCenter on the main thread.
  */
 - (void)addObserver:(id)observer selector:(SEL)selector;
 
 /*
- Remove the given observer from the notification dispatch table. If this is the
- last observer to unregister, the receiver will automatically stop posting
- notifications.
+ Remove the given observer from the notification dispatch table.
  */
 - (void)removeObserver:(id)observer;
 

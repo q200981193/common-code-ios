@@ -25,13 +25,16 @@
 #import "GCReachability.h"
 
 #pragma mark - class resources
+
 static NSString *GCReachabilityDidChangeNotification = @"GCReachabilityDidChange";
 static NSMutableDictionary *reachabilityObjects = nil;
 
 #pragma mark - reachability callback
+
 void GCReachabilityDidChangeCallback(SCNetworkReachabilityRef target, SCNetworkReachabilityFlags flags, void *info);
 
-#pragma mark - inner interface
+#pragma mark - private interface
+
 @interface GCReachability ()
 @property (readwrite, assign) SCNetworkReachabilityFlags flags;
 - (id)initWithHost:(NSString *)host;
@@ -40,11 +43,13 @@ void GCReachabilityDidChangeCallback(SCNetworkReachabilityRef target, SCNetworkR
 @end
 
 #pragma mark - implementation
+
 @implementation GCReachability
 
 @synthesize flags = __flags;
 
 #pragma mark - class methods
+
 + (void)initialize {
     if (self == [GCReachability class]) {
         reachabilityObjects = [[NSMutableDictionary alloc] initWithCapacity:1];
@@ -61,12 +66,17 @@ void GCReachabilityDidChangeCallback(SCNetworkReachabilityRef target, SCNetworkR
 }
 
 #pragma mark - object methods
+
 - (id)initWithHost:(NSString *)host {
     self = [super init];
     if (self) {
         reachability = SCNetworkReachabilityCreateWithName(kCFAllocatorDefault, [host UTF8String]);
         self.flags = 0;
-        __notifyCount = 0;
+        if (![self startUpdatingReachability]) {
+            NSLog(@"[%@] Unable start updating reachability for host %@",
+                  NSStringFromClass([self class]),
+                  host);
+        }
     }
     return self;
 }
@@ -128,36 +138,23 @@ void GCReachabilityDidChangeCallback(SCNetworkReachabilityRef target, SCNetworkR
     
 }
 - (void)addObserver:(id)observer selector:(SEL)selector {
-    @synchronized(self) {
-        [[NSNotificationCenter defaultCenter]
-         addObserver:observer
-         selector:selector
-         name:GCReachabilityDidChangeNotification
-         object:self];
-        __notifyCount++;
-        if (__notifyCount == 1) {
-            [self startUpdatingReachability];
-        }
-    }
+    [[NSNotificationCenter defaultCenter]
+     addObserver:observer
+     selector:selector
+     name:GCReachabilityDidChangeNotification
+     object:self];
 }
 - (void)removeObserver:(id)observer {
-    @synchronized(self) {
-        [[NSNotificationCenter defaultCenter]
-         removeObserver:observer
-         name:GCReachabilityDidChangeNotification
-         object:self];
-        if (__notifyCount > 0) {
-            __notifyCount--;
-            if (__notifyCount == 0) {
-                [self stopUpdatingReachability];
-            }
-        }
-    }
+    [[NSNotificationCenter defaultCenter]
+     removeObserver:observer
+     name:GCReachabilityDidChangeNotification
+     object:self];
 }
 
 @end
 
 #pragma mark - reachability callbak
+
 void GCReachabilityDidChangeCallback(SCNetworkReachabilityRef target, SCNetworkReachabilityFlags flags, void *info) {
     GCReachability *reachability = (GCReachability *)info;
     reachability.flags = flags;
